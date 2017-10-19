@@ -1,0 +1,101 @@
+\documentclass[12pt]{article}
+
+\usepackage[textwidth=528pt]{geometry}
+
+	\title{\textbf{Game design FP, Grand Theft Auto I}}
+	\date{\today}
+	\author{Kevin Wilbrink (6310621) and Jordi Wippert (6303013)}
+
+\begin{document}
+
+	\maketitle
+
+	\section{Description}
+	For the course Functional Programming, we want to develop a simplified clone of Grand Theft Auto I (originally released in 1998). In an open world, a player can walk or drive a car freely. However, the player won't be alone. Cars and other people will spawn at random and walk and drive acros the sidewalk or road respectively. The drivers of the random cars aren't friendly drivers, they'll drive you over when they can. So be careful!\\
+	A player can also steal cars or enter other cars and earn points for it. Other ways of earning points is creating a collission with a random person or car. If the player want, it's possible to take a gun and damage cars or kill people. This will also earn you some points.
+
+	\section{Minimal requirements}
+	\begin{itemize}
+		\item Player
+			\begin{itemize}
+				\item The player can move using the arrow keys (left, right, up, down)
+				\item The player can enter/exit vehicles
+				\item Earn points on collision (human or car), shooting or stealing a car
+				\item The player can hold and fire guns
+			\end{itemize}
+		\item Enemies
+			\begin{itemize}
+				\item Cars won't stop, they'll run over you when they can
+			\end{itemize}
+		\item Randomness
+			\begin{itemize}
+				\item Cars will spawn at random
+				\item People will spawn at random
+			\end{itemize}
+		\item Animation
+			\begin{itemize}
+				\item Walk and drive
+				\item Broken cars
+				\item Gun shots
+			\end{itemize}
+		\item Pause
+			\begin{itemize}
+				\item The player can pause the game using the P-key
+			\end{itemize}
+		\item Interaction with the file system
+			\begin{itemize}
+				\item World will be loaded from files
+				\item File locations of sprites
+				\item High score and player name
+			\end{itemize}
+	\end{itemize}
+
+	\section{Optional requirements}
+	\begin{itemize}
+		\item Use JSON to save information
+			\begin{itemize}
+				\item Same as \textbf{interaction with the file system}, we'll use the file system to store information in JSON-format 
+			\end{itemize}
+	\end{itemize}
+
+	\section{Data classes}
+	In this section are some data types with their needed functions.
+	\begin{itemize}
+		\item World
+			\begin{itemize}				
+				\item \textbf{readWorld}:\quad Reading a world from a JSON-file
+				\item \textbf{loadWorld}:\quad Loading a world from the function \textbf{readWorld}
+			\end{itemize}
+		\item State
+			\begin{itemize}				
+				\item \textbf{world}:\quad Contain information about the world and it's state
+				\item \textbf{player}:\quad Contain information about the player and it's state
+			\end{itemize}
+		\item Player
+			\begin{itemize}				
+				\item \textbf{sprite}:\quad Since we have different sprites, we want to know which sprite to display/load
+				\item \textbf{position}:\quad Contain the X, Y and Z position, where Z is the current direction
+				\item \textbf{move}:\quad Handle key input and update \textbf{position} of the player
+				\item \textbf{shoot}:\quad Based on key input, fire a gun
+			\end{itemize}
+		\item Car
+			\begin{itemize}				
+				\item \textbf{sprite}:\quad Since we have different sprites, we want to know which sprite to display/load
+				\item \textbf{position}:\quad Contain the X, Y and Z position, where Z is the current direction
+			\end{itemize}
+		\item Person
+			\begin{itemize}				
+				\item \textbf{sprite}:\quad Since we have different sprites, we want to know which sprite to display/load
+				\item \textbf{position}:\quad Contain the X, Y and Z position, where Z is the current direction
+			\end{itemize}
+		\item Advance
+			\begin{itemize}				
+				\item \textbf{traffic}:\quad Look up all cars and move them to the next position
+				\item \textbf{people}:\quad Look up all people and move them to the next position, like the \textbf{traffic} function
+				\item \textbf{spawn}:\quad Spawn new car(s) or (a) person(s)
+				\item \textbf{points}:\quad Determine if the player has gained some points
+				\item \textbf{display}:\quad Build new image to display based on the current state of cars and persons
+			\end{itemize}
+	\end{itemize}
+
+\end{document}
