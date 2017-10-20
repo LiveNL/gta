@@ -11,7 +11,7 @@
 	\maketitle
 
 	\section{Description}
-	For the course Functional Programming, we want to develop a simplified clone of Grand Theft Auto I (originally released in 1998). In an open world, a player can walk or drive a car freely. However, the player won't be alone. Cars and other people will spawn at random and walk and drive acros the sidewalk or road respectively. The drivers of the random cars aren't friendly drivers, they'll drive you over. So be careful!\\
+	For the course Functional Programming, we want to develop a simplified clone of Grand Theft Auto I (originally released in 1998). In an open world, a player can walk or drive a car freely. However, the player won't be alone. Cars and other people will spawn at random and walk and drive across the sidewalk or road respectively. The drivers of the random cars aren't friendly drivers, they'll drive you over. So be careful!\\
 	A player can also enter other cars and earn points for it. Other ways of earning points is damaging a random person or car. If the player wants, it's possible to use a gun and to damage cars or kill people. This will also earn you some points.
 
 	\section{Minimal requirements}
@@ -54,7 +54,7 @@
 	\begin{itemize}
 		\item Use JSON to save information
 			\begin{itemize}
-				\item Same as \textbf{interaction with the file system}, we'll use the file system to store information in JSON-format 
+				\item Same as the \textbf{interaction with the file system}, we'll use the file system to store information in JSON-format 
 			\end{itemize}
 	\end{itemize}
 
@@ -68,7 +68,7 @@
 			\end{itemize}
 		\item State
 			\begin{itemize}				
-				\item \textbf{world}:\quad Contain information about the world and its state
+				\item \textbf{world}:\quad Contains information about the world and its state
 					\begin{itemize}				
 						\item \textbf{traffic}:\quad Look up all cars and move them to the next position
 						\item \textbf{people}:\quad Look up all people and move them to the next position, like the \textbf{traffic} function
@@ -76,7 +76,7 @@
 						\item \textbf{points}:\quad Determine if the player has gained some points
 						\item \textbf{display}:\quad Build new image to display based on the current state of cars and persons
 					\end{itemize}
-				\item \textbf{player}:\quad Contain information about the player and its state
+				\item \textbf{player}:\quad Contains information about the player and its state
 			\end{itemize}
 		\item Player
 			\begin{itemize}				
