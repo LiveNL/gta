@@ -6,22 +6,18 @@ import Data.Maybe
 import Debug.Trace
 
 -- Data types
-data GTA = Game 
-  { player :: Player
-  }
+data GTA = Game
+  { player :: Player }
   deriving Show
 
 data Position = Position
   { x :: Float,
     y :: Float,
-    z :: Float
-  }
+    z :: Float }
   deriving Show
 
 data Player = Player
-  {
-    position :: Position
-  }
+  { position :: Position }
   deriving Show
 
 -- Variables
@@ -38,13 +34,13 @@ window :: Display
 window = InWindow "GTA" (width, height) (offset, offset)
 
 initialState :: GTA
-initialState = Game 
+initialState = Game
   { player = Player
       { position = Position { x = 0, y = 0, z = 0 } }
   }
 
 updatePlayerPosition :: (Maybe Float, Maybe Float, Maybe Float) -> GTA -> GTA
-updatePlayerPosition (x', y', z') game = game { player = Player 
+updatePlayerPosition (x', y', z') game = game { player = Player
                                                   { position = Position { x = newX, y = newY, z = 0 } }
                                               }
                                        where (x'', y'', _) = playerPosition game
