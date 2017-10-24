@@ -40,12 +40,15 @@ initialState = Game
   }
 
 updatePlayerPosition :: (Maybe Float, Maybe Float, Maybe Float) -> GTA -> GTA
-updatePlayerPosition (x', y', z') game = game { player = Player
-                                                  { position = Position { x = newX, y = newY, z = 0 } }
-                                              }
-                                       where (x'', y'', _) = playerPosition game
-                                             newX = newPosition x' x''
-                                             newY = newPosition y' y''
+updatePlayerPosition (x', y', z') game
+  | canMove (newX, newY) = updateGame
+  | otherwise = game
+     where (x'', y'', _) = playerPosition game
+           newX = newPosition x' x''
+           newY = newPosition y' y''
+           updateGame = game { player = Player
+             { position = Position { x = newX, y = newY, z = 0 } }
+           }
 
 newPosition :: Maybe Float -> Float -> Float
 newPosition Nothing    old = old
