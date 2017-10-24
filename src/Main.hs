@@ -2,18 +2,17 @@ module Main where
 
 import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Game
+import Data.Maybe
 import Debug.Trace
 
 -- Data types
 data GTA = Game 
-  {
-    player :: Player
+  { player :: Player
   }
   deriving Show
 
 data Position = Position
-  { 
-    x :: Float,
+  { x :: Float,
     y :: Float,
     z :: Float
   }
@@ -40,42 +39,34 @@ window = InWindow "GTA" (width, height) (offset, offset)
 
 initialState :: GTA
 initialState = Game 
-  {
-    player = Player
-      {
-        position = Position { x = 0, y = 0, z = 0 }
-      }
+  { player = Player
+      { position = Position { x = 0, y = 0, z = 0 } }
   }
 
 updatePlayerPosition :: (Maybe Float, Maybe Float, Maybe Float) -> GTA -> GTA
-updatePlayerPosition (x', y', z') game = game { 
-                                                player = Player 
-                                                  { 
-                                                    position = Position { x = x''', y = y''', z = 0 }
-                                                  }
+updatePlayerPosition (x', y', z') game = game { player = Player 
+                                                  { position = Position { x = newX, y = newY, z = 0 } }
                                               }
-                                       where x''' | x' == Nothing = x''
-                                                  | otherwise     = x'' + (convert x')
-                                             y''' | y' == Nothing = y''
-                                                  | otherwise     = y'' + (convert y')
-                                             (x'', y'', _) = getPlayerPosition game
+                                       where (x'', y'', _) = playerPosition game
+                                             newX = newPosition x' x''
+                                             newY = newPosition y' y''
 
-convert :: (Maybe a) -> a
-convert (Just a) = a
+newPosition :: Maybe Float -> Float -> Float
+newPosition Nothing    old = old
+newPosition (Just new) old = old + new
 
-getPlayerPosition :: GTA -> (Float, Float, Float)
-getPlayerPosition game = (x', y', z')
+playerPosition :: GTA -> (Float, Float, Float)
+playerPosition game = (x', y', z')
                        where user         = player game
                              location     = position user
                              (x', y', z') = (x location, y location, z location)
 
-
-playerD :: GTA -> Picture -- * Adjust name
-playerD game = trace ( show (player game)) $ translate x y $ color red $ rectangleSolid 10 10
-             where (x, y, z) = getPlayerPosition game
+playerDraw :: GTA -> Picture
+playerDraw game = translate x y $ color red $ rectangleSolid 10 10
+                where (x, y, z) = playerPosition game
 
 render :: GTA -> Picture
-render = playerD
+render = playerDraw
 
 handleKeys :: Event -> GTA -> GTA
 handleKeys (EventKey (SpecialKey KeyUp)    Down _ _) game = updatePlayerPosition (Nothing  , Just 1   , Nothing) game
