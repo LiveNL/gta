@@ -62,7 +62,8 @@ playerDraw game = translate x y $ color red $ rectangleSolid 10 10
                 where (x, y, z) = playerPosition game
 
 render :: GTA -> Picture
-render = playerDraw
+render game = pictures [ playerDraw game,
+                         blocks ]
 
 handleKeys :: Event -> GTA -> GTA
 handleKeys (EventKey (SpecialKey KeyUp)    Down _ _) game = updatePlayerPosition (Nothing  , Just 1   , Nothing) game
@@ -73,3 +74,9 @@ handleKeys _                                         game = game
 
 update :: Float -> GTA -> GTA
 update _ game = game
+
+block :: Picture
+block = translate (-15) 0 $ color white $ rectangleSolid 10 100
+
+blocks :: Picture
+blocks = pictures [block]
