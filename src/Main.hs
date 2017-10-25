@@ -6,16 +6,11 @@ import Data.Maybe
 import Debug.Trace
 
 import Traffic
+import Data.Position
 
 -- Data types
 data GTA = Game
   { player :: Player }
-  deriving Show
-
-data Position = Position
-  { x :: Float,
-    y :: Float,
-    z :: Float }
   deriving Show
 
 data Player = Player
@@ -100,25 +95,7 @@ handleKeys (EventKey (SpecialKey KeyRight) state _ _) = updateKeyState (Up   , s
 handleKeys _                                          = id
 
 update :: Float -> GTA -> GTA
-update _ game = updatePlayerPosition game
+update _ = updatePlayerPosition
 
-canMove :: (Float, Float) -> Bool
-canMove (x,y) = all canMove' blocks
-  where canMove' block = not (inBlock (x,y) (coordinates block))
-
-inBlock :: (Float, Float) -> Path -> Bool
-inBlock (x,y) [(x1,y1), _, (x2,y2), _]
-  | x >= x1 && x <= x2 && y >= y1 && y <= y2 = True
-  | otherwise = False
-
-coordinates :: Picture -> Path
-coordinates (Translate x y color) = color' x y color
-  where color' x y (Color _ polygon) = polygon' x y polygon
-        polygon' x y (Polygon xs) = map (f x y) xs
-        f x y z = (fst z + x, snd z + y)
-
-block :: Picture
-block = translate (-15) 0 $ color white $ rectangleSolid 10 100
-
-blocks :: [Picture]
-blocks = [block, car, person]
+updateTraffic :: GTA -> GTA
+updateTraffic game = updateCars (cars game) game
