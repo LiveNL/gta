@@ -65,8 +65,7 @@ playerDraw game = translate x y $ color red $ rectangleSolid 10 10
                 where (x, y, z) = playerPosition game
 
 render :: GTA -> Picture
-render game = pictures [ playerDraw game,
-                         blocks ]
+render game = pictures (blocks ++ [playerDraw game])
 
 handleKeys :: Event -> GTA -> GTA
 handleKeys (EventKey (SpecialKey KeyUp)    Down _ _) game = updatePlayerPosition (Nothing  , Just 1   , Nothing) game
@@ -79,7 +78,8 @@ update :: Float -> GTA -> GTA
 update _ game = game
 
 canMove :: (Float, Float) -> Bool
-canMove (x,y) = not (inBlock (x,y) (coordinates block))
+canMove (x,y) = all canMove' blocks
+  where canMove' block = not (inBlock (x,y) (coordinates block))
 
 inBlock :: (Float, Float) -> Path -> Bool
 inBlock (x,y) [(x1,y1), _, (x2,y2), _]
