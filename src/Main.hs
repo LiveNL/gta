@@ -5,25 +5,12 @@ import Graphics.Gloss.Interface.Pure.Game
 import Data.Maybe
 import Debug.Trace
 
+import Helpers
 import Traffic
+import Data.Car
+import Data.Game
+import Data.Person
 import Data.Position
-
--- Data types
-data GTA = Game
-  { player :: Player }
-  deriving Show
-
-data Player = Player
-  { position :: Position,
-    keys     :: Keys }
-  deriving Show
-
-data Keys = Keys
-  { left  :: KeyState,
-    right :: KeyState,
-    up    :: KeyState,
-    down  :: KeyState }
-  deriving Show
 
 -- Variables
 width, height, offset :: Int
