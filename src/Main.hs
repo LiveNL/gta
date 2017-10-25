@@ -59,14 +59,12 @@ updateKeyState (left', right', up', down') game = updateGame
 
 updatePlayerPosition :: GTA -> GTA
 updatePlayerPosition game 
-  | canMove (newX, newY) = updateGame
+  | canMove (x newPosition', y newPosition') = updateGame
   | otherwise = game
   where 
     currentKeys = keys (player game)
     currentPosition = position (player game)
     newPosition' = newPosition currentKeys currentPosition
-    newX = x newPosition'
-    newY = y newPosition'
     updateGame = game { player = Player
       { position = newPosition',
         keys     = currentKeys }
@@ -94,10 +92,10 @@ render game = pictures [ playerDraw game,
                          blocks ]
 
 handleKeys :: Event -> GTA -> GTA
-handleKeys (EventKey (SpecialKey KeyUp)    state _ _) = updateKeyState (Up   , Up   , state, Up   ) -- * updatePlayerPosition (Nothing  , Just 1   , Nothing) game
-handleKeys (EventKey (SpecialKey KeyDown)  state _ _) = updateKeyState (Up   , Up   , Up   , state) -- * updatePlayerPosition (Nothing  , Just (-1), Nothing) game
-handleKeys (EventKey (SpecialKey KeyLeft)  state _ _) = updateKeyState (state, Up   , Up   , Up   ) -- * updatePlayerPosition (Just (-1), Nothing  , Nothing) game
-handleKeys (EventKey (SpecialKey KeyRight) state _ _) = updateKeyState (Up   , state, Up   , Up   ) -- * updatePlayerPosition (Just 1   , Nothing  , Nothing) game
+handleKeys (EventKey (SpecialKey KeyUp)    state _ _) = updateKeyState (Up   , Up   , state, Up   )
+handleKeys (EventKey (SpecialKey KeyDown)  state _ _) = updateKeyState (Up   , Up   , Up   , state)
+handleKeys (EventKey (SpecialKey KeyLeft)  state _ _) = updateKeyState (state, Up   , Up   , Up   )
+handleKeys (EventKey (SpecialKey KeyRight) state _ _) = updateKeyState (Up   , state, Up   , Up   )
 handleKeys _                                          = id
 
 update :: Float -> GTA -> GTA
