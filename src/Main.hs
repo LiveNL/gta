@@ -95,5 +95,11 @@ coordinates (Translate x y color) = color' x y color
 block :: Picture
 block = translate (-15) 0 $ color white $ rectangleSolid 10 100
 
-blocks :: Picture
-blocks = pictures [block]
+car :: Picture
+car = translate 0 30 $ color blue $ rectangleSolid 20 30
+
+person :: Picture
+person = translate 20 20 $ color green $ rectangleSolid 10 10
+
+blocks :: [Picture]
+blocks = [block, car, person]
