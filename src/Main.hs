@@ -17,7 +17,15 @@ data Position = Position
   deriving Show
 
 data Player = Player
-  { position :: Position }
+  { position :: Position,
+    keys     :: Keys }
+  deriving Show
+
+data Keys = Keys
+  { left  :: KeyState,
+    right :: KeyState,
+    up    :: KeyState,
+    down  :: KeyState }
   deriving Show
 
 -- Variables
@@ -36,23 +44,40 @@ window = InWindow "GTA" (width, height) (offset, offset)
 initialState :: GTA
 initialState = Game
   { player = Player
-      { position = Position { x = 0, y = 0, z = 0 } }
+      { position = Position { x = 0, y = 0, z = 0 },
+        keys     = Keys { left = Up, right = Up, up = Up, down = Up } 
+      }
   }
 
-updatePlayerPosition :: (Maybe Float, Maybe Float, Maybe Float) -> GTA -> GTA
-updatePlayerPosition (x', y', z') game
+updateKeyState :: (KeyState, KeyState, KeyState, KeyState) -> GTA -> GTA
+updateKeyState (left', right', up', down') game = updateGame
+  where cPosition = position (player game)
+        updateGame = game { player = Player
+          { position = cPosition,
+            keys     = Keys { left = left', right = right', up = up', down = down' } }
+        }
+
+updatePlayerPosition :: GTA -> GTA
+updatePlayerPosition game 
   | canMove (newX, newY) = updateGame
   | otherwise = game
-     where (x'', y'', _) = playerPosition game
-           newX = newPosition x' x''
-           newY = newPosition y' y''
-           updateGame = game { player = Player
-             { position = Position { x = newX, y = newY, z = 0 } }
-           }
+  where 
+    currentKeys = keys (player game)
+    currentPosition = position (player game)
+    newPosition' = newPosition currentKeys currentPosition
+    newX = x newPosition'
+    newY = y newPosition'
+    updateGame = game { player = Player
+      { position = newPosition',
+        keys     = currentKeys }
+    }
 
-newPosition :: Maybe Float -> Float -> Float
-newPosition Nothing    old = old
-newPosition (Just new) old = old + new
+newPosition :: Keys -> Position -> Position
+newPosition (Keys Down _    _    _   ) (Position x y _) = Position {x = x - 1, y = y    , z = 0 }
+newPosition (Keys _    Down _    _   ) (Position x y _) = Position {x = x + 1, y = y    , z = 0 }
+newPosition (Keys _    _    Down _   ) (Position x y _) = Position {x = x    , y = y + 1, z = 0 }
+newPosition (Keys _    _    _    Down) (Position x y _) = Position {x = x    , y = y - 1, z = 0 }
+newPosition (Keys _    _    _    _   ) (Position x y _) = Position {x = x    , y = y    , z = 0 }
 
 playerPosition :: GTA -> (Float, Float, Float)
 playerPosition game = (x', y', z')
@@ -69,14 +94,14 @@ render game = pictures [ playerDraw game,
                          blocks ]
 
 handleKeys :: Event -> GTA -> GTA
-handleKeys (EventKey (SpecialKey KeyUp)    Down _ _) game = updatePlayerPosition (Nothing  , Just 1   , Nothing) game
-handleKeys (EventKey (SpecialKey KeyDown)  Down _ _) game = updatePlayerPosition (Nothing  , Just (-1), Nothing) game
-handleKeys (EventKey (SpecialKey KeyLeft)  Down _ _) game = updatePlayerPosition (Just (-1), Nothing  , Nothing) game
-handleKeys (EventKey (SpecialKey KeyRight) Down _ _) game = updatePlayerPosition (Just 1   , Nothing  , Nothing) game
-handleKeys _                                         game = game
+handleKeys (EventKey (SpecialKey KeyUp)    state _ _) = updateKeyState (Up   , Up   , state, Up   ) -- * updatePlayerPosition (Nothing  , Just 1   , Nothing) game
+handleKeys (EventKey (SpecialKey KeyDown)  state _ _) = updateKeyState (Up   , Up   , Up   , state) -- * updatePlayerPosition (Nothing  , Just (-1), Nothing) game
+handleKeys (EventKey (SpecialKey KeyLeft)  state _ _) = updateKeyState (state, Up   , Up   , Up   ) -- * updatePlayerPosition (Just (-1), Nothing  , Nothing) game
+handleKeys (EventKey (SpecialKey KeyRight) state _ _) = updateKeyState (Up   , state, Up   , Up   ) -- * updatePlayerPosition (Just 1   , Nothing  , Nothing) game
+handleKeys _                                          = id
 
 update :: Float -> GTA -> GTA
-update _ game = game
+update _ game = updatePlayerPosition game
 
 canMove :: (Float, Float) -> Bool
 canMove (x,y) = not (inBlock (x,y) (coordinates block))
