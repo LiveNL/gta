@@ -27,10 +27,16 @@ window = InWindow "GTA" (width, height) (offset, offset)
 
 initialState :: GTA
 initialState = Game
-  { player = Player
-      { position = Position { x = 0, y = 0, z = 0 },
-        keys     = Keys { left = Up, right = Up, up = Up, down = Up }
-      }
+  { player = Player {
+      position = Position { x = 0, y = 0, z = 0 },
+      keys     = Keys { left = Up, right = Up, up = Up, down = Up }
+    },
+    cars = [Car
+      { carPosition = Position { x = 0, y = -80, z = 0 }, carColor = blue }
+    ],
+    people = [Person
+      { personPosition = Position { x = 0, y = -80, z = 0 }, personColor = yellow }
+    ]
   }
 
 updateKeyState :: (KeyState, KeyState, KeyState, KeyState) -> GTA -> GTA
@@ -43,7 +49,7 @@ updateKeyState (left', right', up', down') game = updateGame
 
 updatePlayerPosition :: GTA -> GTA
 updatePlayerPosition game
-  | canMove (x newPosition', y newPosition') = updateGame
+  | canMove (x newPosition', y newPosition') (blocks ++ (map car (cars game))) = updateGame
   | otherwise = game
   where
     currentKeys = keys (player game)
@@ -72,7 +78,9 @@ playerDraw game = translate x y $ color red $ rectangleSolid 10 10
                 where (x, y, z) = playerPosition game
 
 render :: GTA -> Picture
-render game = pictures (blocks ++ [playerDraw game])
+render game = pictures (blocks ++ carsList ++ personList ++ [playerDraw game])
+  where carsList = map car (cars game)
+        personList = map person (people game)
 
 handleKeys :: Event -> GTA -> GTA
 handleKeys (EventKey (SpecialKey KeyUp)    state _ _) = updateKeyState (Up   , Up   , state, Up   )
@@ -82,7 +90,7 @@ handleKeys (EventKey (SpecialKey KeyRight) state _ _) = updateKeyState (Up   , s
 handleKeys _                                          = id
 
 update :: Float -> GTA -> GTA
-update _ = updatePlayerPosition
+update _ = updateTraffic . updatePlayerPosition
 
 updateTraffic :: GTA -> GTA
 updateTraffic game = updateCars (cars game) game

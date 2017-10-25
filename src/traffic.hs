@@ -1,19 +1,17 @@
-module Traffic (blocks) where
+module Traffic (car, person, blocks, updateCars) where
 
 import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Game
 
+import Helpers
+
 import Data.Car
 import Data.Position
 import Data.Person
+import Data.Game
 
 blocks :: [Picture]
-blocks =
-  let p1 = person Person
-        { personPosition = Position { x = 30, y = 30, z = 0 }, personColor = green }
-      c1 = car Car
-        { carPosition = Position { x = 20, y = 10, z = 0 }, carColor = blue }
-   in [block, c1, p1]
+blocks = [block, block1]
 
 car :: Car -> Picture
 car (Car (Position x y _) c) = translate x y $ color c $ rectangleSolid 20 30
