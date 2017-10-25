@@ -5,6 +5,8 @@ import Graphics.Gloss.Interface.Pure.Game
 import Data.Maybe
 import Debug.Trace
 
+import Traffic
+
 -- Data types
 data GTA = Game
   { player :: Player }
@@ -45,7 +47,7 @@ initialState :: GTA
 initialState = Game
   { player = Player
       { position = Position { x = 0, y = 0, z = 0 },
-        keys     = Keys { left = Up, right = Up, up = Up, down = Up } 
+        keys     = Keys { left = Up, right = Up, up = Up, down = Up }
       }
   }
 
@@ -58,10 +60,10 @@ updateKeyState (left', right', up', down') game = updateGame
         }
 
 updatePlayerPosition :: GTA -> GTA
-updatePlayerPosition game 
+updatePlayerPosition game
   | canMove (x newPosition', y newPosition') = updateGame
   | otherwise = game
-  where 
+  where
     currentKeys = keys (player game)
     currentPosition = position (player game)
     newPosition' = newPosition currentKeys currentPosition
@@ -117,12 +119,6 @@ coordinates (Translate x y color) = color' x y color
 
 block :: Picture
 block = translate (-15) 0 $ color white $ rectangleSolid 10 100
-
-car :: Picture
-car = translate 0 30 $ color blue $ rectangleSolid 20 30
-
-person :: Picture
-person = translate 20 20 $ color green $ rectangleSolid 10 10
 
 blocks :: [Picture]
 blocks = [block, car, person]
