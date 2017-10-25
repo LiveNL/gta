@@ -5,30 +5,12 @@ import Graphics.Gloss.Interface.Pure.Game
 import Data.Maybe
 import Debug.Trace
 
+import Helpers
 import Traffic
-
--- Data types
-data GTA = Game
-  { player :: Player }
-  deriving Show
-
-data Position = Position
-  { x :: Float,
-    y :: Float,
-    z :: Float }
-  deriving Show
-
-data Player = Player
-  { position :: Position,
-    keys     :: Keys }
-  deriving Show
-
-data Keys = Keys
-  { left  :: KeyState,
-    right :: KeyState,
-    up    :: KeyState,
-    down  :: KeyState }
-  deriving Show
+import Data.Car
+import Data.Game
+import Data.Person
+import Data.Position
 
 -- Variables
 width, height, offset :: Int
@@ -45,10 +27,16 @@ window = InWindow "GTA" (width, height) (offset, offset)
 
 initialState :: GTA
 initialState = Game
-  { player = Player
-      { position = Position { x = 0, y = 0, z = 0 },
-        keys     = Keys { left = Up, right = Up, up = Up, down = Up }
-      }
+  { player = Player {
+      position = Position { x = 0, y = 0, z = 0 },
+      keys     = Keys { left = Up, right = Up, up = Up, down = Up }
+    },
+    cars = [Car
+      { carPosition = Position { x = 0, y = -80, z = 0 }, carColor = blue }
+    ],
+    people = [Person
+      { personPosition = Position { x = 0, y = -80, z = 0 }, personColor = yellow }
+    ]
   }
 
 updateKeyState :: (KeyState, KeyState, KeyState, KeyState) -> GTA -> GTA
@@ -61,7 +49,7 @@ updateKeyState (left', right', up', down') game = updateGame
 
 updatePlayerPosition :: GTA -> GTA
 updatePlayerPosition game
-  | canMove (x newPosition', y newPosition') = updateGame
+  | canMove (x newPosition', y newPosition') (blocks ++ (map car (cars game))) = updateGame
   | otherwise = game
   where
     currentKeys = keys (player game)
@@ -90,7 +78,9 @@ playerDraw game = translate x y $ color red $ rectangleSolid 10 10
                 where (x, y, z) = playerPosition game
 
 render :: GTA -> Picture
-render game = pictures (blocks ++ [playerDraw game])
+render game = pictures (blocks ++ carsList ++ personList ++ [playerDraw game])
+  where carsList = map car (cars game)
+        personList = map person (people game)
 
 handleKeys :: Event -> GTA -> GTA
 handleKeys (EventKey (SpecialKey KeyUp)    state _ _) = updateKeyState (Up   , Up   , state, Up   )
@@ -100,25 +90,7 @@ handleKeys (EventKey (SpecialKey KeyRight) state _ _) = updateKeyState (Up   , s
 handleKeys _                                          = id
 
 update :: Float -> GTA -> GTA
-update _ game = updatePlayerPosition game
+update _ = updateTraffic . updatePlayerPosition
 
-canMove :: (Float, Float) -> Bool
-canMove (x,y) = all canMove' blocks
-  where canMove' block = not (inBlock (x,y) (coordinates block))
-
-inBlock :: (Float, Float) -> Path -> Bool
-inBlock (x,y) [(x1,y1), _, (x2,y2), _]
-  | x >= x1 && x <= x2 && y >= y1 && y <= y2 = True
-  | otherwise = False
-
-coordinates :: Picture -> Path
-coordinates (Translate x y color) = color' x y color
-  where color' x y (Color _ polygon) = polygon' x y polygon
-        polygon' x y (Polygon xs) = map (f x y) xs
-        f x y z = (fst z + x, snd z + y)
-
-block :: Picture
-block = translate (-15) 0 $ color white $ rectangleSolid 10 100
-
-blocks :: [Picture]
-blocks = [block, car, person]
+updateTraffic :: GTA -> GTA
+updateTraffic game = updateCars (cars game) game
