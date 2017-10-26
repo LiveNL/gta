@@ -29,58 +29,59 @@ window = InWindow "GTA" (width, height) (offset, offset)
 initialState :: GTA
 initialState = Game
   { player = Player {
-      position = Position { x = 50, y = 0, z = 0 },
-      keys     = Keys { left = Up, right = Up, up = Up, down = Up }
+      playerPosition  = Position { x = 50, y = 0 },
+      keys            = Keys { left = Up, right = Up, up = Up, down = Up },
+      playerDirection = North
     },
     cars = [
-      Car { carPosition = Position { x = 30, y = 30, z = 0 }, carColor = blue },
-      Car { carPosition = Position { x = 30, y = -80, z = 0 }, carColor = green }
+      Car { carPosition = Position { x = 30, y = 30 },  carColor = blue,  carDirection = North },
+      Car { carPosition = Position { x = 30, y = -80 }, carColor = green, carDirection = North }
     ],
     people = [Person
-      { personPosition = Position { x = 20, y = 60, z = 0 }, personColor = yellow }
+      { personPosition = Position { x = 20, y = 60 }, personColor = yellow, personDirection = North }
     ],
     world = [Block
-      { blockPosition = Position { x = 0, y = 0, z = 0 }, blockWidth = 200, blockHeight = 200, blockType = Road}, Block
-      { blockPosition = Position { x = 0, y = 0, z = 0 }, blockWidth = 10, blockHeight = 100, blockType = Building }, Block
-      { blockPosition = Position { x = 0, y = 100, z = 0 }, blockWidth = 200, blockHeight = 10, blockType = Building }, Block
-      { blockPosition = Position { x = -100, y = 0, z = 0 }, blockWidth = 10, blockHeight = 200, blockType = Building }, Block
-      { blockPosition = Position { x = -50, y = -100, z = 0 }, blockWidth = 150, blockHeight = 10, blockType = Building }, Block
-      { blockPosition = Position { x = 100, y = 0, z = 0 }, blockWidth = 10, blockHeight = 200, blockType = Building }
+      { blockPosition = Position { x = 0, y = 0 }, blockWidth = 200, blockHeight = 200, blockType = Road}, Block
+      { blockPosition = Position { x = 0, y = 0 }, blockWidth = 10, blockHeight = 100, blockType = Building }, Block
+      { blockPosition = Position { x = 0, y = 100 }, blockWidth = 200, blockHeight = 10, blockType = Building }, Block
+      { blockPosition = Position { x = -100, y = 0 }, blockWidth = 10, blockHeight = 200, blockType = Building }, Block
+      { blockPosition = Position { x = -50, y = -100 }, blockWidth = 150, blockHeight = 10, blockType = Building }, Block
+      { blockPosition = Position { x = 100, y = 0 }, blockWidth = 10, blockHeight = 200, blockType = Building }
     ]
   }
 
 updateKeyState :: (KeyState, KeyState, KeyState, KeyState) -> GTA -> GTA
 updateKeyState (left', right', up', down') game = updateGame
   where updateGame = game { player = Player
-          { position = playerPosition game,
-            keys     = Keys { left = left', right = right', up = up', down = down' } }
+          { playerPosition  = getPos (player game),
+            keys            = Keys { left = left', right = right', up = up', down = down' },
+            playerDirection = getDir (player game) }
         }
 
 updatePlayerPosition :: GTA -> GTA
 updatePlayerPosition game
-  | canMove (x newPosition', y newPosition', z newPosition') (world game) = updateGame
+  | canMove (x newPosition', y newPosition', currentDir) (world game) = updateGame
   | otherwise = game
   where
     currentKeys = keys (player game)
-    newPosition' = newPosition currentKeys (playerPosition game)
+    currentDir  = getDir (player game)
+    newPosition' = newPosition currentKeys (getPos (player game))
     updateGame = game { player = Player
-      { position = newPosition',
-        keys     = currentKeys }
+      { playerPosition  = newPosition',
+        keys            = currentKeys,
+        playerDirection = currentDir }
     }
 
 newPosition :: Keys -> Position -> Position
-newPosition (Keys Down _    _    _   ) (Position x y _) = Position {x = x - 1, y = y    , z = 0 }
-newPosition (Keys _    Down _    _   ) (Position x y _) = Position {x = x + 1, y = y    , z = 0 }
-newPosition (Keys _    _    Down _   ) (Position x y _) = Position {x = x    , y = y + 1, z = 0 }
-newPosition (Keys _    _    _    Down) (Position x y _) = Position {x = x    , y = y - 1, z = 0 }
-newPosition (Keys _    _    _    _   ) (Position x y _) = Position {x = x    , y = y    , z = 0 }
-
-playerPosition :: GTA -> Position
-playerPosition game = position (player game)
+newPosition (Keys Down _    _    _   ) (Position x y) = Position {x = x - 1, y = y     }
+newPosition (Keys _    Down _    _   ) (Position x y) = Position {x = x + 1, y = y     }
+newPosition (Keys _    _    Down _   ) (Position x y) = Position {x = x    , y = y + 1 }
+newPosition (Keys _    _    _    Down) (Position x y) = Position {x = x    , y = y - 1 }
+newPosition (Keys _    _    _    _   ) (Position x y) = Position {x = x    , y = y     }
 
 playerDraw :: GTA -> Picture
 playerDraw game = translate x y $ color red $ rectangleSolid 10 10
-  where Position x y _ = playerPosition game
+  where Position x y = getPos (player game)
 
 render :: GTA -> Picture
 render game = pictures (blockList ++ carsList ++ personList ++ [playerDraw game])
