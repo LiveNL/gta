@@ -15,7 +15,7 @@ car :: Car -> Picture
 car (Car (Position x y) c) = translate x y $ color c $ rectangleSolid 20 30
 
 person :: Person -> Picture
-person (Person (Position x y) c) = translate x y $ color c $ rectangleSolid 10 10
+person (Person (Position x y) c _) = translate x y $ color c $ rectangleSolid 10 10
 
 block :: Block -> Picture
 block (Block (Position x y) w h t)
@@ -48,18 +48,16 @@ updatePeople people game = game { people = updatePeople' }
   where updatePeople' = map (updatePerson game) people
 
 updatePerson :: GTA -> Person -> Person
-updatePerson game person@(Person (Position x' y') c')
-  | canMove (x', y') (world game) = newPersonPosition person
+updatePerson game person@(Person (Position x y) _ d)
+  | canMove (x, y, d) (world game) = newPersonPosition person
   | otherwise = switchPersonPosition person
 
 newPersonPosition :: Person -> Person
-newPersonPosition person@(Person (Position x' y') c')
-  | x' == 0 = move (Position 0 1) person -- TODO: change first x to Direction
-  | x' == 1 = move (Position (-1) 0) person -- TODO: change first x to Direction
-  | x' == 2 = move (Position 0 (-1)) person -- TODO: change first x to Direction
-  | otherwise = move (Position 1 0) person
+newPersonPosition person@(Person _ _ d)
+  | d == North = move (Position 0    1)  person
+  | d == West  = move (Position (-1) 0)  person
+  | d == South = move (Position 0  (-1)) person
+  | otherwise  = move (Position 1    0)  person
 
 switchPersonPosition :: Person -> Person
-switchPersonPosition person@(Person (Position x' y') c')
-  | x' < 3 = Person { personPosition = Position { x = x', y = y' }, personColor = c' } -- TODO: change first x to Direction
-  | otherwise = Person { personPosition = Position { x = x', y = y' }, personColor = c' }
+switchPersonPosition person@(Person (Position x' y') c d) = changeDir person

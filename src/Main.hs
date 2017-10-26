@@ -37,7 +37,7 @@ initialState = Game
       Car { carPosition = Position { x = 30, y = -80 }, carColor = green }
     ],
     people = [Person
-      { personPosition = Position { x = 20, y = 60 }, personColor = yellow }
+      { personPosition = Position { x = 20, y = 60 }, personColor = yellow, personDirection = North }
     ],
     world = [Block
       { blockPosition = Position { x = 0, y = 0 }, blockWidth = 200, blockHeight = 200, blockType = Road}, Block
