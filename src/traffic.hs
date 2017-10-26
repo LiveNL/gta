@@ -12,7 +12,7 @@ import Data.Person
 import Data.Game
 
 car :: Car -> Picture
-car (Car (Position x y) c) = translate x y $ color c $ rectangleSolid 20 30
+car (Car (Position x y) c _) = translate x y $ color c $ rectangleSolid 20 30
 
 person :: Person -> Picture
 person (Person (Position x y) c _) = translate x y $ color c $ rectangleSolid 10 10
@@ -27,21 +27,19 @@ updateCars cars game = game { cars = updateCars' }
   where updateCars' = map (updateCar game) cars
 
 updateCar :: GTA -> Car -> Car
-updateCar game car@(Car (Position x' y') c')
-  | canMove (x', y') (world game) = newCarPosition car
+updateCar game car@(Car (Position x y) _ d)
+  | canMove (x, y, d) (world game) = newCarPosition car
   | otherwise = switchCarPosition car
 
 newCarPosition :: Car -> Car
-newCarPosition car@(Car (Position x' y') c')
-  | x' == 0 = move (Position 0 1) car    -- TODO: change first x to Direction
-  | x' == 1 = move (Position (-1) 0) car -- TODO: change first x to Direction
-  | x' == 2 = move (Position 0 (-1)) car -- TODO: change first x to Direction
-  | otherwise = move (Position 1 0) car
+newCarPosition car@(Car (Position _ _) _ d)
+  | d == North = move (Position 0    1)  car
+  | d == West  = move (Position (-1) 0)  car
+  | d == South = move (Position 0  (-1)) car
+  | otherwise  = move (Position 1    0)  car
 
 switchCarPosition :: Car -> Car
-switchCarPosition car@(Car (Position x' y') c')
-  | x' < 3 = Car { carPosition = Position { x = x', y = y' }, carColor = c' } -- TODO: change first x to Direction
-  | otherwise = Car { carPosition = Position { x = x', y = y' }, carColor = c' }
+switchCarPosition car@(Car (Position x' y') c d) = changeDir car
 
 updatePeople :: [Person] -> GTA -> GTA
 updatePeople people game = game { people = updatePeople' }

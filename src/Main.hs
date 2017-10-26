@@ -33,8 +33,8 @@ initialState = Game
       keys           = Keys { left = Up, right = Up, up = Up, down = Up }
     },
     cars = [
-      Car { carPosition = Position { x = 30, y = 30 }, carColor = blue },
-      Car { carPosition = Position { x = 30, y = -80 }, carColor = green }
+      Car { carPosition = Position { x = 30, y = 30 },  carColor = blue,  carDirection = North },
+      Car { carPosition = Position { x = 30, y = -80 }, carColor = green, carDirection = North }
     ],
     people = [Person
       { personPosition = Position { x = 20, y = 60 }, personColor = yellow, personDirection = North }
