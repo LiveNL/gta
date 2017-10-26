@@ -29,8 +29,9 @@ window = InWindow "GTA" (width, height) (offset, offset)
 initialState :: GTA
 initialState = Game
   { player = Player {
-      playerPosition = Position { x = 50, y = 0 },
-      keys           = Keys { left = Up, right = Up, up = Up, down = Up }
+      playerPosition  = Position { x = 50, y = 0 },
+      keys            = Keys { left = Up, right = Up, up = Up, down = Up },
+      playerDirection = North
     },
     cars = [
       Car { carPosition = Position { x = 30, y = 30 },  carColor = blue,  carDirection = North },
@@ -52,20 +53,23 @@ initialState = Game
 updateKeyState :: (KeyState, KeyState, KeyState, KeyState) -> GTA -> GTA
 updateKeyState (left', right', up', down') game = updateGame
   where updateGame = game { player = Player
-          { playerPosition = position game,
-            keys           = Keys { left = left', right = right', up = up', down = down' } }
+          { playerPosition  = getPos (player game),
+            keys            = Keys { left = left', right = right', up = up', down = down' },
+            playerDirection = getDir (player game) }
         }
 
 updatePlayerPosition :: GTA -> GTA
 updatePlayerPosition game
-  | canMove (x newPosition', y newPosition') (world game) = updateGame
+  | canMove (x newPosition', y newPosition', currentDir) (world game) = updateGame
   | otherwise = game
   where
     currentKeys = keys (player game)
-    newPosition' = newPosition currentKeys (position game)
+    currentDir  = getDir (player game)
+    newPosition' = newPosition currentKeys (getPos (player game))
     updateGame = game { player = Player
-      { playerPosition = newPosition',
-        keys           = currentKeys }
+      { playerPosition  = newPosition',
+        keys            = currentKeys,
+        playerDirection = currentDir }
     }
 
 newPosition :: Keys -> Position -> Position
@@ -75,12 +79,9 @@ newPosition (Keys _    _    Down _   ) (Position x y) = Position {x = x    , y =
 newPosition (Keys _    _    _    Down) (Position x y) = Position {x = x    , y = y - 1 }
 newPosition (Keys _    _    _    _   ) (Position x y) = Position {x = x    , y = y     }
 
-position :: GTA -> Position
-position game = getPos (player game)
-
 playerDraw :: GTA -> Picture
 playerDraw game = translate x y $ color red $ rectangleSolid 10 10
-  where Position x y = position game
+  where Position x y = getPos (player game)
 
 render :: GTA -> Picture
 render game = pictures (blockList ++ carsList ++ personList ++ [playerDraw game])

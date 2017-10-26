@@ -8,8 +8,9 @@ import Data.Person
 import Data.Block
 
 data Player = Player
-  { playerPosition :: Position,
-    keys           :: Keys }
+  { playerPosition  :: Position,
+    keys            :: Keys,
+    playerDirection :: Direction}
   deriving Show
 
 data Keys = Keys
@@ -27,6 +28,8 @@ data GTA = Game
   deriving Show
 
 instance Movable Player where
-  getPos (Player a _) = Position (x a) (y a)
-  setPos (Position x' y') (Player _ k) = Player { playerPosition = Position { x = x', y = y' },
+  getPos (Player a _ _) = Position (x a) (y a)
+  setPos (Position x' y') (Player _ k _) = Player { playerPosition = Position { x = x', y = y' },
                                                   keys = k }
+  getDir (Player _ _ d) = d
+  setDir x (Player a k _) = Player { playerPosition = a, keys = k, playerDirection = x }
