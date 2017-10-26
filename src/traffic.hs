@@ -25,8 +25,18 @@ updateCars cars game = game { cars = updateCars' }
   where updateCars' = map (updateCar game) cars
 
 updateCar :: GTA -> Car -> Car
-updateCar game (Car (Position x' y' z') c')
-  | canMove (x', y') (map block (world game)) = newCarPosition
-  | otherwise = Car { carPosition = Position { x = x', y = y', z = z' }, carColor = c' }
-    where newCarPosition = Car { carPosition =
-          Position { x = x', y = y' + 1, z = z' }, carColor = c' }
+updateCar game car@(Car (Position x' y' z') c')
+  | canMove (x', y', z') (map block (world game)) = newCarPosition car
+  | otherwise = switchCarPosition car
+
+newCarPosition :: Car -> Car
+newCarPosition car@(Car (Position x' y' z') c')
+  | z' == 0 = Car { carPosition = Position { x = x', y = y' + 1, z = z' }, carColor = c' }
+  | z' == 1 = Car { carPosition = Position { x = x' - 1, y = y', z = z' }, carColor = c' }
+  | z' == 2 = Car { carPosition = Position { x = x', y = y' - 1, z = z' }, carColor = c' }
+  | otherwise = Car { carPosition = Position { x = x' + 1, y = y', z = z' }, carColor = c' }
+
+switchCarPosition :: Car -> Car
+switchCarPosition car@(Car (Position x' y' z') c')
+  | z' < 3 = Car { carPosition = Position { x = x', y = y', z = z' + 1 }, carColor = c' }
+  | otherwise = Car { carPosition = Position { x = x', y = y', z = 0 }, carColor = c' }

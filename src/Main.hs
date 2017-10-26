@@ -40,7 +40,10 @@ initialState = Game
     ],
     world = [Block
       { blockPosition = Position { x = -20, y = 0, z = 0 }, blockWidth = 10, blockHeight = 100, blockType = Building }, Block
-      { blockPosition = Position { x = -20, y = 100, z = 0 }, blockWidth = 100, blockHeight = 10, blockType = Building }
+      { blockPosition = Position { x = 0, y = 100, z = 0 }, blockWidth = 230, blockHeight = 10, blockType = Building }, Block
+      { blockPosition = Position { x = -80, y = 0, z = 0 }, blockWidth = 10, blockHeight = 200, blockType = Building }, Block
+      { blockPosition = Position { x = -50, y = -100, z = 0 }, blockWidth = 100, blockHeight = 10, blockType = Building }, Block
+      { blockPosition = Position { x = 120, y = 0, z = 0 }, blockWidth = 10, blockHeight = 200, blockType = Building }
     ]
   }
 
@@ -53,7 +56,7 @@ updateKeyState (left', right', up', down') game = updateGame
 
 updatePlayerPosition :: GTA -> GTA
 updatePlayerPosition game
-  | canMove (x newPosition', y newPosition') ((map block (world game)) ++ (map car (cars game))) = updateGame
+  | canMove (x newPosition', y newPosition', z newPosition') ((map block (world game)) ++ (map car (cars game))) = updateGame
   | otherwise = game
   where
     currentKeys = keys (player game)

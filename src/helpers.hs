@@ -2,9 +2,13 @@ module Helpers (canMove) where
 
 import Graphics.Gloss.Interface.Pure.Game
 
-canMove :: (Float, Float) -> [Picture] -> Bool
-canMove (x,y) = all canMove'
-  where canMove' block = not (inBlock (x,y) (coordinates block))
+canMove :: (Float, Float, Float) -> [Picture] -> Bool
+canMove (x,y,z) = all canMove'
+  where canMove' block
+          | z == 0 = not (inBlock (x, y + 1) (coordinates block))
+          | z == 1 = not (inBlock (x - 1, y) (coordinates block))
+          | z == 2 = not (inBlock (x, y - 1) (coordinates block))
+          | otherwise = not (inBlock (x + 1, y) (coordinates block))
 
 inBlock :: (Float, Float) -> Path -> Bool
 inBlock (x,y) [(x1,y1), _, (x2,y2), _]
