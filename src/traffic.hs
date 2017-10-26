@@ -33,10 +33,10 @@ updateCar game car@(Car (Position x' y') c')
 
 newCarPosition :: Car -> Car
 newCarPosition car@(Car (Position x' y') c')
-  | x' == 0 = Car { carPosition = Position { x = x', y = y' + 1 }, carColor = c' } -- TODO: change first x to Direction
-  | x' == 1 = Car { carPosition = Position { x = x' - 1, y = y' }, carColor = c' } -- TODO: change first x to Direction
-  | x' == 2 = Car { carPosition = Position { x = x', y = y' - 1 }, carColor = c' } -- TODO: change first x to Direction
-  | otherwise = Car { carPosition = Position { x = x' + 1, y = y' }, carColor = c' }
+  | x' == 0 = move (Position 0 1) car    -- TODO: change first x to Direction
+  | x' == 1 = move (Position (-1) 0) car -- TODO: change first x to Direction
+  | x' == 2 = move (Position 0 (-1)) car -- TODO: change first x to Direction
+  | otherwise = move (Position 1 0) car
 
 switchCarPosition :: Car -> Car
 switchCarPosition car@(Car (Position x' y') c')
@@ -54,10 +54,10 @@ updatePerson game person@(Person (Position x' y') c')
 
 newPersonPosition :: Person -> Person
 newPersonPosition person@(Person (Position x' y') c')
-  | x' == 0 = Person { personPosition = Position { x = x', y = y' + 1 }, personColor = c' } -- TODO: change first x to Direction
-  | x' == 1 = Person { personPosition = Position { x = x' - 1, y = y' }, personColor = c' } -- TODO: change first x to Direction
-  | x' == 2 = Person { personPosition = Position { x = x', y = y' - 1 }, personColor = c' } -- TODO: change first x to Direction
-  | otherwise = Person { personPosition = Position { x = x' + 1, y = y' }, personColor = c' }
+  | x' == 0 = move (Position 0 1) person -- TODO: change first x to Direction
+  | x' == 1 = move (Position (-1) 0) person -- TODO: change first x to Direction
+  | x' == 2 = move (Position 0 (-1)) person -- TODO: change first x to Direction
+  | otherwise = move (Position 1 0) person
 
 switchPersonPosition :: Person -> Person
 switchPersonPosition person@(Person (Position x' y') c')
