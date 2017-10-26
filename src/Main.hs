@@ -7,6 +7,7 @@ import Debug.Trace
 
 import Helpers
 import Traffic
+import Data.Block
 import Data.Car
 import Data.Game
 import Data.Person
@@ -36,6 +37,10 @@ initialState = Game
     ],
     people = [Person
       { personPosition = Position { x = 0, y = -80, z = 0 }, personColor = yellow }
+    ],
+    world = [Block
+      { blockPosition = Position { x = -20, y = 0, z = 0 }, blockWidth = 10, blockHeight = 100, blockType = Building }, Block
+      { blockPosition = Position { x = -20, y = 100, z = 0 }, blockWidth = 100, blockHeight = 10, blockType = Building }
     ]
   }
 
@@ -48,7 +53,7 @@ updateKeyState (left', right', up', down') game = updateGame
 
 updatePlayerPosition :: GTA -> GTA
 updatePlayerPosition game
-  | canMove (x newPosition', y newPosition') (blocks ++ (map car (cars game))) = updateGame
+  | canMove (x newPosition', y newPosition') ((map block (world game)) ++ (map car (cars game))) = updateGame
   | otherwise = game
   where
     currentKeys = keys (player game)
@@ -73,8 +78,9 @@ playerDraw game = translate x y $ color red $ rectangleSolid 10 10
   where Position x y _ = playerPosition game
 
 render :: GTA -> Picture
-render game = pictures (blocks ++ carsList ++ personList ++ [playerDraw game])
-  where carsList = map car (cars game)
+render game = pictures (blockList ++ carsList ++ personList ++ [playerDraw game])
+  where blockList = map block (world game)
+        carsList = map car (cars game)
         personList = map person (people game)
 
 handleKeys :: Event -> GTA -> GTA
