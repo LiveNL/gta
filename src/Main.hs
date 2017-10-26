@@ -41,9 +41,8 @@ initialState = Game
 
 updateKeyState :: (KeyState, KeyState, KeyState, KeyState) -> GTA -> GTA
 updateKeyState (left', right', up', down') game = updateGame
-  where cPosition = position (player game)
-        updateGame = game { player = Player
-          { position = cPosition,
+  where updateGame = game { player = Player
+          { position = playerPosition game,
             keys     = Keys { left = left', right = right', up = up', down = down' } }
         }
 
@@ -53,8 +52,7 @@ updatePlayerPosition game
   | otherwise = game
   where
     currentKeys = keys (player game)
-    currentPosition = position (player game)
-    newPosition' = newPosition currentKeys currentPosition
+    newPosition' = newPosition currentKeys (playerPosition game)
     updateGame = game { player = Player
       { position = newPosition',
         keys     = currentKeys }
@@ -67,15 +65,12 @@ newPosition (Keys _    _    Down _   ) (Position x y _) = Position {x = x    , y
 newPosition (Keys _    _    _    Down) (Position x y _) = Position {x = x    , y = y - 1, z = 0 }
 newPosition (Keys _    _    _    _   ) (Position x y _) = Position {x = x    , y = y    , z = 0 }
 
-playerPosition :: GTA -> (Float, Float, Float)
-playerPosition game = (x', y', z')
-                       where user         = player game
-                             location     = position user
-                             (x', y', z') = (x location, y location, z location)
+playerPosition :: GTA -> Position
+playerPosition game = position (player game)
 
 playerDraw :: GTA -> Picture
 playerDraw game = translate x y $ color red $ rectangleSolid 10 10
-                where (x, y, z) = playerPosition game
+  where Position x y _ = playerPosition game
 
 render :: GTA -> Picture
 render game = pictures (blocks ++ carsList ++ personList ++ [playerDraw game])
