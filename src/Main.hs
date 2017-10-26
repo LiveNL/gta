@@ -36,7 +36,7 @@ initialState = Game
       { carPosition = Position { x = 0, y = -80, z = 0 }, carColor = blue }
     ],
     people = [Person
-      { personPosition = Position { x = 0, y = -80, z = 0 }, personColor = yellow }
+      { personPosition = Position { x = 20, y = 40, z = 0 }, personColor = yellow }
     ],
     world = [Block
       { blockPosition = Position { x = -20, y = 0, z = 0 }, blockWidth = 10, blockHeight = 100, blockType = Building }, Block
@@ -56,7 +56,7 @@ updateKeyState (left', right', up', down') game = updateGame
 
 updatePlayerPosition :: GTA -> GTA
 updatePlayerPosition game
-  | canMove (x newPosition', y newPosition', z newPosition') ((map block (world game)) ++ (map car (cars game))) = updateGame
+  | canMove (x newPosition', y newPosition', z newPosition') ((map person (people game)) ++ (map block (world game)) ++ (map car (cars game))) = updateGame
   | otherwise = game
   where
     currentKeys = keys (player game)
@@ -97,4 +97,4 @@ update :: Float -> GTA -> GTA
 update _ = updateTraffic . updatePlayerPosition
 
 updateTraffic :: GTA -> GTA
-updateTraffic game = updateCars (cars game) game
+updateTraffic game = updatePeople (people game) (updateCars (cars game) game)
