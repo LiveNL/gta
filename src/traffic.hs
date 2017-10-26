@@ -18,7 +18,9 @@ person :: Person -> Picture
 person (Person (Position x y _) c) = translate x y $ color c $ rectangleSolid 10 10
 
 block :: Block -> Picture
-block (Block (Position x y _) w h _) = translate x y $ color white $ rectangleSolid w h
+block (Block (Position x y _) w h t)
+  | t == Road = translate x y $ color (greyN 0.5) $ rectangleSolid w h
+  | otherwise = translate x y $ color white $ rectangleSolid w h
 
 updateCars :: [Car] -> GTA -> GTA
 updateCars cars game = game { cars = updateCars' }
@@ -26,7 +28,7 @@ updateCars cars game = game { cars = updateCars' }
 
 updateCar :: GTA -> Car -> Car
 updateCar game car@(Car (Position x' y' z') c')
-  | canMove (x', y', z') (map block (world game)) = newCarPosition car
+  | canMove (x', y', z') (world game) = newCarPosition car
   | otherwise = switchCarPosition car
 
 newCarPosition :: Car -> Car
@@ -47,7 +49,7 @@ updatePeople people game = game { people = updatePeople' }
 
 updatePerson :: GTA -> Person -> Person
 updatePerson game person@(Person (Position x' y' z') c')
-  | canMove (x', y', z') (map block (world game)) = newPersonPosition person
+  | canMove (x', y', z') (world game) = newPersonPosition person
   | otherwise = switchPersonPosition person
 
 newPersonPosition :: Person -> Person

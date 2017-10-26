@@ -11,4 +11,4 @@ data Block = Block
   deriving Show
 
 data BlockType = Road | Sidewalk | Building
-  deriving Show
+  deriving (Show, Eq)

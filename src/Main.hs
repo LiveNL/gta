@@ -29,21 +29,23 @@ window = InWindow "GTA" (width, height) (offset, offset)
 initialState :: GTA
 initialState = Game
   { player = Player {
-      position = Position { x = 0, y = 0, z = 0 },
+      position = Position { x = 50, y = 0, z = 0 },
       keys     = Keys { left = Up, right = Up, up = Up, down = Up }
     },
-    cars = [Car
-      { carPosition = Position { x = 0, y = -80, z = 0 }, carColor = blue }
+    cars = [
+      Car { carPosition = Position { x = 30, y = 30, z = 0 }, carColor = blue },
+      Car { carPosition = Position { x = 30, y = -80, z = 0 }, carColor = green }
     ],
     people = [Person
-      { personPosition = Position { x = 20, y = 40, z = 0 }, personColor = yellow }
+      { personPosition = Position { x = 20, y = 60, z = 0 }, personColor = yellow }
     ],
     world = [Block
-      { blockPosition = Position { x = -20, y = 0, z = 0 }, blockWidth = 10, blockHeight = 100, blockType = Building }, Block
-      { blockPosition = Position { x = 0, y = 100, z = 0 }, blockWidth = 230, blockHeight = 10, blockType = Building }, Block
-      { blockPosition = Position { x = -80, y = 0, z = 0 }, blockWidth = 10, blockHeight = 200, blockType = Building }, Block
-      { blockPosition = Position { x = -50, y = -100, z = 0 }, blockWidth = 100, blockHeight = 10, blockType = Building }, Block
-      { blockPosition = Position { x = 120, y = 0, z = 0 }, blockWidth = 10, blockHeight = 200, blockType = Building }
+      { blockPosition = Position { x = 0, y = 0, z = 0 }, blockWidth = 200, blockHeight = 200, blockType = Road}, Block
+      { blockPosition = Position { x = 0, y = 0, z = 0 }, blockWidth = 10, blockHeight = 100, blockType = Building }, Block
+      { blockPosition = Position { x = 0, y = 100, z = 0 }, blockWidth = 200, blockHeight = 10, blockType = Building }, Block
+      { blockPosition = Position { x = -100, y = 0, z = 0 }, blockWidth = 10, blockHeight = 200, blockType = Building }, Block
+      { blockPosition = Position { x = -50, y = -100, z = 0 }, blockWidth = 150, blockHeight = 10, blockType = Building }, Block
+      { blockPosition = Position { x = 100, y = 0, z = 0 }, blockWidth = 10, blockHeight = 200, blockType = Building }
     ]
   }
 
@@ -56,7 +58,7 @@ updateKeyState (left', right', up', down') game = updateGame
 
 updatePlayerPosition :: GTA -> GTA
 updatePlayerPosition game
-  | canMove (x newPosition', y newPosition', z newPosition') ((map person (people game)) ++ (map block (world game)) ++ (map car (cars game))) = updateGame
+  | canMove (x newPosition', y newPosition', z newPosition') (world game) = updateGame
   | otherwise = game
   where
     currentKeys = keys (player game)
