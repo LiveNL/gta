@@ -5,6 +5,7 @@ import Graphics.Gloss.Interface.Pure.Game
 import Data.Position
 import Data.Car
 import Data.Person
+import Data.Block
 
 data Player = Player
   { position :: Position,
@@ -21,5 +22,6 @@ data Keys = Keys
 data GTA = Game
   { player :: Player,
     cars   :: [Car],
-    people :: [Person]}
+    people :: [Person],
+    world :: [Block] }
   deriving Show

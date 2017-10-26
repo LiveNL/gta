@@ -1,18 +1,25 @@
 module Helpers (canMove) where
 
 import Graphics.Gloss.Interface.Pure.Game
+import Data.Block
+import Data.Position
+import Debug.Trace
 
-canMove :: (Float, Float) -> [Picture] -> Bool
-canMove (x,y) = all canMove'
-  where canMove' block = not (inBlock (x,y) (coordinates block))
+canMove :: (Float, Float, Float) -> [Block] -> Bool
+canMove (x,y,z) = all canMove'
+  where canMove' block
+          | (blockType block) == Road = True
+          | z == 0 = not (inBlock (x, y + 1) (coordinates block))
+          | z == 1 = not (inBlock (x - 1, y) (coordinates block))
+          | z == 2 = not (inBlock (x, y - 1) (coordinates block))
+          | otherwise = not (inBlock (x + 1, y) (coordinates block))
 
-inBlock :: (Float, Float) -> Path -> Bool
-inBlock (x,y) [(x1,y1), _, (x2,y2), _]
+inBlock :: (Float, Float) -> [(Float,Float)] -> Bool
+inBlock (x,y) [(x1,y1),(x2,y2)]
   | x >= x1 && x <= x2 && y >= y1 && y <= y2 = True
   | otherwise = False
 
-coordinates :: Picture -> Path
-coordinates (Translate x y color) = color' x y color
-  where color' x y (Color _ polygon) = polygon' x y polygon
-        polygon' x y (Polygon xs) = map (f x y) xs
-        f x y z = (fst z + x, snd z + y)
+coordinates :: Block -> [(Float,Float)]
+coordinates (Block (Position x' y' _) w h t) = [(x' - w',y' - h'),(x' + w', y'+ h')]
+  where w' = w / 2
+        h' = h / 2
