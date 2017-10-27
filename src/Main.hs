@@ -27,7 +27,14 @@ window :: Display
 window = InWindow "GTA" (width, height) (offset, offset)
 
 initialState :: GTA
-initialState = loadWorld
+initialState = Game
+  { player = Player {
+      playerPosition  = Position { x = 50, y = 0 },
+      keys            = Keys { left = Up, right = Up, up = Up, down = Up },
+      playerDirection = North
+    },
+    cars = [], people = [], blocks = [], loaded = 0
+  }
 
 updateKeyState :: (KeyState, KeyState, KeyState, KeyState) -> GTA -> IO GTA
 updateKeyState (left', right', up', down') game = return updateGame
@@ -74,10 +81,12 @@ handleKeys (EventKey (SpecialKey KeyUp)    state _ _) = updateKeyState (Up   , U
 handleKeys (EventKey (SpecialKey KeyDown)  state _ _) = updateKeyState (Up   , Up   , Up   , state)
 handleKeys (EventKey (SpecialKey KeyLeft)  state _ _) = updateKeyState (state, Up   , Up   , Up   )
 handleKeys (EventKey (SpecialKey KeyRight) state _ _) = updateKeyState (Up   , state, Up   , Up   )
-handleKeys _                                          = return . id
+handleKeys _                                          = return
 
 update :: Float -> GTA -> IO GTA
-update _ = return . updateTraffic . updatePlayerPosition
+update _ game
+  | loaded game == 0 = readWorld
+  | otherwise = return ( updateTraffic ( updatePlayerPosition game ) )
 
 updateTraffic :: GTA -> GTA
 updateTraffic game = updatePeople (people game) (updateCars (cars game) game)

@@ -32,34 +32,13 @@ data GTA = Game
   { player :: Player,
     cars   :: [Car],
     people :: [Person],
-    blocks :: [Block] }
+    blocks :: [Block],
+    loaded :: Float }
   deriving (Show, Generic)
 
-loadWorld :: GTA
---loadWorld = (decode <$> getJSON) :: IO (Maybe GTA)
---loadWorld = (decode <$> getJSON) :: IO (Maybe GTA)
-loadWorld = Game
-  { player = Player {
-      playerPosition  = Position { x = 50, y = 0 },
-      keys            = Keys { left = Up, right = Up, up = Up, down = Up },
-      playerDirection = North
-    },
-    cars = [
-      Car { carPosition = Position { x = 30, y = 30 },  carColor = blue,  carDirection = North },
-      Car { carPosition = Position { x = 30, y = -80 }, carColor = green, carDirection = North }
-    ],
-    people = [Person
-      { personPosition = Position { x = 20, y = 60 }, personColor = yellow, personDirection = North }
-    ],
-    blocks = [Block
-      { blockPosition = Position { x = 0, y = 0 }, blockWidth = 200, blockHeight = 200, blockType = Road}, Block
-      { blockPosition = Position { x = 0, y = 0 }, blockWidth = 10, blockHeight = 100, blockType = Building }, Block
-      { blockPosition = Position { x = 0, y = 100 }, blockWidth = 200, blockHeight = 10, blockType = Building }, Block
-      { blockPosition = Position { x = -100, y = 0 }, blockWidth = 10, blockHeight = 200, blockType = Building }, Block
-      { blockPosition = Position { x = -50, y = -100 }, blockWidth = 150, blockHeight = 10, blockType = Building }, Block
-      { blockPosition = Position { x = 100, y = 0 }, blockWidth = 10, blockHeight = 200, blockType = Building }
-    ]
-  }
+readWorld :: IO GTA
+readWorld = do x <- (decode <$> getJSON) :: IO (Maybe GTA)
+               return ((fromJust x) :: GTA)
 
 jsonFile :: FilePath
 jsonFile = "./config/world.json"
