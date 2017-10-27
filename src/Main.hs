@@ -1,7 +1,7 @@
 module Main where
 
 import Graphics.Gloss
-import Graphics.Gloss.Interface.Pure.Game
+import Graphics.Gloss.Interface.IO.Game
 import Data.Maybe
 import Debug.Trace
 
@@ -21,7 +21,7 @@ offset = 100
 
 -- Functions
 main :: IO ()
-main = play window black 60 initialState render handleKeys update
+main = playIO window black 60 initialState render handleKeys update
 
 window :: Display
 window = InWindow "GTA" (width, height) (offset, offset)
@@ -29,8 +29,8 @@ window = InWindow "GTA" (width, height) (offset, offset)
 initialState :: GTA
 initialState = loadWorld
 
-updateKeyState :: (KeyState, KeyState, KeyState, KeyState) -> GTA -> GTA
-updateKeyState (left', right', up', down') game = updateGame
+updateKeyState :: (KeyState, KeyState, KeyState, KeyState) -> GTA -> IO GTA
+updateKeyState (left', right', up', down') game = return updateGame
   where updateGame = game { player = Player
           { playerPosition  = getPos (player game),
             keys            = Keys { left = left', right = right', up = up', down = down' },
@@ -63,21 +63,21 @@ playerDraw :: GTA -> Picture
 playerDraw game = translate x y $ color red $ rectangleSolid 10 10
   where Position x y = getPos (player game)
 
-render :: GTA -> Picture
-render game = pictures (blockList ++ carsList ++ personList ++ [playerDraw game])
+render :: GTA -> IO Picture
+render game = return (pictures (blockList ++ carsList ++ personList ++ [playerDraw game]))
   where blockList = map block (blocks game)
         carsList = map car (cars game)
         personList = map person (people game)
 
-handleKeys :: Event -> GTA -> GTA
+handleKeys :: Event -> GTA -> IO GTA
 handleKeys (EventKey (SpecialKey KeyUp)    state _ _) = updateKeyState (Up   , Up   , state, Up   )
 handleKeys (EventKey (SpecialKey KeyDown)  state _ _) = updateKeyState (Up   , Up   , Up   , state)
 handleKeys (EventKey (SpecialKey KeyLeft)  state _ _) = updateKeyState (state, Up   , Up   , Up   )
 handleKeys (EventKey (SpecialKey KeyRight) state _ _) = updateKeyState (Up   , state, Up   , Up   )
-handleKeys _                                          = id
+handleKeys _                                          = return . id
 
-update :: Float -> GTA -> GTA
-update _ = updateTraffic . updatePlayerPosition
+update :: Float -> GTA -> IO GTA
+update _ = return . updateTraffic . updatePlayerPosition
 
 updateTraffic :: GTA -> GTA
 updateTraffic game = updatePeople (people game) (updateCars (cars game) game)
