@@ -2,11 +2,14 @@
 module Data.Position where
 
 import GHC.Generics
+import Data.Aeson
 
 data Position = Position
   { x :: Float,
     y :: Float }
   deriving (Show, Generic)
+
+instance FromJSON Position
 
 class Movable a where
   getPos :: a -> Position
@@ -19,7 +22,9 @@ move (Position dx dy) a = setPos (Position (x + dx) (y + dy)) a
   where (Position x y) = getPos a
 
 data Direction = North | West | South | East
-  deriving (Show, Enum, Eq)
+  deriving (Show, Enum, Eq, Generic)
+
+instance FromJSON Direction
 
 next :: Direction -> Direction
 next East = North

@@ -1,9 +1,11 @@
 {-# LANGUAGE DeriveGeneric #-}
 module Data.Person where
 
+import Data.Aeson
 import Graphics.Gloss
 import Data.Position
 import GHC.Generics
+import Data.Color
 
 data Person = Person
   { personPosition  :: Position,
@@ -18,3 +20,5 @@ instance Movable Person where
                                                     personDirection = d }
   getDir (Person _ _ d) = d
   setDir x (Person a c _) = Person { personPosition = a, personColor = c, personDirection = x }
+
+instance FromJSON Person

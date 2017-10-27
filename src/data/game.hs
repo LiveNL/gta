@@ -1,17 +1,19 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE OverloadedStrings, DeriveGeneric #-}
 module Data.Game where
 
 import Data.Aeson
+import Control.Monad
 import GHC.Generics
 import qualified Data.ByteString.Lazy.Char8 as B
 
-import Graphics.Gloss.Interface.Pure.Game
+import Graphics.Gloss
+import Graphics.Gloss.Interface.IO.Game
 
 import Data.Position
 import Data.Car
 import Data.Person
 import Data.Block
+import Data.Maybe
 
 data Player = Player
   { playerPosition  :: Position,
@@ -65,7 +67,9 @@ jsonFile = "./config/world.json"
 getJSON :: IO B.ByteString
 getJSON = B.readFile jsonFile
 
---instance FromJSON GTA
+instance FromJSON GTA
+instance FromJSON Player
+instance FromJSON Keys
 
 instance Movable Player where
   getPos (Player a _ _) = Position (x a) (y a)
@@ -73,3 +77,13 @@ instance Movable Player where
                                                   keys = k }
   getDir (Player _ _ d) = d
   setDir x (Player a k _) = Player { playerPosition = a, keys = k, playerDirection = x }
+
+instance FromJSON KeyState where
+  parseJSON (String s) = maybe mzero return $ stringToKeyState s
+  parseJSON _ = mzero
+
+--stringToKeyState :: Text -> Maybe KeyState
+stringToKeyState s
+  | s == "Up" = Just Up
+  | s == "Down" = Just Down
+  | otherwise = Nothing
