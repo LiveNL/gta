@@ -53,7 +53,7 @@ instance FromJSON Keys
 instance Movable Player where
   getPos (Player a _ _) = Position (x a) (y a)
   setPos (Position x' y') (Player _ k _) = Player { playerPosition = Position { x = x', y = y' },
-                                                  keys = k }
+                                                    keys = k }
   getDir (Player _ _ d) = d
   setDir x (Player a k _) = Player { playerPosition = a, keys = k, playerDirection = x }
 

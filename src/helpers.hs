@@ -1,6 +1,6 @@
 module Helpers (canMove) where
 
-import Graphics.Gloss.Interface.Pure.Game
+import Graphics.Gloss.Interface.IO.Game
 import Data.Block
 import Data.Position
 import Debug.Trace

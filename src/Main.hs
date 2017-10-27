@@ -2,8 +2,6 @@ module Main where
 
 import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game
-import Data.Maybe
-import Debug.Trace
 
 import Helpers
 import Traffic
