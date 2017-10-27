@@ -30,7 +30,7 @@ updateCar :: GTA -> Car -> Car
 updateCar game car@(Car (Position x y) _ d)
   | canMove (x, y, d) blocks' = newCarPosition car
   | otherwise = switchCarPosition car
-    where blocks' = moveBlocks (world game) [Road]
+    where blocks' = moveBlocks (blocks game) [Road]
 
 newCarPosition :: Car -> Car
 newCarPosition car@(Car (Position _ _) _ d)
@@ -50,7 +50,7 @@ updatePerson :: GTA -> Person -> Person
 updatePerson game person@(Person (Position x y) _ d)
   | canMove (x, y, d) blocks' = newPersonPosition person
   | otherwise = switchPersonPosition person
-    where blocks' = moveBlocks (world game) [Sidewalk]
+    where blocks' = moveBlocks (blocks game) [Sidewalk]
 
 newPersonPosition :: Person -> Person
 newPersonPosition person@(Person _ _ d)

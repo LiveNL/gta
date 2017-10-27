@@ -1,14 +1,16 @@
+{-# LANGUAGE DeriveGeneric #-}
 module Data.Block where
 
 import Graphics.Gloss
 import Data.Position
+import GHC.Generics
 
 data Block = Block
   { blockPosition :: Position,
     blockWidth    :: Float,
     blockHeight   :: Float,
     blockType     :: BlockType }
-  deriving Show
+  deriving (Show, Generic)
 
 data BlockType = Road | Sidewalk | Building
   deriving (Show, Eq)

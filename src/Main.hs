@@ -27,28 +27,7 @@ window :: Display
 window = InWindow "GTA" (width, height) (offset, offset)
 
 initialState :: GTA
-initialState = Game
-  { player = Player {
-      playerPosition  = Position { x = 50, y = 0 },
-      keys            = Keys { left = Up, right = Up, up = Up, down = Up },
-      playerDirection = North
-    },
-    cars = [
-      Car { carPosition = Position { x = 30, y = 30 },  carColor = blue,  carDirection = North },
-      Car { carPosition = Position { x = 30, y = -80 }, carColor = green, carDirection = North }
-    ],
-    people = [Person
-      { personPosition = Position { x = 20, y = 60 }, personColor = yellow, personDirection = North }
-    ],
-    world = [Block
-      { blockPosition = Position { x = 0, y = 0 }, blockWidth = 200, blockHeight = 200, blockType = Road}, Block
-      { blockPosition = Position { x = 0, y = 0 }, blockWidth = 10, blockHeight = 100, blockType = Building }, Block
-      { blockPosition = Position { x = 0, y = 100 }, blockWidth = 200, blockHeight = 10, blockType = Building }, Block
-      { blockPosition = Position { x = -100, y = 0 }, blockWidth = 10, blockHeight = 200, blockType = Building }, Block
-      { blockPosition = Position { x = -50, y = -100 }, blockWidth = 150, blockHeight = 10, blockType = Building }, Block
-      { blockPosition = Position { x = 100, y = 0 }, blockWidth = 10, blockHeight = 200, blockType = Building }
-    ]
-  }
+initialState = loadWorld
 
 updateKeyState :: (KeyState, KeyState, KeyState, KeyState) -> GTA -> GTA
 updateKeyState (left', right', up', down') game = updateGame
@@ -71,7 +50,7 @@ updatePlayerPosition game
         keys            = currentKeys,
         playerDirection = currentDir }
     }
-    blocks' = moveBlocks (world game) [Sidewalk, Road]
+    blocks' = moveBlocks (blocks game) [Sidewalk, Road]
 
 newPosition :: Keys -> Position -> Position
 newPosition (Keys Down _    _    _   ) (Position x y) = Position {x = x - 1, y = y     }
@@ -86,7 +65,7 @@ playerDraw game = translate x y $ color red $ rectangleSolid 10 10
 
 render :: GTA -> Picture
 render game = pictures (blockList ++ carsList ++ personList ++ [playerDraw game])
-  where blockList = map block (world game)
+  where blockList = map block (blocks game)
         carsList = map car (cars game)
         personList = map person (people game)
 

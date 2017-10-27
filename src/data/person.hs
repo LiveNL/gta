@@ -1,13 +1,15 @@
+{-# LANGUAGE DeriveGeneric #-}
 module Data.Person where
 
 import Graphics.Gloss
 import Data.Position
+import GHC.Generics
 
 data Person = Person
   { personPosition  :: Position,
     personColor     :: Color,
     personDirection :: Direction }
-  deriving Show
+  deriving (Show, Generic)
 
 instance Movable Person where
   getPos (Person a _ d) = Position (x a) (y a)

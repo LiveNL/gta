@@ -1,9 +1,12 @@
+{-# LANGUAGE DeriveGeneric #-}
 module Data.Position where
+
+import GHC.Generics
 
 data Position = Position
   { x :: Float,
     y :: Float }
-  deriving Show
+  deriving (Show, Generic)
 
 class Movable a where
   getPos :: a -> Position

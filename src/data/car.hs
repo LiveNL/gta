@@ -1,13 +1,15 @@
+{-# LANGUAGE DeriveGeneric #-}
 module Data.Car where
 
 import Graphics.Gloss
 import Data.Position
+import GHC.Generics
 
 data Car = Car
   { carPosition  :: Position,
     carColor     :: Color,
     carDirection :: Direction }
-  deriving Show
+  deriving (Show, Generic)
 
 instance Movable Car where
   getPos (Car a _ d) = Position (x a) (y a)
