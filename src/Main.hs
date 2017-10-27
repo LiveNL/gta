@@ -60,7 +60,7 @@ updateKeyState (left', right', up', down') game = updateGame
 
 updatePlayerPosition :: GTA -> GTA
 updatePlayerPosition game
-  | canMove (x newPosition', y newPosition', currentDir) (world game) = updateGame
+  | canMove (x newPosition', y newPosition', currentDir) blocks' = updateGame
   | otherwise = game
   where
     currentKeys = keys (player game)
@@ -71,6 +71,7 @@ updatePlayerPosition game
         keys            = currentKeys,
         playerDirection = currentDir }
     }
+    blocks' = moveBlocks (world game) [Sidewalk, Road]
 
 newPosition :: Keys -> Position -> Position
 newPosition (Keys Down _    _    _   ) (Position x y) = Position {x = x - 1, y = y     }

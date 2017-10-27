@@ -12,3 +12,7 @@ data Block = Block
 
 data BlockType = Road | Sidewalk | Building
   deriving (Show, Eq)
+
+moveBlocks :: [Block] -> [BlockType] -> [Block]
+moveBlocks xs t = filter f xs
+  where f (Block _ _ _ x) = notElem x t
