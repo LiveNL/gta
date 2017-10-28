@@ -31,7 +31,7 @@ initialState = Game
       keys            = Keys { left = Up, right = Up, up = Up, down = Up },
       playerDirection = North
     },
-    cars = [], people = [], blocks = [], loaded = 0
+    cars = [], people = [], blocks = [], gameState = Loading
   }
 
 updateKeyState :: (KeyState, KeyState, KeyState, KeyState) -> GTA -> IO GTA
@@ -79,11 +79,19 @@ handleKeys (EventKey (SpecialKey KeyUp)    state _ _) = updateKeyState (Up   , U
 handleKeys (EventKey (SpecialKey KeyDown)  state _ _) = updateKeyState (Up   , Up   , Up   , state)
 handleKeys (EventKey (SpecialKey KeyLeft)  state _ _) = updateKeyState (state, Up   , Up   , Up   )
 handleKeys (EventKey (SpecialKey KeyRight) state _ _) = updateKeyState (Up   , state, Up   , Up   )
+handleKeys (EventKey (Char 'p')            Down  _ _) = pauseGame
 handleKeys _                                          = return
+
+pauseGame :: GTA -> IO GTA
+pauseGame game
+  | state == Running = return game { gameState = Paused }
+  | otherwise        = return game { gameState = Running }
+    where state = gameState game
 
 update :: Float -> GTA -> IO GTA
 update _ game
-  | loaded game == 0 = readWorld
+  | gameState game == Loading = readWorld
+  | gameState game == Paused = return game
   | otherwise = return ( updateTraffic ( updatePlayerPosition game ) )
 
 updateTraffic :: GTA -> GTA

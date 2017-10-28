@@ -33,8 +33,11 @@ data GTA = Game
     cars   :: [Car],
     people :: [Person],
     blocks :: [Block],
-    loaded :: Float }
+    gameState :: GameState }
   deriving (Show, Generic)
+
+data GameState = Loading | Running | Paused
+  deriving (Show, Eq, Generic)
 
 readWorld :: IO GTA
 readWorld = do x <- (decode <$> getJSON) :: IO (Maybe GTA)
@@ -65,4 +68,13 @@ instance FromJSON KeyState where
 stringToKeyState s
   | s == "Up" = Just Up
   | s == "Down" = Just Down
+  | otherwise = Nothing
+
+instance FromJSON GameState where
+  parseJSON (String s) = maybe mzero return $ stringToGameState s
+  parseJSON _ = mzero
+
+--stringToKeyState :: Text -> Maybe KeyState
+stringToGameState s
+  | s == "Running" = Just Running
   | otherwise = Nothing
