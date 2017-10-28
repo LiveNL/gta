@@ -12,7 +12,7 @@ import Data.Person
 import Data.Game
 
 car :: Car -> Picture
-car (Car (Position x y) c _) = translate x y $ color c $ rectangleSolid 20 30
+car (Car (Position x y) c _ _) = translate x y $ color c $ rectangleSolid 20 30
 
 person :: Person -> Picture
 person (Person (Position x y) c _) = translate x y $ color c $ rectangleSolid 10 10
@@ -28,20 +28,18 @@ updateCars cars game = game { cars = updateCars' }
   where updateCars' = map (updateCar game) cars
 
 updateCar :: GTA -> Car -> Car
-updateCar game car@(Car (Position x y) _ d)
-  | canMove (x, y, d) blocks' = newCarPosition car
-  | otherwise = switchCarPosition car
-    where blocks' = moveBlocks (blocks game) [Road]
+updateCar game car@Car{velocity} = case velocity of
+  0 -> car
+  1 -> if canMove car blocks' && canMove car [player game] then newCarPosition car
+       else changeDir car
+         where blocks' = moveBlocks (blocks game) [Road]
 
 newCarPosition :: Car -> Car
-newCarPosition car@(Car (Position _ _) _ d)
-  | d == North = move (Position 0    1)  car
-  | d == West  = move (Position (-1) 0)  car
-  | d == South = move (Position 0  (-1)) car
-  | otherwise  = move (Position 1    0)  car
-
-switchCarPosition :: Car -> Car
-switchCarPosition car@(Car (Position x' y') c d) = changeDir car
+newCarPosition car@(Car (Position _ _) _ d _) = case d of
+  North -> move (Position 0    1)  car
+  West  -> move (Position (-1) 0)  car
+  South -> move (Position 0  (-1)) car
+  _     -> move (Position 1    0)  car
 
 updatePeople :: [Person] -> GTA -> GTA
 updatePeople people game = game { people = updatePeople' }
