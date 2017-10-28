@@ -1,3 +1,4 @@
+{-# LANGUAGE NamedFieldPuns #-}
 module Traffic (car, person, block, updateCars, updatePeople) where
 
 import Graphics.Gloss
@@ -46,9 +47,9 @@ updatePeople people game = game { people = updatePeople' }
   where updatePeople' = map (updatePerson game) people
 
 updatePerson :: GTA -> Person -> Person
-updatePerson game person@(Person (Position x y) _ d)
-  | canMove (x, y, d) blocks' = newPersonPosition person
-  | otherwise = switchPersonPosition person
+updatePerson game person
+  | canMove person blocks' = newPersonPosition person
+  | otherwise = changeDir person
     where blocks' = moveBlocks (blocks game) [Sidewalk]
 
 newPersonPosition :: Person -> Person
@@ -57,6 +58,3 @@ newPersonPosition person@(Person _ _ d)
   | d == West  = move (Position (-1) 0)  person
   | d == South = move (Position 0  (-1)) person
   | otherwise  = move (Position 1    0)  person
-
-switchPersonPosition :: Person -> Person
-switchPersonPosition person@(Person (Position x' y') c d) = changeDir person

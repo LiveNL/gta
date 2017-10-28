@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings, DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric, OverloadedStrings, NamedFieldPuns #-}
 module Data.Game where
 
 import Data.Aeson
@@ -54,11 +54,21 @@ instance FromJSON Player
 instance FromJSON Keys
 
 instance Movable Player where
-  getPos (Player a _ _) = Position (x a) (y a)
-  setPos (Position x' y') (Player _ k _) = Player { playerPosition = Position { x = x', y = y' },
-                                                    keys = k }
-  getDir (Player _ _ d) = d
-  setDir x (Player a k _) = Player { playerPosition = a, keys = k, playerDirection = x }
+  getPos Player{playerPosition} = Position (x playerPosition) (y playerPosition)
+  setPos (Position x' y') player@Player{playerPosition} =
+    player { playerPosition = Position { x = x', y = y' } }
+
+  getDir Player{playerDirection} = playerDirection
+  setDir x player@Player{playerDirection} = player { playerDirection = x }
+
+  coordinates Player{playerPosition} = [(x' - w',y' - h'),(x' + w', y'+ h')]
+    where x' = x playerPosition
+          y' = y playerPosition
+          w' = 10 / 2
+          h' = 10 / 2
+
+  width _ = 10
+  height _ = 10
 
 instance FromJSON KeyState where
   parseJSON (String s) = maybe mzero return $ stringToKeyState s

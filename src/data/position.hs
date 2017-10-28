@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric, NamedFieldPuns #-}
 module Data.Position where
 
 import GHC.Generics
@@ -16,6 +16,9 @@ class Movable a where
   setPos :: Position -> a -> a
   getDir :: a -> Direction
   setDir :: Direction -> a -> a
+  width  :: a -> Float
+  height :: a -> Float
+  coordinates :: a -> [(Float,Float)]
 
 move :: (Movable a) => Position -> a -> a
 move (Position dx dy) a = setPos (Position (x + dx) (y + dy)) a

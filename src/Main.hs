@@ -12,9 +12,9 @@ import Data.Person
 import Data.Position
 
 -- Variables
-width, height, offset :: Int
-width  = 300
-height = 300
+windowWidth, windowHeight, offset :: Int
+windowWidth  = 300
+windowHeight = 300
 offset = 100
 
 -- Functions
@@ -22,7 +22,7 @@ main :: IO ()
 main = playIO window black 60 initialState render handleKeys update
 
 window :: Display
-window = InWindow "GTA" (width, height) (offset, offset)
+window = InWindow "GTA" (windowWidth, windowHeight) (offset, offset)
 
 initialState :: GTA
 initialState = Game
@@ -43,8 +43,11 @@ updateKeyState (left', right', up', down') game = return updateGame
         }
 
 updatePlayerPosition :: GTA -> GTA
+-- TODO: FIX THE DUPLICATION FOR CAN MOVE, but works for now
 updatePlayerPosition game
-  | canMove (x newPosition', y newPosition', currentDir) blocks' = updateGame
+  | canMove (player game) (cars game) && canMove (player game) (people game) &&
+      canMove (player game) blocks'
+    = updateGame
   | otherwise = game
   where
     currentKeys = keys (player game)

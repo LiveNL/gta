@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric, NamedFieldPuns #-}
 module Data.Person where
 
 import Data.Aeson
@@ -14,11 +14,19 @@ data Person = Person
   deriving (Show, Generic)
 
 instance Movable Person where
-  getPos (Person a _ d) = Position (x a) (y a)
-  setPos (Position x' y') (Person _ c d) = Person { personPosition = Position { x = x', y = y' },
-                                                    personColor = c,
-                                                    personDirection = d }
-  getDir (Person _ _ d) = d
-  setDir x (Person a c _) = Person { personPosition = a, personColor = c, personDirection = x }
+  getPos Person{personPosition} = Position (x personPosition) (y personPosition)
+  setPos (Position x' y') person@Person{personPosition} =
+    person { personPosition = Position { x = x', y = y' } }
+
+  getDir Person{personDirection} = personDirection
+  setDir x person@Person{personDirection} = person { personDirection = x }
+
+  coordinates person@Person{personPosition} = [(x' - w',y' - h'),(x' + w', y'+ h')]
+    where (Position x' y') = getPos person
+          w' = 10 / 2
+          h' = 10 / 2
+
+  width _ = 10
+  height _ = 10
 
 instance FromJSON Person
