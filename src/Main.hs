@@ -34,12 +34,12 @@ initialState = Game
     cars = [], people = [], blocks = [], gameState = Loading
   }
 
-updateKeyState :: (KeyState, KeyState, KeyState, KeyState) -> GTA -> IO GTA
-updateKeyState (left', right', up', down') game = return updateGame
+updateKeyState :: (KeyState, KeyState, KeyState, KeyState, Direction) -> GTA -> IO GTA
+updateKeyState (left', right', up', down', direction') game = return updateGame
   where updateGame = game { player = Player
           { playerPosition  = getPos (player game),
             keys            = Keys { left = left', right = right', up = up', down = down' },
-            playerDirection = getDir (player game) }
+            playerDirection = direction'}
         }
 
 updatePlayerPosition :: GTA -> GTA
@@ -78,10 +78,10 @@ render game = return (pictures (blockList ++ carsList ++ personList ++ [playerDr
         personList = map person (people game)
 
 handleKeys :: Event -> GTA -> IO GTA
-handleKeys (EventKey (SpecialKey KeyUp)    state _ _) = updateKeyState (Up   , Up   , state, Up   )
-handleKeys (EventKey (SpecialKey KeyDown)  state _ _) = updateKeyState (Up   , Up   , Up   , state)
-handleKeys (EventKey (SpecialKey KeyLeft)  state _ _) = updateKeyState (state, Up   , Up   , Up   )
-handleKeys (EventKey (SpecialKey KeyRight) state _ _) = updateKeyState (Up   , state, Up   , Up   )
+handleKeys (EventKey (SpecialKey KeyUp)    s _ _) = updateKeyState (Up, Up, s , Up, North)
+handleKeys (EventKey (SpecialKey KeyDown)  s _ _) = updateKeyState (Up, Up, Up, s , South)
+handleKeys (EventKey (SpecialKey KeyLeft)  s _ _) = updateKeyState (s , Up, Up, Up, West )
+handleKeys (EventKey (SpecialKey KeyRight) s _ _) = updateKeyState (Up, s , Up, Up, East )
 handleKeys (EventKey (Char 'p')            Down  _ _) = changeGameState
 handleKeys _                                          = return
 
