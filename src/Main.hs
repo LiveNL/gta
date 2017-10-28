@@ -79,20 +79,19 @@ handleKeys (EventKey (SpecialKey KeyUp)    state _ _) = updateKeyState (Up   , U
 handleKeys (EventKey (SpecialKey KeyDown)  state _ _) = updateKeyState (Up   , Up   , Up   , state)
 handleKeys (EventKey (SpecialKey KeyLeft)  state _ _) = updateKeyState (state, Up   , Up   , Up   )
 handleKeys (EventKey (SpecialKey KeyRight) state _ _) = updateKeyState (Up   , state, Up   , Up   )
-handleKeys (EventKey (Char 'p')            Down  _ _) = pauseGame
+handleKeys (EventKey (Char 'p')            Down  _ _) = changeGameState
 handleKeys _                                          = return
 
-pauseGame :: GTA -> IO GTA
-pauseGame game
-  | state == Running = return game { gameState = Paused }
-  | otherwise        = return game { gameState = Running }
-    where state = gameState game
+changeGameState :: GTA -> IO GTA
+changeGameState game = case gameState game of
+  Running -> return game { gameState = Paused }
+  _       -> return game { gameState = Running }
 
 update :: Float -> GTA -> IO GTA
-update _ game
-  | gameState game == Loading = readWorld
-  | gameState game == Paused = return game
-  | otherwise = return ( updateTraffic ( updatePlayerPosition game ) )
+update _ game = case gameState game of
+  Loading -> readWorld
+  Paused  -> return game
+  Running -> return ( updateTraffic ( updatePlayerPosition game ) )
 
 updateTraffic :: GTA -> GTA
 updateTraffic game = updatePeople (people game) (updateCars (cars game) game)
