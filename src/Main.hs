@@ -1,9 +1,7 @@
 module Main where
 
 import Graphics.Gloss
-import Graphics.Gloss.Interface.Pure.Game
-import Data.Maybe
-import Debug.Trace
+import Graphics.Gloss.Interface.IO.Game
 
 import Helpers
 import Traffic
@@ -21,7 +19,7 @@ offset = 100
 
 -- Functions
 main :: IO ()
-main = play window black 60 initialState render handleKeys update
+main = playIO window black 60 initialState render handleKeys update
 
 window :: Display
 window = InWindow "GTA" (width, height) (offset, offset)
@@ -33,25 +31,11 @@ initialState = Game
       keys            = Keys { left = Up, right = Up, up = Up, down = Up },
       playerDirection = North
     },
-    cars = [
-      Car { carPosition = Position { x = 30, y = 30 },  carColor = blue,  carDirection = North },
-      Car { carPosition = Position { x = 30, y = -80 }, carColor = green, carDirection = North }
-    ],
-    people = [Person
-      { personPosition = Position { x = 20, y = 60 }, personColor = yellow, personDirection = North }
-    ],
-    world = [Block
-      { blockPosition = Position { x = 0, y = 0 }, blockWidth = 200, blockHeight = 200, blockType = Road}, Block
-      { blockPosition = Position { x = 0, y = 0 }, blockWidth = 10, blockHeight = 100, blockType = Building }, Block
-      { blockPosition = Position { x = 0, y = 100 }, blockWidth = 200, blockHeight = 10, blockType = Building }, Block
-      { blockPosition = Position { x = -100, y = 0 }, blockWidth = 10, blockHeight = 200, blockType = Building }, Block
-      { blockPosition = Position { x = -50, y = -100 }, blockWidth = 150, blockHeight = 10, blockType = Building }, Block
-      { blockPosition = Position { x = 100, y = 0 }, blockWidth = 10, blockHeight = 200, blockType = Building }
-    ]
+    cars = [], people = [], blocks = [], loaded = 0
   }
 
-updateKeyState :: (KeyState, KeyState, KeyState, KeyState) -> GTA -> GTA
-updateKeyState (left', right', up', down') game = updateGame
+updateKeyState :: (KeyState, KeyState, KeyState, KeyState) -> GTA -> IO GTA
+updateKeyState (left', right', up', down') game = return updateGame
   where updateGame = game { player = Player
           { playerPosition  = getPos (player game),
             keys            = Keys { left = left', right = right', up = up', down = down' },
@@ -60,7 +44,7 @@ updateKeyState (left', right', up', down') game = updateGame
 
 updatePlayerPosition :: GTA -> GTA
 updatePlayerPosition game
-  | canMove (x newPosition', y newPosition', currentDir) (world game) = updateGame
+  | canMove (x newPosition', y newPosition', currentDir) blocks' = updateGame
   | otherwise = game
   where
     currentKeys = keys (player game)
@@ -71,6 +55,7 @@ updatePlayerPosition game
         keys            = currentKeys,
         playerDirection = currentDir }
     }
+    blocks' = moveBlocks (blocks game) [Sidewalk, Road]
 
 newPosition :: Keys -> Position -> Position
 newPosition (Keys Down _    _    _   ) (Position x y) = Position {x = x - 1, y = y     }
@@ -83,21 +68,23 @@ playerDraw :: GTA -> Picture
 playerDraw game = translate x y $ color red $ rectangleSolid 10 10
   where Position x y = getPos (player game)
 
-render :: GTA -> Picture
-render game = pictures (blockList ++ carsList ++ personList ++ [playerDraw game])
-  where blockList = map block (world game)
+render :: GTA -> IO Picture
+render game = return (pictures (blockList ++ carsList ++ personList ++ [playerDraw game]))
+  where blockList = map block (blocks game)
         carsList = map car (cars game)
         personList = map person (people game)
 
-handleKeys :: Event -> GTA -> GTA
+handleKeys :: Event -> GTA -> IO GTA
 handleKeys (EventKey (SpecialKey KeyUp)    state _ _) = updateKeyState (Up   , Up   , state, Up   )
 handleKeys (EventKey (SpecialKey KeyDown)  state _ _) = updateKeyState (Up   , Up   , Up   , state)
 handleKeys (EventKey (SpecialKey KeyLeft)  state _ _) = updateKeyState (state, Up   , Up   , Up   )
 handleKeys (EventKey (SpecialKey KeyRight) state _ _) = updateKeyState (Up   , state, Up   , Up   )
-handleKeys _                                          = id
+handleKeys _                                          = return
 
-update :: Float -> GTA -> GTA
-update _ = updateTraffic . updatePlayerPosition
+update :: Float -> GTA -> IO GTA
+update _ game
+  | loaded game == 0 = readWorld
+  | otherwise = return ( updateTraffic ( updatePlayerPosition game ) )
 
 updateTraffic :: GTA -> GTA
 updateTraffic game = updatePeople (people game) (updateCars (cars game) game)

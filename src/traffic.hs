@@ -1,7 +1,7 @@
 module Traffic (car, person, block, updateCars, updatePeople) where
 
 import Graphics.Gloss
-import Graphics.Gloss.Interface.Pure.Game
+import Graphics.Gloss.Interface.IO.Game
 
 import Helpers
 
@@ -20,7 +20,8 @@ person (Person (Position x y) c _) = translate x y $ color c $ rectangleSolid 10
 block :: Block -> Picture
 block (Block (Position x y) w h t)
   | t == Road = translate x y $ color (greyN 0.5) $ rectangleSolid w h
-  | otherwise = translate x y $ color white $ rectangleSolid w h
+  | t == Building = translate x y $ color (dark red) $ rectangleSolid w h
+  | otherwise = translate x y $ color (greyN 0.7) $ rectangleSolid w h
 
 updateCars :: [Car] -> GTA -> GTA
 updateCars cars game = game { cars = updateCars' }
@@ -28,8 +29,9 @@ updateCars cars game = game { cars = updateCars' }
 
 updateCar :: GTA -> Car -> Car
 updateCar game car@(Car (Position x y) _ d)
-  | canMove (x, y, d) (world game) = newCarPosition car
+  | canMove (x, y, d) blocks' = newCarPosition car
   | otherwise = switchCarPosition car
+    where blocks' = moveBlocks (blocks game) [Road]
 
 newCarPosition :: Car -> Car
 newCarPosition car@(Car (Position _ _) _ d)
@@ -47,8 +49,9 @@ updatePeople people game = game { people = updatePeople' }
 
 updatePerson :: GTA -> Person -> Person
 updatePerson game person@(Person (Position x y) _ d)
-  | canMove (x, y, d) (world game) = newPersonPosition person
+  | canMove (x, y, d) blocks' = newPersonPosition person
   | otherwise = switchPersonPosition person
+    where blocks' = moveBlocks (blocks game) [Sidewalk]
 
 newPersonPosition :: Person -> Person
 newPersonPosition person@(Person _ _ d)

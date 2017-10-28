@@ -1,13 +1,17 @@
+{-# LANGUAGE DeriveGeneric, OverloadedStrings #-}
 module Data.Car where
 
+import Data.Aeson
 import Graphics.Gloss
 import Data.Position
+import Data.Color
+import GHC.Generics
 
 data Car = Car
   { carPosition  :: Position,
     carColor     :: Color,
     carDirection :: Direction }
-  deriving Show
+  deriving (Show, Generic)
 
 instance Movable Car where
   getPos (Car a _ d) = Position (x a) (y a)
@@ -16,3 +20,5 @@ instance Movable Car where
                                               carDirection = d }
   getDir (Car _ _ d) = d
   setDir x (Car a c _) = Car { carPosition = a, carColor = c, carDirection = x }
+
+instance FromJSON Car

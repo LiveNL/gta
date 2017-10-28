@@ -1,6 +1,6 @@
 module Helpers (canMove) where
 
-import Graphics.Gloss.Interface.Pure.Game
+import Graphics.Gloss.Interface.IO.Game
 import Data.Block
 import Data.Position
 import Debug.Trace
@@ -8,7 +8,6 @@ import Debug.Trace
 canMove :: (Float, Float, Direction) -> [Block] -> Bool
 canMove (x,y,d) = all canMove'
   where canMove' block
-          | (blockType block) == Road = True
           | d == North = not (inBlock (x, y + 1) (coordinates block))
           | d == West  = not (inBlock (x - 1, y) (coordinates block))
           | d == South = not (inBlock (x, y - 1) (coordinates block))
