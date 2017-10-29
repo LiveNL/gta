@@ -13,8 +13,8 @@
     "playerDirection": "North"
   },
   "cars": [
-    { "carPosition": { "x": -30, "y": 30 }, "carColor": "blue", "carDirection": "North" },
-    { "carPosition": { "x": -30, "y": -80 }, "carColor": "blue", "carDirection": "North" }
+    { "carPosition": { "x": -30, "y": 30 }, "carColor": "blue", "carDirection": "North", "velocity": 1},
+    { "carPosition": { "x": 30, "y": -80 }, "carColor": "blue", "carDirection": "North", "velocity": 0}
   ],
   "people": [
     { "personPosition": { "x": 30, "y": 30 }, "personColor": "yellow", "personDirection": "North" },
@@ -29,5 +29,5 @@
     { "blockPosition": { "x": -50, "y": -100 }, "blockWidth": 150, "blockHeight": 10, "blockType": "Building"},
     { "blockPosition": { "x": 100, "y": 0 }, "blockWidth": 10, "blockHeight": 200, "blockType": "Building"}
   ],
-  "loaded": 1
+  "gameState": "Running"
 }
