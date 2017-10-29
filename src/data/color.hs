@@ -14,4 +14,5 @@ stringToColor s
   | s == "red" = Just red
   | s == "blue" = Just blue
   | s == "yellow" = Just yellow
+  | s == "white" = Just white
   | otherwise = Nothing

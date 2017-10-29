@@ -18,7 +18,10 @@ import Data.Maybe
 data Player = Player
   { playerPosition  :: Position,
     keys            :: Keys,
-    playerDirection :: Direction}
+    playerColor     :: Color,
+    playerDirection :: Direction,
+    playerHeight    :: Float,
+    playerWidth     :: Float }
   deriving (Show, Generic)
 
 data Keys = Keys

@@ -10,7 +10,10 @@
       "up": "Up",
       "down": "Up"
     },
-    "playerDirection": "North"
+    "playerDirection": "North",
+    "playerWidth": 10,
+    "playerHeight": 10,
+    "playerColor": "red"
   },
   "cars": [
     { "carPosition": { "x": -30, "y": 30 }, "carColor": "blue", "carDirection": "North", "velocity": 1},
