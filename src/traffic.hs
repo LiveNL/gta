@@ -13,7 +13,12 @@ import Data.Person
 import Data.Game
 
 car :: Car -> Picture
-car (Car (Position x y) c _ _) = translate x y $ color c $ rectangleSolid 20 30
+car (Car (Position x y) c d _) = translate x y $ color c $ rotate angle $ rectangleSolid 20 30
+  where angle = case d of
+                  North -> 0
+                  West -> 90
+                  South -> 180
+                  East -> 270
 
 person :: Person -> Picture
 person (Person (Position x y) c _) = translate x y $ color c $ rectangleSolid 10 10

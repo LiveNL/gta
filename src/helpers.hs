@@ -1,4 +1,4 @@
-module Helpers (canMove) where
+module Helpers (canMove, canMove') where
 
 import Data.Position
 
