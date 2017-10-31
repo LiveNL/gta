@@ -33,6 +33,12 @@ next :: Direction -> Direction
 next East = North
 next d = succ d
 
-changeDir :: (Movable a) => a -> a
-changeDir a = setDir (next x) a
+prev :: Direction -> Direction
+prev North = East
+prev d = pred d
+
+changeDir :: (Movable a) => a -> Int -> a
+changeDir a rInt = case rInt of
+                     0 -> setDir (next x) a
+                     1 -> setDir (prev x) a
   where x = getDir a

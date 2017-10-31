@@ -14,6 +14,7 @@ import Data.Person
 import Data.Position
 import Data.Maybe
 import Debug.Trace
+import System.Random
 
 -- Variables
 windowWidth, windowHeight, offset :: Int
@@ -146,10 +147,15 @@ changeGameState game = case gameState game of
   _       -> return game { gameState = Running }
 
 update :: Float -> GTA -> IO GTA
-update _ game = case gameState game of
-  Loading -> readWorld
-  Paused  -> return game
-  Running -> return ( updateTraffic ( updatePlayerPosition game ) )
+update _ game = do
+  rnd <- randomNr
+  case gameState game of
+    Loading -> readWorld
+    Paused  -> return game
+    Running -> return ( updateTraffic rnd (updatePlayerPosition game))
 
-updateTraffic :: GTA -> GTA
-updateTraffic game = updatePeople (people game) (updateCars (cars game) game)
+randomNr :: IO Int
+randomNr = getStdRandom (randomR (0,1))
+
+updateTraffic :: Int -> GTA -> GTA
+updateTraffic x game = updatePeople (people game) (updateCars (cars game) game x)

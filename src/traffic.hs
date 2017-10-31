@@ -33,15 +33,15 @@ block (Block (Position x y) w h t)
   | t == Building = translate x y $ color (dark red) $ rectangleSolid w h
   | otherwise = translate x y $ color (greyN 0.7) $ rectangleSolid w h
 
-updateCars :: [Car] -> GTA -> GTA
-updateCars cars game = game { cars = updateCars' }
-  where updateCars' = map (updateCar game) cars
+updateCars :: [Car] -> GTA -> Int -> GTA
+updateCars cars game rInt = game { cars = updateCars' }
+  where updateCars' = map (updateCar game rInt) cars
 
-updateCar :: GTA -> Car -> Car
-updateCar game car@Car{velocity} = case velocity of
+updateCar :: GTA -> Int -> Car -> Car
+updateCar game rInt car@Car{velocity} = case velocity of
   0 -> car
   1 -> if canMove car blocks' && canMove car [player game] then newCarPosition car
-       else changeDir car
+                                                           else changeDir car rInt
          where blocks' = moveBlocks (blocks game) [Road]
 
 newCarPosition :: Car -> Car
@@ -58,7 +58,7 @@ updatePeople people game = game { people = updatePeople' }
 updatePerson :: GTA -> Person -> Person
 updatePerson game person
   | canMove person blocks' = newPersonPosition person
-  | otherwise = changeDir person
+  | otherwise = changeDir person 0
     where blocks' = moveBlocks (blocks game) [Sidewalk]
 
 newPersonPosition :: Person -> Person
