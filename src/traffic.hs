@@ -16,11 +16,6 @@ import Debug.Trace
 
 car :: Car -> Picture
 car car@(Car (Position x y) c d _) = translate x y $ color c $ rectangleSolid w' h'
-  where angle = case d of
-                  North -> 0
-                  West -> 90
-                  South -> 180
-                  East -> 270
         w' = width car
         h' = height car
 
