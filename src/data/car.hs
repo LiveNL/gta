@@ -13,7 +13,7 @@ data Car = Car
     carColor     :: Color,
     carDirection :: Direction,
     velocity     :: Int}
-  deriving (Show, Generic)
+  deriving (Show, Generic, Eq)
 
 instance Movable Car where
   getPos Car{carPosition} = Position (x carPosition) (y carPosition)

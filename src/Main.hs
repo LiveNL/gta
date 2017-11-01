@@ -18,8 +18,8 @@ import System.Random
 
 -- Variables
 windowWidth, windowHeight, offset :: Int
-windowWidth  = 300
-windowHeight = 300
+windowWidth  = 600
+windowHeight = 600
 offset = 100
 
 -- Functions

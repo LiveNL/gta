@@ -20,8 +20,9 @@ inObject d xs [(x1,y1),_,(x3,y3),_] = or (map (checkObject d [x1,x3,y1,y3]) xs)
 
 checkObject :: Direction -> [Float] -> (Float,Float) -> Bool
 checkObject d [x1,x3,y1,y3] (a1,b1) = a1' >= x1 && a1' <= x3 && b1' >= y1 && b1' <= y3
-  where (a1',b1') = case d of
-                      North -> (a1, b1 + 1)
-                      West  -> (a1 - 1, b1)
-                      South -> (a1, b1 - 1)
-                      East  -> (a1 + 1, b1)
+  where i = 1
+        (a1',b1') = case d of
+                      North -> (a1, b1 + i)
+                      West  -> (a1 - i, b1)
+                      South -> (a1, b1 - i)
+                      East  -> (a1 + i, b1)

@@ -3,6 +3,9 @@ module Traffic (car, person, block, updateCars, updatePeople) where
 
 import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game
+import Data.List
+import Data.Maybe
+import Debug.Trace
 
 import Helpers
 
@@ -35,9 +38,11 @@ updateCars cars game rInt = game { cars = updateCars' }
 updateCar :: GTA -> Int -> Car -> Car
 updateCar game rInt car@Car{velocity} = case velocity of
   0 -> car
-  1 -> if canMove car blocks' && canMove car [player game] then newCarPosition car
-                                                           else changeDir car rInt
+  1 | canMove car blocks' && canMove car [player game] && canMove car cars' -> newCarPosition car
+    | otherwise -> changeDir car rInt
          where blocks' = moveBlocks (blocks game) [Road]
+               carIndex = fromJust (elemIndex car (cars game))
+               cars' = take carIndex (cars game) ++ drop (1 + carIndex) (cars game)
 
 newCarPosition :: Car -> Car
 newCarPosition car@(Car (Position _ _) _ d _) = case d of

@@ -7,7 +7,7 @@ import Data.Aeson
 data Position = Position
   { x :: Float,
     y :: Float }
-  deriving (Show, Generic)
+  deriving (Show, Generic, Eq)
 
 instance FromJSON Position
 
