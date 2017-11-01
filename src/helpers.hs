@@ -5,7 +5,7 @@ import Debug.Trace
 
 canMove :: (Movable a, Movable b) => a -> [b] -> Bool
 canMove a = all (canMove' dir' area')
-  where area' = area a
+  where area' = coordinates a
         dir' = getDir a
 
 canMove' :: (Movable a) => Direction -> [(Float, Float)] -> a -> Bool
@@ -15,12 +15,6 @@ canMove' d area' object = if (size c) > (size area')
   where c = coordinates object
 
 size [(x1,y1),(_,_),(x2,y2),(_,_)] = (x2 - x1) * (y2 - y1)
-
-area :: (Movable a) => a -> [(Float, Float)]
-area a = [(x'-w',y'-h'),(x'+w',y'-h'),(x'+w',y'+h'),(x'-w',y'+h')]
-  where (Position x' y') = getPos a
-        w' = (width a) / 2
-        h' = (height a) / 2
 
 inObject :: Direction -> [(Float, Float)] -> [(Float,Float)] -> Bool
 inObject d xs [(x1,y1),_,(x3,y3),_] = or (map (checkObject d [x1,x3,y1,y3]) xs)

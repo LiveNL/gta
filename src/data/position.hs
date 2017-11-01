@@ -18,7 +18,6 @@ class Movable a where
   setDir :: Direction -> a -> a
   width  :: a -> Float
   height :: a -> Float
-  coordinates :: a -> [(Float,Float)]
 
 move :: (Movable a) => Position -> a -> a
 move (Position dx dy) a = setPos (Position (x + dx) (y + dy)) a
@@ -28,6 +27,12 @@ data Direction = North | West | South | East
   deriving (Show, Enum, Eq, Generic)
 
 instance FromJSON Direction
+
+coordinates :: (Movable a) => a -> [(Float, Float)]
+coordinates a = [(x'-w',y'-h'),(x'+w',y'-h'),(x'+w',y'+h'),(x'-w',y'+h')]
+  where (Position x' y') = getPos a
+        w' = (width a) / 2
+        h' = (height a) / 2
 
 next :: Direction -> Direction
 next East = North
