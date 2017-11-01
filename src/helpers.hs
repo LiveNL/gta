@@ -1,7 +1,6 @@
-module Helpers (canMove, canMove') where
+module Helpers (canMove) where
 
 import Data.Position
-import Debug.Trace
 
 canMove :: (Movable a, Movable b) => a -> [b] -> Bool
 canMove a = all (canMove' dir' area')
