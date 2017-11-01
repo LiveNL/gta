@@ -37,46 +37,30 @@ initialState = Game
       playerPosition  = Position { x = 50, y = 0 },
       keys            = Keys { left = Up, right = Up, up = Up, down = Up },
       playerDirection = North, playerWidth = 10, playerHeight = 10,
-      playerSprite    = Sprite { spriteType = Person1, spriteState = 1 }, playerVelocity = 0
+      playerSprite    = Sprite { spriteType = Person1, spriteState = 1 }, playerVelocity = 0, playerState = Walking
     },
     cars = [], people = [], blocks = [], gameState = Loading, elapsedTime = 0
   }
 
 updateKeyState :: (KeyState, KeyState, KeyState, KeyState, Direction) -> GTA -> IO GTA
-updateKeyState (left', right', up', down', direction') game = return updateGame
-  where updateGame = game { player = Player
-          { playerPosition  = getPos (player game),
-            keys            = Keys { left = left', right = right', up = up', down = down' },
-            playerDirection = direction',
-            playerWidth     = playerWidth (player game),
-            playerHeight    = playerHeight (player game),
-            playerSprite    = playerSprite (player game),
-            playerVelocity  = playerVelocity (player game) }
-        }
+updateKeyState (left', right', up', down', d') game@Game{player} = return (game { player = (updateKeyState' player) })
+  where updateKeyState' player@Player{keys, playerDirection} = player { keys = keys', playerDirection = d'}
+        keys' = Keys { left = left', right = right', up = up', down = down' }
 
 updatePlayerPosition :: GTA -> GTA
--- TODO: FIX THE DUPLICATION FOR CAN MOVE, but works for now
-updatePlayerPosition game
-  | canMove (player game) (cars game) && canMove (player game) (people game) &&
-      canMove (player game) blocks'
-    = updateGame
+updatePlayerPosition game@Game{player}
+  | canMove player (cars game) && canMove player (people game) && canMove player blocks' = game { player = (updatePlayerPosition' player) }
   | otherwise = game
-  where
-    currentKeys = keys (player game)
-    currentDir  = getDir (player game)
-    newPosition' = newPosition currentKeys (getPos (player game))
-    updateGame = game { player = Player
-      { playerPosition  = fst newPosition',
-        keys            = currentKeys,
-        playerDirection = currentDir,
-        playerWidth     = playerWidth (player game),
-        playerHeight    = playerHeight (player game),
-        playerSprite    = (playerSprite (player game)) { spriteType = spriteType (playerSprite (player game)), spriteState = sprite },
-        playerVelocity  = snd newPosition' }
-    }
-    blocks' = moveBlocks (blocks game) [Sidewalk, Road]
-    sprite | mod' (roundDecimals (elapsedTime game) 2) 0.5 == 0 = nextWalking (playerSprite (player game))
-           | otherwise = spriteState (playerSprite (player game))
+  where updatePlayerPosition' player@Player{playerPosition, playerVelocity, playerSprite} = player { playerPosition = (fst newPosition'),
+                                                                                                     playerVelocity = (snd newPosition'),
+                                                                                                     playerSprite = (playerSprite (player game)) {
+                                                                                                       spriteType = spriteType (playerSprite (player game)),
+                                                                                                       spriteState = sprite }
+                                                                                                   }
+          blocks' = moveBlocks (blocks game) [Sidewalk, Road]
+          newPosition' = newPosition (keys player) (getPos player)
+          sprite | mod' (roundDecimals (elapsedTime game) 2) 0.5 == 0 = nextWalking (playerSprite (player game))
+                 | otherwise = spriteState (playerSprite (player game))
 
 newPosition :: Keys -> Position -> (Position, Float)
 newPosition (Keys Down _    _    _   ) (Position x y) = (Position {x = x - 1, y = y     }, 1)
@@ -117,24 +101,24 @@ handleKeys (EventKey (Char 'r')            Down  _ _) = return . return initialS
 handleKeys _                                          = return
 
 enterCar :: GTA -> IO GTA
-enterCar game = if playerWidth (player game) == 10
+enterCar game = if playerState (player game) == Walking
                 then enterCar' game
                 else makeCar (player game) game
 
 makeCar :: Player -> GTA -> IO GTA
-makeCar (Player(Position x' y') k d h w s v) game = return game { cars = (newCars game), player = (newPlayer game) }
+makeCar (Player(Position x' y') k d h w s v _) game = return game { cars = (newCars game), player = (newPlayer game) }
   where newCars game = car : (cars game)
         car = Car { carPosition = Position {x = x', y = y'}, carSprite = s, carDirection = d, velocity = 0 }
-        newPlayer game = Player { playerWidth = 10, playerHeight = 10, playerDirection = d, 
+        newPlayer game = Player { playerWidth = 10, playerHeight = 10, playerDirection = d,
                                   playerPosition = Position { x = (x' + 15),
-                                  y = y'}, keys = k, playerSprite = Sprite { spriteType = Person1, spriteState = 1 }, playerVelocity = v }
+                                  y = y'}, keys = k, playerSprite = Sprite { spriteType = Person1, spriteState = 1 }, playerVelocity = v, playerState = Walking  }
 
 enterCar' :: GTA -> IO GTA
 enterCar' game =
   if isJust carIndex'
   then updateCars (setDimensions (player game) (width car) (height car) (carSprite car) game)
   else return game
-    where carIndex' = elemIndex (False) (closeCars (player game) carsGame)
+    where carIndex' = (elemIndex (False) (closeCars (player game) carsGame))
           carIndex = fromJust carIndex'
           car = carsGame !! carIndex
           updateCars game = return game { cars = newCars }
@@ -142,10 +126,9 @@ enterCar' game =
           carsGame = cars game
 
 setDimensions :: Player -> Float -> Float -> Sprite -> GTA -> GTA
-setDimensions player@(Player {playerHeight, playerWidth, playerDirection, 
-                              playerPosition, keys, playerSprite, playerVelocity}) x y s game =
+setDimensions player@(Player {playerHeight, playerWidth, playerSprite}) x y s game =
   game { player = Player {
-  playerHeight = x, playerWidth = y, playerSprite = s, playerDirection, playerPosition, keys, playerVelocity} }
+  playerHeight = x, playerWidth = y, playerSprite = s, playerState = Driving } }
 
 closeCars :: Player -> [Car] -> [Bool]
 closeCars p c = map (canMove p) c'
