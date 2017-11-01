@@ -3,6 +3,9 @@ module Traffic (car, person, block, updateCars, updatePeople) where
 
 import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game
+import Data.List
+import Data.Maybe
+import Debug.Trace
 
 import Helpers
 
@@ -16,12 +19,7 @@ import Debug.Trace
 
 car :: Car -> Picture
 car car@(Car (Position x y) c d _) = translate x y $ color c $ rectangleSolid w' h'
-  where angle = case d of
-                  North -> 0
-                  West -> 90
-                  South -> 180
-                  East -> 270
-        w' = width car
+  where w' = width car
         h' = height car
 
 person :: Person -> Picture
@@ -33,16 +31,18 @@ block (Block (Position x y) w h t)
   | t == Building = translate x y $ color (dark red) $ rectangleSolid w h
   | otherwise = translate x y $ color (greyN 0.7) $ rectangleSolid w h
 
-updateCars :: [Car] -> GTA -> GTA
-updateCars cars game = game { cars = updateCars' }
-  where updateCars' = map (updateCar game) cars
+updateCars :: [Car] -> GTA -> Int -> GTA
+updateCars cars game rInt = game { cars = updateCars' }
+  where updateCars' = map (updateCar game rInt) cars
 
-updateCar :: GTA -> Car -> Car
-updateCar game car@Car{velocity} = case velocity of
+updateCar :: GTA -> Int -> Car -> Car
+updateCar game rInt car@Car{velocity} = case velocity of
   0 -> car
-  1 -> if canMove car blocks' && canMove car [player game] then newCarPosition car
-       else changeDir car
+  1 | canMove car blocks' && canMove car [player game] && canMove car cars' -> newCarPosition car
+    | otherwise -> changeDir car rInt
          where blocks' = moveBlocks (blocks game) [Road]
+               carIndex = fromJust (elemIndex car (cars game))
+               cars' = take carIndex (cars game) ++ drop (1 + carIndex) (cars game)
 
 newCarPosition :: Car -> Car
 newCarPosition car@(Car (Position _ _) _ d _) = case d of
@@ -58,7 +58,7 @@ updatePeople people game = game { people = updatePeople' }
 updatePerson :: GTA -> Person -> Person
 updatePerson game person
   | canMove person blocks' = newPersonPosition person
-  | otherwise = changeDir person
+  | otherwise = changeDir person 0
     where blocks' = moveBlocks (blocks game) [Sidewalk]
 
 newPersonPosition :: Person -> Person

@@ -74,12 +74,6 @@ instance Movable Player where
   getDir Player{playerDirection} = playerDirection
   setDir x player@Player{playerDirection} = player { playerDirection = x }
 
-  coordinates Player{playerPosition} = [(x' - w',y' - h'),(x' + w', y'+ h')]
-    where x' = x playerPosition
-          y' = y playerPosition
-          w' = 10 / 2
-          h' = 10 / 2
-
   width _ = 10
   height _ = 10
 
