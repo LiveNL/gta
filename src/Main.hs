@@ -104,6 +104,7 @@ handleKeys (EventKey (SpecialKey KeyLeft)  s _ _) = updateKeyState (s , Up, Up, 
 handleKeys (EventKey (SpecialKey KeyRight) s _ _) = updateKeyState (Up, s , Up, Up, East )
 handleKeys (EventKey (Char 'p')            Down  _ _) = changeGameState
 handleKeys (EventKey (Char 'c')            Down  _ _) = enterCar
+handleKeys (EventKey (Char 'r')            Down  _ _) = return . return initialState
 handleKeys _                                          = return
 
 enterCar :: GTA -> IO GTA
