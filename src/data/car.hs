@@ -25,10 +25,15 @@ instance Movable Car where
 
   coordinates car@Car{carPosition} = [(x' - w',y' - h'),(x' + w', y'+ h')]
     where (Position x' y') = getPos car
-          w' = 20 / 2
-          h' = 30 / 2
+          w' = (width car) / 2
+          h' = (height car) / 2
 
-  width _ = 20
-  height _ = 30
+  width c = if (carDirection c) == North || (carDirection c) == South
+              then 20
+              else 30
+
+  height c = if (carDirection c) == East || (carDirection c) == West
+              then 20
+              else 30
 
 instance FromJSON Car

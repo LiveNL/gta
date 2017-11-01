@@ -12,13 +12,17 @@ import Data.Position
 import Data.Person
 import Data.Game
 
+import Debug.Trace
+
 car :: Car -> Picture
-car (Car (Position x y) c d _) = translate x y $ color c $ rotate angle $ rectangleSolid 20 30
+car car@(Car (Position x y) c d _) = translate x y $ color c $ rectangleSolid w' h'
   where angle = case d of
                   North -> 0
                   West -> 90
                   South -> 180
                   East -> 270
+        w' = width car
+        h' = height car
 
 person :: Person -> Picture
 person (Person (Position x y) c _) = translate x y $ color c $ rectangleSolid 10 10

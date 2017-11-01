@@ -39,12 +39,14 @@ data GTA = Game
     gameState :: GameState }
   deriving (Show, Generic)
 
-data GameState = Loading | Running | Paused
-  deriving (Show, Eq, Generic)
+data GTAJSON = GameJSON
+  { carsJSON   :: [Car],
+    peopleJSON :: [Person],
+    blocksJSON :: [Block] }
+  deriving (Show, Generic)
 
-readWorld :: IO GTA
-readWorld = do x <- (decode <$> getJSON) :: IO (Maybe GTA)
-               return ((fromJust x) :: GTA)
+data GameState = Loading | Running | Paused | Dead
+  deriving (Show, Eq, Generic)
 
 jsonFile :: FilePath
 jsonFile = "./config/world.json"
@@ -52,7 +54,15 @@ jsonFile = "./config/world.json"
 getJSON :: IO B.ByteString
 getJSON = B.readFile jsonFile
 
-instance FromJSON GTA
+readJSON :: IO GTAJSON
+readJSON = do x <- (decode <$> getJSON) :: IO (Maybe GTAJSON)
+              return ((fromJust x) :: GTAJSON)
+
+readWorld :: IO GTA
+readWorld = do x <- readJSON
+               return (Game { cars = carsJSON x, people = peopleJSON x, blocks = blocksJSON x }) -- Missing fields are added in Main.hs
+
+instance FromJSON GTAJSON
 instance FromJSON Player
 instance FromJSON Keys
 

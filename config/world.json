@@ -1,29 +1,13 @@
 {
-  "player": {
-    "playerPosition": {
-      "x": 50,
-      "y": 0
-    },
-    "keys": {
-      "left": "Up",
-      "right": "Up",
-      "up": "Up",
-      "down": "Up"
-    },
-    "playerDirection": "North",
-    "playerWidth": 10,
-    "playerHeight": 10,
-    "playerColor": "red"
-  },
-  "cars": [
+  "carsJSON": [
     { "carPosition": { "x": -30, "y": 30 }, "carColor": "blue", "carDirection": "North", "velocity": 1},
     { "carPosition": { "x": 10, "y": -75 }, "carColor": "blue", "carDirection": "North", "velocity": 0}
   ],
-  "people": [
+  "peopleJSON": [
     { "personPosition": { "x": 30, "y": 30 }, "personColor": "yellow", "personDirection": "North" },
     { "personPosition": { "x": 30, "y": -80 }, "personColor": "yellow", "personDirection": "North" }
   ],
-  "blocks": [
+  "blocksJSON": [
     { "blockPosition": { "x": 50, "y": 0 }, "blockWidth": 100, "blockHeight": 200, "blockType": "Sidewalk"},
     { "blockPosition": { "x": -50, "y": 0 }, "blockWidth": 100, "blockHeight": 200, "blockType": "Road"},
     { "blockPosition": { "x": 0, "y": 20 }, "blockWidth": 10, "blockHeight": 100, "blockType": "Building"},
@@ -31,6 +15,5 @@
     { "blockPosition": { "x": -100, "y": 0 }, "blockWidth": 10, "blockHeight": 200, "blockType": "Building"},
     { "blockPosition": { "x": -50, "y": -100 }, "blockWidth": 100, "blockHeight": 10, "blockType": "Building"},
     { "blockPosition": { "x": 100, "y": 0 }, "blockWidth": 10, "blockHeight": 200, "blockType": "Building"}
-  ],
-  "gameState": "Running"
+  ]
 }
