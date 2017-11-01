@@ -12,6 +12,7 @@ import Data.Car
 import Data.Game
 import Data.Person
 import Data.Position
+import Data.Monoid
 import Data.Maybe
 import Debug.Trace
 import System.Random
@@ -91,8 +92,23 @@ playerDraw game = translate x y $ color c $ rotate angle $ rectangleSolid w' h'
                   South -> 270
                   East -> 0
 
+playerDraw2 :: GTA -> IO Picture
+playerDraw2 game = do x' <- loadBMP "./sprites/car.bmp"
+                      return (translate x y $ scale (w' / 47) (h' / 47) $ rotate angle $ x')
+                      where Position x y = getPos (player game)
+                            w' = playerWidth (player game)
+                            h' = playerHeight (player game)
+                            d = playerDirection (player game)
+                            angle = case d of
+                                      North -> 270
+                                      West -> 180
+                                      South -> 90
+                                      East -> 0
+
+
+
 render :: GTA -> IO Picture
-render game = return (pictures (blockList ++ carsList ++ personList ++ [playerDraw game]))
+render game = return (pictures (blockList ++ carsList ++ personList ++ [playerDraw game])) <> playerDraw2 game
   where blockList = map block (blocks game)
         carsList = map car (cars game)
         personList = map person (people game)
