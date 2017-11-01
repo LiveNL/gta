@@ -1,6 +1,7 @@
 {
   "carsJSON": [
     { "carPosition": { "x": -30, "y": 30 }, "carColor": "blue", "carDirection": "North", "velocity": 1},
+    { "carPosition": { "x": -70, "y": 30 }, "carColor": "white", "carDirection": "North", "velocity": 1},
     { "carPosition": { "x": 10, "y": -75 }, "carColor": "blue", "carDirection": "North", "velocity": 0}
   ],
   "peopleJSON": [

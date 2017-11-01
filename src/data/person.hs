@@ -21,7 +21,8 @@ instance Movable Person where
   getDir Person{personDirection} = personDirection
   setDir x person@Person{personDirection} = person { personDirection = x }
 
-  coordinates person@Person{personPosition} = [(x' - w',y' - h'),(x' + w', y'+ h')]
+  coordinates person@Person{personPosition} =
+    [(x'-w',y'-h'),(x'+w',y'-h'),(x'+w',y'+h'),(x'-w',y'+h')]
     where (Position x' y') = getPos person
           w' = 10 / 2
           h' = 10 / 2

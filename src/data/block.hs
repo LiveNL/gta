@@ -18,7 +18,8 @@ data BlockType = Road | Sidewalk | Building
 
 instance Movable Block where
   getPos Block{blockPosition} = Position (x blockPosition) (y blockPosition)
-  coordinates (Block (Position x' y') w h t) = [(x'-w',y'-h'),(x'+w',y'+h')]
+  coordinates (Block (Position x' y') w h t) =
+    [(x'-w',y'-h'),(x'+w',y'-h'),(x'+w',y'+h'),(x'-w',y'+h')]
     where w' = w / 2
           h' = h / 2
 
