@@ -23,14 +23,12 @@ area a = [(x'-w',y'-h'),(x'+w',y'-h'),(x'+w',y'+h'),(x'-w',y'+h')]
         h' = (height a) / 2
 
 inObject :: Direction -> [(Float, Float)] -> [(Float,Float)] -> Bool
-inObject d [(a1,b1),(a2,b2),(a3,b3),(a4,b4)] [(x1,y1),(x2,y2),(x3,y3),(x4,y4)]
-    | a1' >= x1 && a1' <= x3 && b1' >= y1 && b1' <= y3 ||
-      a2' >= x1 && a2' <= x3 && b2' >= y1 && b2' <= y3 ||
-      a3' >= x1 && a3' <= x3 && b3' >= y1 && b3' <= y3 ||
-      a4' >= x1 && a4' <= x3 && b4' >= y1 && b4' <= y3 = True
-  | otherwise = False
-  where (a1',b1',a2',b2',a3',b3',a4',b4') = case d of
-                       North -> (a1, b1 + 1,a2, b2 + 1,a3, b3 + 1,a4, b4 + 1)
-                       West  -> (a1 - 1, b1,a2 - 1, b2,a3 - 1, b3,a4 - 1, b4)
-                       South -> (a1, b1 - 1,a2, b2 - 1,a3, b3 - 1,a4, b4 - 1)
-                       East  -> (a1 + 1, b1,a2 + 1, b2,a3 + 1, b3,a4 + 1, b4)
+inObject d xs [(x1,y1),_,(x3,y3),_] = or (map (checkObject d [x1,x3,y1,y3]) xs)
+
+checkObject :: Direction -> [Float] -> (Float,Float) -> Bool
+checkObject d [x1,x3,y1,y3] (a1,b1) = a1' >= x1 && a1' <= x3 && b1' >= y1 && b1' <= y3
+  where (a1',b1') = case d of
+                      North -> (a1, b1 + 1)
+                      West  -> (a1 - 1, b1)
+                      South -> (a1, b1 - 1)
+                      East  -> (a1 + 1, b1)
