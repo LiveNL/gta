@@ -19,7 +19,7 @@ import Debug.Trace
 
 car :: Car -> Picture
 car car@(Car (Position x y) c d _) = translate x y $ color c $ rectangleSolid w' h'
-        w' = width car
+  where w' = width car
         h' = height car
 
 person :: Person -> Picture

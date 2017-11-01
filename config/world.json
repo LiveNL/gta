@@ -16,6 +16,5 @@
     { "blockPosition": { "x": -200, "y": 0 }, "blockWidth": 10, "blockHeight": 200, "blockType": "Building"},
     { "blockPosition": { "x": 0, "y": -100 }, "blockWidth": 400, "blockHeight": 10, "blockType": "Building"},
     { "blockPosition": { "x": 200, "y": 0 }, "blockWidth": 10, "blockHeight": 200, "blockType": "Building"}
-  ],
-  "gameState": "Running"
+  ]
 }

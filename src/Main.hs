@@ -150,9 +150,13 @@ update :: Float -> GTA -> IO GTA
 update _ game = do
   rnd <- randomNr
   case gameState game of
-    Loading -> readWorld
+    Loading -> loading game
     Paused  -> return game
     Running -> return ( updateTraffic rnd (updatePlayerPosition game))
+
+loading :: GTA -> IO GTA
+loading game = do x <- readWorld
+                  return game { cars = cars x, blocks = blocks x, people = people x, gameState = Running }
 
 randomNr :: IO Int
 randomNr = getStdRandom (randomR (0,1))
