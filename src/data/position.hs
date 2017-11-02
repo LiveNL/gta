@@ -23,7 +23,7 @@ move :: (Movable a) => Position -> a -> a
 move (Position dx dy) a = setPos (Position (x + dx) (y + dy)) a
   where (Position x y) = getPos a
 
-data Direction = North | West | South | East
+data Direction = North | East | South | West
   deriving (Show, Enum, Eq, Generic)
 
 instance FromJSON Direction
@@ -35,11 +35,11 @@ coordinates a = [(x'-w',y'-h'),(x'+w',y'-h'),(x'+w',y'+h'),(x'-w',y'+h')]
         h' = (height a) / 2
 
 next :: Direction -> Direction
-next East = North
+next West = North
 next d = succ d
 
 prev :: Direction -> Direction
-prev North = East
+prev North = West
 prev d = pred d
 
 changeDir :: (Movable a) => Int -> a -> a

@@ -6,7 +6,6 @@ import Graphics.Gloss.Interface.IO.Game
 import Data.List
 import Data.Maybe
 import Data.Fixed (mod')
-import Debug.Trace
 
 import Helpers
 
@@ -16,16 +15,16 @@ import Data.Position
 import Data.Person
 import Data.Game
 
-import Debug.Trace
-
 car :: Car -> IO Picture
-car (Car (Position x y) s d _) = do image@(Bitmap width height _ _) <- loadBMP ("./sprites/" ++ show (spriteType s) ++ "_" ++ show (spriteState s) ++ ".bmp")
-                                    return (translate x y $ scale (30 / fromIntegral(height)) (20 / fromIntegral(width)) $ rotate angle $ image)
+car car@(Car (Position x y) s d _) = do image@(Bitmap width height _ _) <- loadBMP ("./sprites/" ++ show (spriteType s) ++ "_" ++ show (spriteState s) ++ ".bmp")
+                                        return (translate x y $ scale (h' / fromIntegral(height)) (w' / fromIntegral(width)) $ rotate angle $ image)
                                     where angle = case d of
                                                      North -> 0
                                                      West  -> 270
                                                      South -> 180
                                                      East  -> 90
+                                          w' = width car
+                                          h' = height car
 
 person :: Person -> IO Picture
 person (Person (Position x y) s d) = do image@(Bitmap width height _ _) <- loadBMP ("./sprites/" ++ show (spriteType s) ++ "_" ++ show (spriteState s) ++ ".bmp")

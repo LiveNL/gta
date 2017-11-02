@@ -80,8 +80,13 @@ instance Movable Player where
   getDir Player{playerDirection} = playerDirection
   setDir x player@Player{playerDirection} = player { playerDirection = x }
 
-  width p = playerWidth p
-  height p  = playerWidth p
+  width p = if (playerDirection p) == North || (playerDirection p) == South
+            then playerWidth p
+            else playerHeight p
+
+  height p = if (playerDirection p) == East || (playerDirection p) == West
+             then playerWidth p
+             else playerHeight p
 
 instance FromJSON KeyState where
   parseJSON (String s) = maybe mzero return $ stringToKeyState s

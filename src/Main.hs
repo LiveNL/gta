@@ -34,7 +34,7 @@ window = InWindow "GTA" (windowWidth, windowHeight) (offset, offset)
 initialState :: GTA
 initialState = Game
   { player = Player {
-      playerPosition  = Position { x = 150, y = 50 },
+      playerPosition  = Position { x = 450, y = 20 },
       keys            = Keys { left = Up, right = Up, up = Up, down = Up },
       playerDirection = North, playerWidth = 10, playerHeight = 10,
       playerSprite    = Sprite { spriteType = Person1, spriteState = 1 }, playerVelocity = 0, playerState = Walking
@@ -72,7 +72,7 @@ newPosition (Keys _    _    _    _   ) (Position x y) = (Position {x = x    , y 
 
 playerDraw :: GTA -> IO Picture
 playerDraw game = do image@(Bitmap width height _ _) <- loadBMP ("./sprites/" ++ sprite)
-                     return (translate x y $ scale (playerHeight (player game)  / fromIntegral(height)) (playerWidth (player game) / fromIntegral(width)) $ rotate angle $ image)
+                     return (translate x y $ scale (height (player game)  / fromIntegral(height)) (width (player game) / fromIntegral(width)) $ rotate angle $ image)
                      where Position x y = getPos (player game)
                            d            = playerDirection (player game)
                            angle = case d of
@@ -123,11 +123,11 @@ enterCar' game =
           updateCars game = return game { cars = newCars }
           newCars = take carIndex carsGame ++ drop (1 + carIndex) carsGame
           carsGame = cars game
-          updatedPlayer = setDimensions (player game) (width car) (height car) (carSprite car) game
+          updatedPlayer = setDimensions (player game) (width car) (height car) (carSprite car) (getDir car) game
 
-setDimensions :: Player -> Float -> Float -> Color -> GTA -> Player
-setDimensions player@(Player {playerHeight, playerWidth, playerSprite}) x y s game =
-  player { playerHeight = x, playerWidth = y, playerSprite = s, playerState = Driving }
+setDimensions :: Player -> Float -> Float -> Sprite -> Direction -> GTA -> Player
+setDimensions player@(Player {playerHeight, playerWidth, playerSprite, playerDirection}) x y s d game =
+  player {playerWidth = x, playerHeight = y, playerSprite = s, playerState = Driving, playerDirection = d}
 
 closeCars :: Player -> [Car] -> [Bool]
 closeCars p c = map (canMove 1 p ) c'
