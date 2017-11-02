@@ -9,7 +9,7 @@ import Data.Color
 
 data Person = Person
   { personPosition  :: Position,
-    personColor     :: Color,
+    personSprite     :: Sprite,
     personDirection :: Direction }
   deriving (Show, Generic)
 

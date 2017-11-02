@@ -10,7 +10,7 @@ import Data.Color
 
 data Car = Car
   { carPosition  :: Position,
-    carColor     :: Color,
+    carSprite    :: Sprite,
     carDirection :: Direction,
     velocity     :: Int}
   deriving (Show, Generic, Eq)

@@ -18,25 +18,12 @@ import Data.Maybe
 data Player = Player
   { playerPosition  :: Position,
     keys            :: Keys,
-    playerColor     :: Color,
     playerDirection :: Direction,
     playerHeight    :: Float,
     playerWidth     :: Float,
-    playerSprite    :: SpriteType }
+    playerSprite    :: Sprite,
+    playerVelocity  :: Float }
   deriving (Show)
-
-data SpriteType = Walking1 | Walking2 | Walking3 | Walking4
-  deriving (Eq, Enum)
-
-instance Show SpriteType where
-  show Walking1 = "w1"
-  show Walking2 = "w2"
-  show Walking3 = "w3"
-  show Walking4 = "w4"
-
-nextWalking :: SpriteType -> SpriteType
-nextWalking Walking4 = Walking1
-nextWalking s        = succ s
 
 data Keys = Keys
   { left  :: KeyState,

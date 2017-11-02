@@ -53,3 +53,45 @@ changeDir a rInt = case rInt of
                      0 -> setDir (next x) a
                      1 -> setDir (prev x) a
   where x = getDir a
+
+data Sprite = Sprite
+  {
+    spriteType  :: SpriteType,
+    spriteState :: Int
+  }
+  deriving (Show, Eq, Generic)
+
+data SpriteType = Person1 | Person2 | Person3 | Car1 | Car2 | Car3
+  deriving (Show, Eq, Generic)
+
+instance FromJSON Sprite
+instance FromJSON SpriteType
+
+{-instance Show SpriteType where
+  show Person1_1 = "p1_1"
+  show Person1_2 = "p1_2"
+  show Person1_3 = "p1_3"
+
+  show Person2_1 = "p2_1"
+  show Person2_2 = "p2_2"
+  show Person2_3 = "p2_3"
+
+  show Car1 = "c1"
+  show Car2 = "c2"
+  show Car3 = "c3"-}
+
+nextWalking :: Sprite -> Int
+nextWalking (Sprite t s) | t == Car1 || t == Car2 || t == Car3 = 1
+                         | s == 3 = 1
+                         | otherwise = succ s
+
+
+
+
+
+
+
+
+
+
+
