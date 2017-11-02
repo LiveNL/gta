@@ -22,7 +22,7 @@ import System.Random
 windowWidth, windowHeight, offset :: Int
 windowWidth  = 600
 windowHeight = 600
-offset = 100
+offset = 0
 
 -- Functions
 main :: IO ()
@@ -34,7 +34,7 @@ window = InWindow "GTA" (windowWidth, windowHeight) (offset, offset)
 initialState :: GTA
 initialState = Game
   { player = Player {
-      playerPosition  = Position { x = 50, y = 0 },
+      playerPosition  = Position { x = 150, y = 50 },
       keys            = Keys { left = Up, right = Up, up = Up, down = Up },
       playerDirection = North, playerWidth = 10, playerHeight = 10,
       playerSprite    = Sprite { spriteType = Person1, spriteState = 1 }, playerVelocity = 0, playerState = Walking
@@ -85,11 +85,9 @@ playerDraw game = do image@(Bitmap width height _ _) <- loadBMP ("./sprites/" ++
                                       1 -> show (spriteType (playerSprite (player game))) ++ "_" ++ show (spriteState (playerSprite (player game))) ++ ".bmp"
 
 render :: GTA -> IO Picture
-render game = return (pictures blockList) <> playerDraw game <> do x <- sequence (carsList ++ personList)
+render game = return (translate (- x) (- y) (pictures blockList)) <> playerDraw game <> do x <- sequence (carsList ++ personList)
                                                                    return (pictures x)
-  where blockList = map block (blocks game)
-        carsList = map car (cars game)
-        personList = map person (people game)
+                                                                     where Position x y = getPos (player game)
 
 handleKeys :: Event -> GTA -> IO GTA
 handleKeys (EventKey (SpecialKey KeyUp)    s _ _) = updateKeyState (Up, Up, s , Up, North)
@@ -142,11 +140,11 @@ changeGameState game = case gameState game of
 
 update :: Float -> GTA -> IO GTA
 update secs game = do
-  rnd <- randomNr
+  rInt <- randomNr
   case gameState game of
     Loading -> loading game
     Paused  -> return game
-    Running -> return ( updateTraffic rnd (updatePlayerPosition game { elapsedTime = (elapsedTime game) + secs }))
+    Running -> return ( updateTraffic rInt (updatePlayerPosition game { elapsedTime = (elapsedTime game) + secs }))
 
 loading :: GTA -> IO GTA
 loading game = do x <- readWorld
@@ -156,4 +154,4 @@ randomNr :: IO Int
 randomNr = getStdRandom (randomR (0,1))
 
 updateTraffic :: Int -> GTA -> GTA
-updateTraffic x game = updatePeople (people game) (updateCars (cars game) game x)
+updateTraffic rInt game = (updatePeople (people game) rInt ) $ (updateCars (cars game) rInt game)
