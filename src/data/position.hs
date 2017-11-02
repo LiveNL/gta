@@ -24,7 +24,13 @@ move (Position dx dy) a = setPos (Position (x + dx) (y + dy)) a
   where (Position x y) = getPos a
 
 data Direction = North | West | South | East
-  deriving (Show, Enum, Eq, Generic)
+  deriving (Enum, Eq, Generic)
+
+instance Show Direction where
+  show North = "n"
+  show West = "w"
+  show East = "e"
+  show South = "s"
 
 instance FromJSON Direction
 

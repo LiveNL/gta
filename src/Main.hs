@@ -12,6 +12,7 @@ import Data.Car
 import Data.Game
 import Data.Person
 import Data.Position
+import Data.Fixed (mod')
 import Data.Monoid
 import Data.Maybe
 import Debug.Trace
@@ -35,9 +36,10 @@ initialState = Game
   { player = Player {
       playerPosition  = Position { x = 50, y = 0 },
       keys            = Keys { left = Up, right = Up, up = Up, down = Up },
-      playerDirection = North, playerWidth = 10, playerHeight = 10, playerColor = red
+      playerDirection = North, playerWidth = 10, playerHeight = 10, playerColor = red,
+      playerSprite    = Walking1
     },
-    cars = [], people = [], blocks = [], gameState = Loading
+    cars = [], people = [], blocks = [], gameState = Loading, elapsedTime = 0
   }
 
 updateKeyState :: (KeyState, KeyState, KeyState, KeyState, Direction) -> GTA -> IO GTA
@@ -48,8 +50,12 @@ updateKeyState (left', right', up', down', direction') game = return updateGame
             playerDirection = direction',
             playerWidth     = playerWidth (player game),
             playerHeight    = playerHeight (player game),
-            playerColor     = playerColor (player game) }
+            playerColor     = playerColor (player game),
+            playerSprite    = playerSprite (player game) }
         }
+
+roundDecimals :: (Fractional a2, RealFrac a1, Integral b) => a1 -> b -> a2
+roundDecimals f n = (fromInteger $ round $ f * (10^n)) / (10.0^^n)
 
 updatePlayerPosition :: GTA -> GTA
 -- TODO: FIX THE DUPLICATION FOR CAN MOVE, but works for now
@@ -68,9 +74,12 @@ updatePlayerPosition game
         playerDirection = currentDir,
         playerWidth     = playerWidth (player game),
         playerHeight    = playerHeight (player game),
-        playerColor     = playerColor (player game) }
+        playerColor     = playerColor (player game),
+        playerSprite    = sprite }
     }
     blocks' = moveBlocks (blocks game) [Sidewalk, Road]
+    sprite | mod' (roundDecimals (elapsedTime game) 2) 0.5 == 0 = nextWalking (playerSprite (player game))
+           | otherwise = playerSprite (player game)
 
 newPosition :: Keys -> Position -> Position
 newPosition (Keys Down _    _    _   ) (Position x y) = Position {x = x - 1, y = y     }
@@ -79,36 +88,18 @@ newPosition (Keys _    _    Down _   ) (Position x y) = Position {x = x    , y =
 newPosition (Keys _    _    _    Down) (Position x y) = Position {x = x    , y = y - 1 }
 newPosition (Keys _    _    _    _   ) (Position x y) = Position {x = x    , y = y     }
 
-playerDraw :: GTA -> Picture
-playerDraw game = translate x y $ color c $ rotate angle $ rectangleSolid w' h'
-  where Position x y = getPos (player game)
-        w' = playerWidth (player game)
-        h' = playerHeight (player game)
-        c  = playerColor (player game)
-        d  = playerDirection (player game)
-        angle = case d of
-                  North -> 90
-                  West -> 180
-                  South -> 270
-                  East -> 0
+playerDraw :: GTA -> IO Picture
+playerDraw game = do image <- loadBMP ("./sprites/" ++ playerSpriteFile d (keys (player game)) (playerSprite (player game)))
+                     return (translate x y $ image)
+                     where Position x y = getPos (player game)
+                           d            = playerDirection (player game)
 
-playerDraw2 :: GTA -> IO Picture
-playerDraw2 game = do x' <- loadBMP "./sprites/car.bmp"
-                      return (translate x y $ scale (w' / 47) (h' / 47) $ rotate angle $ x')
-                      where Position x y = getPos (player game)
-                            w' = playerWidth (player game)
-                            h' = playerHeight (player game)
-                            d = playerDirection (player game)
-                            angle = case d of
-                                      North -> 270
-                                      West -> 180
-                                      South -> 90
-                                      East -> 0
-
-
+playerSpriteFile :: Direction -> Keys -> SpriteType -> String
+playerSpriteFile d (Keys left up right down) s | left == Up && right == Up && up == Up && down == Up = show d ++ "w1.bmp"
+                                               | otherwise = show d ++ show s ++ ".bmp"
 
 render :: GTA -> IO Picture
-render game = return (pictures (blockList ++ carsList ++ personList ++ [playerDraw game])) <> playerDraw2 game
+render game = return (pictures (blockList ++ carsList ++ personList)) <> playerDraw game
   where blockList = map block (blocks game)
         carsList = map car (cars game)
         personList = map person (people game)
@@ -129,12 +120,12 @@ enterCar game = if playerWidth (player game) == 10
                 else makeCar (player game) game
 
 makeCar :: Player -> GTA -> IO GTA
-makeCar (Player(Position x' y') k c d h w) game = return game { cars = (newCars game), player = (newPlayer game) }
+makeCar (Player(Position x' y') k c d h w s) game = return game { cars = (newCars game), player = (newPlayer game) }
   where newCars game = car : (cars game)
         car = Car { carPosition = Position {x = x', y = y'}, carColor = c, carDirection = d, velocity = 0 }
         newPlayer game = Player { playerWidth = 10, playerHeight = 10, playerColor = red,
                                   playerDirection = d, playerPosition = Position { x = (x' + 15),
-                                  y = y'}, keys = k }
+                                  y = y'}, keys = k, playerSprite = s }
 
 enterCar' :: GTA -> IO GTA
 enterCar' game =
@@ -150,9 +141,9 @@ enterCar' game =
 
 setDimensions :: Player -> Float -> Float -> Color -> GTA -> GTA
 setDimensions player@(Player {playerHeight, playerWidth, playerColor,
-                              playerDirection, playerPosition, keys}) x y c game =
+                              playerDirection, playerPosition, keys, playerSprite}) x y c game =
   game { player = Player {
-  playerHeight = x, playerWidth = y, playerColor = c, playerDirection, playerPosition, keys} }
+  playerHeight = x, playerWidth = y, playerColor = c, playerDirection, playerPosition, keys, playerSprite} }
 
 closeCars :: Player -> [Car] -> [Bool]
 closeCars p c = map (canMove p) c'
@@ -164,12 +155,12 @@ changeGameState game = case gameState game of
   _       -> return game { gameState = Running }
 
 update :: Float -> GTA -> IO GTA
-update _ game = do
+update secs game = do
   rnd <- randomNr
   case gameState game of
     Loading -> loading game
     Paused  -> return game
-    Running -> return ( updateTraffic rnd (updatePlayerPosition game))
+    Running -> return ( updateTraffic rnd (updatePlayerPosition game { elapsedTime = (elapsedTime game) + secs }))
 
 loading :: GTA -> IO GTA
 loading game = do x <- readWorld

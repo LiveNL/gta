@@ -21,8 +21,22 @@ data Player = Player
     playerColor     :: Color,
     playerDirection :: Direction,
     playerHeight    :: Float,
-    playerWidth     :: Float }
-  deriving (Show, Generic)
+    playerWidth     :: Float,
+    playerSprite    :: SpriteType }
+  deriving (Show)
+
+data SpriteType = Walking1 | Walking2 | Walking3 | Walking4
+  deriving (Eq, Enum)
+
+instance Show SpriteType where
+  show Walking1 = "w1"
+  show Walking2 = "w2"
+  show Walking3 = "w3"
+  show Walking4 = "w4"
+
+nextWalking :: SpriteType -> SpriteType
+nextWalking Walking4 = Walking1
+nextWalking s        = succ s
 
 data Keys = Keys
   { left  :: KeyState,
@@ -36,7 +50,8 @@ data GTA = Game
     cars   :: [Car],
     people :: [Person],
     blocks :: [Block],
-    gameState :: GameState }
+    gameState :: GameState,
+    elapsedTime :: Float }
   deriving (Show, Generic)
 
 data GTAJSON = GameJSON
@@ -63,7 +78,6 @@ readWorld = do x <- readJSON
                return (Game { cars = carsJSON x, people = peopleJSON x, blocks = blocksJSON x }) -- Missing fields are added in Main.hs
 
 instance FromJSON GTAJSON
-instance FromJSON Player
 instance FromJSON Keys
 
 instance Movable Player where
