@@ -37,7 +37,7 @@ initialState = Game
       playerPosition  = Position { x = 450, y = 20 },
       keys            = Keys { left = Up, right = Up, up = Up, down = Up },
       playerDirection = North, playerWidth = 10, playerHeight = 10,
-      playerSprite    = Sprite { spriteType = Person1, spriteState = 1 }, playerVelocity = 0, playerState = Walking
+      playerSprite    = Sprite { spriteType = Person1, spriteState = 1 }, playerVelocity = 0, playerState = Walking, points = 0
     },
     cars = [], people = [], blocks = [], gameState = Loading, elapsedTime = 0
   }
@@ -49,6 +49,7 @@ updateKeyState (left', right', up', down', d') game@Game{player} = return (game 
 
 updatePlayerPosition :: GTA -> GTA
 updatePlayerPosition game@Game{player}
+  | canMove 1 player (cars game) && ((playerState player) == Driving) = updatePoints game -- collision
   | canMove 1 player (cars game) = game -- collision
   | canMove 4 player blocks' = game { player = (updatePlayerPosition' player) }
   | otherwise = game
@@ -85,9 +86,16 @@ playerDraw game = do image@(Bitmap width height _ _) <- loadBMP ("./sprites/" ++
                                       1 -> show (spriteType (playerSprite (player game))) ++ "_" ++ show (spriteState (playerSprite (player game))) ++ ".bmp"
 
 render :: GTA -> IO Picture
-render game = return (translate (- x) (- y) (pictures blockList)) <> playerDraw game <> do x <- sequence (carsList ++ personList)
+render game = return (translate (- x) (- y) (pictures (blockList ++ [pointsText]))) <> playerDraw game <> do x <- sequence (carsList ++ personList)
                                                                    return (pictures x)
                                                                      where Position x y = getPos (player game)
+updatePoints :: GTA -> GTA
+updatePoints game@Game{player} = game { player = (updatePoints' player) }
+  where updatePoints' player@Player{points} = player { points = (points + 1)}
+
+drawPoints :: Player -> Picture
+drawPoints p = translate (x + 200) (y + 200) $ color white $ text (show (points p))
+  where Position x y = getPos p
 
 handleKeys :: Event -> GTA -> IO GTA
 handleKeys (EventKey (SpecialKey KeyUp)    s _ _) = updateKeyState (Up, Up, s , Up, North)
@@ -105,12 +113,12 @@ enterCar game = if playerState (player game) == Walking
                 else makeCar (player game) game
 
 makeCar :: Player -> GTA -> IO GTA
-makeCar (Player(Position x' y') k d h w s v _) game = return game { cars = (newCars game), player = (newPlayer game) }
+makeCar (Player(Position x' y') k d h w s v _ p) game = return game { cars = (newCars game), player = (newPlayer game) }
   where newCars game = car : (cars game)
         car = Car { carPosition = Position {x = x', y = y'}, carSprite = s, carDirection = d, velocity = 0 }
         newPlayer game = Player { playerWidth = 10, playerHeight = 10, playerDirection = d,
                                   playerPosition = Position { x = (x' + 15),
-                                  y = y'}, keys = k, playerSprite = Sprite { spriteType = Person1, spriteState = 1 }, playerVelocity = v, playerState = Walking  }
+                                  y = y'}, keys = k, playerSprite = Sprite { spriteType = Person1, spriteState = 1 }, playerVelocity = v, playerState = Walking, points = p }
 
 enterCar' :: GTA -> IO GTA
 enterCar' game =

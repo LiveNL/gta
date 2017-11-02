@@ -23,7 +23,8 @@ data Player = Player
     playerWidth     :: Float,
     playerSprite    :: Sprite,
     playerVelocity  :: Float,
-    playerState     :: PlayerState }
+    playerState     :: PlayerState,
+    points          :: Int }
   deriving (Show)
 
 data Keys = Keys
