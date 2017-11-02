@@ -42,10 +42,10 @@ prev :: Direction -> Direction
 prev North = East
 prev d = pred d
 
-changeDir :: (Movable a) => a -> Int -> a
-changeDir a rInt = case rInt of
+changeDir :: (Movable a) => Int -> a -> a
+changeDir rInt a = case rInt of
                      0 -> setDir (next x) a
-                     1 -> setDir (prev x) a
+                     1 -> setDir x a
   where x = getDir a
 
 roundDecimals :: (Fractional a2, RealFrac a1, Integral b) => a1 -> b -> a2

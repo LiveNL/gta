@@ -49,7 +49,8 @@ updateKeyState (left', right', up', down', d') game@Game{player} = return (game 
 
 updatePlayerPosition :: GTA -> GTA
 updatePlayerPosition game@Game{player}
-  | canMove player (cars game) && canMove player (people game) && canMove player blocks' = game { player = (updatePlayerPosition' player) }
+  | canMove 1 player (cars game) = game -- collision
+  | canMove 4 player blocks' = game { player = (updatePlayerPosition' player) }
   | otherwise = game
   where updatePlayerPosition' player@Player{playerPosition, playerVelocity, playerSprite} = player { playerPosition = (fst newPosition'),
                                                                                                      playerVelocity = (snd newPosition'),
@@ -57,7 +58,7 @@ updatePlayerPosition game@Game{player}
                                                                                                        spriteType = spriteType (playerSprite (player game)),
                                                                                                        spriteState = sprite }
                                                                                                    }
-          blocks' = moveBlocks (blocks game) [Sidewalk, Road]
+          blocks' = moveBlocks (blocks game) [Sidewalk, Road, Wall]
           newPosition' = newPosition (keys player) (getPos player)
           sprite | mod' (roundDecimals (elapsedTime game) 2) 0.5 == 0 = nextWalking (playerSprite (player game))
                  | otherwise = spriteState (playerSprite (player game))
@@ -116,22 +117,22 @@ makeCar (Player(Position x' y') k d h w s v _) game = return game { cars = (newC
 enterCar' :: GTA -> IO GTA
 enterCar' game =
   if isJust carIndex'
-  then updateCars (setDimensions (player game) (width car) (height car) (carSprite car) game)
+  then updateCars (game { player = updatedPlayer })
   else return game
-    where carIndex' = (elemIndex (False) (closeCars (player game) carsGame))
+    where carIndex' = (elemIndex True (closeCars (player game) carsGame))
           carIndex = fromJust carIndex'
           car = carsGame !! carIndex
           updateCars game = return game { cars = newCars }
           newCars = take carIndex carsGame ++ drop (1 + carIndex) carsGame
           carsGame = cars game
+          updatedPlayer = setDimensions (player game) (width car) (height car) (carSprite car) game
 
-setDimensions :: Player -> Float -> Float -> Sprite -> GTA -> GTA
+setDimensions :: Player -> Float -> Float -> Color -> GTA -> Player
 setDimensions player@(Player {playerHeight, playerWidth, playerSprite}) x y s game =
-  game { player = Player {
-  playerHeight = x, playerWidth = y, playerSprite = s, playerState = Driving } }
+  player { playerHeight = x, playerWidth = y, playerSprite = s, playerState = Driving }
 
 closeCars :: Player -> [Car] -> [Bool]
-closeCars p c = map (canMove p) c'
+closeCars p c = map (canMove 1 p ) c'
   where c' = [[x] | x <- c]
 
 changeGameState :: GTA -> IO GTA

@@ -13,7 +13,7 @@ data Block = Block
     blockType     :: BlockType }
   deriving (Show, Generic)
 
-data BlockType = Road | Sidewalk | Building
+data BlockType = Road | Sidewalk | Building | Wall
   deriving (Show, Eq, Generic)
 
 instance Movable Block where
@@ -26,6 +26,6 @@ instance FromJSON BlockType
 
 moveBlocks :: [Block] -> [BlockType] -> [Block]
 moveBlocks xs t = filter f xs
-  where f (Block _ _ _ x) = notElem x t
+  where f (Block _ _ _ x) = elem x t
 
 instance FromJSON Block
