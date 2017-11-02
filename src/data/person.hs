@@ -11,7 +11,7 @@ data Person = Person
   { personPosition  :: Position,
     personSprite     :: Sprite,
     personDirection :: Direction }
-  deriving (Show, Generic)
+  deriving (Show, Generic, Eq)
 
 instance Movable Person where
   getPos Person{personPosition} = Position (x personPosition) (y personPosition)

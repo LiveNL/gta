@@ -68,3 +68,9 @@ nextWalking :: Sprite -> Int
 nextWalking (Sprite t s) | t == Car1 || t == Car2 || t == Car3 = 1
                          | s == 3 = 1
                          | otherwise = succ s
+
+changeDirR :: (Movable a) => Int -> a -> a
+changeDirR rInt a = case rInt of
+                      0 -> setDir (next x) a
+                      1 -> setDir (prev x) a
+  where x = getDir a

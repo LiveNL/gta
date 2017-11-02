@@ -26,15 +26,15 @@ offset = 0
 
 -- Functions
 main :: IO ()
-main = playIO window black 60 initialState render handleKeys update
+main = playIO window (dark $ dark green) 60 initialState render handleKeys update
 
 window :: Display
-window = InWindow "GTA" (windowWidth, windowHeight) (offset, offset)
+window = FullScreen
 
 initialState :: GTA
 initialState = Game
   { player = Player {
-      playerPosition  = Position { x = 450, y = 20 },
+      playerPosition  = Position { x = 480, y = 250 },
       keys            = Keys { left = Up, right = Up, up = Up, down = Up },
       playerDirection = North, playerWidth = 10, playerHeight = 10,
       playerSprite    = Sprite { spriteType = Person1, spriteState = 1 }, playerVelocity = 0, playerState = Walking, points = 0
@@ -50,7 +50,7 @@ updateKeyState (left', right', up', down', d') game@Game{player} = return (game 
 updatePlayerPosition :: GTA -> GTA
 updatePlayerPosition game@Game{player}
   | canMove 1 player (cars game) && ((playerState player) == Driving) = updatePoints game -- collision
-  | canMove 1 player (cars game) = game -- collision
+  | canMove 1 player (cars game) || canMove 1 player (people game) = game -- collision
   | canMove 4 player blocks' = game { player = (updatePlayerPosition' player) }
   | otherwise = game
   where updatePlayerPosition' player@Player{playerPosition, playerVelocity, playerSprite} = player { playerPosition = (fst newPosition'),
@@ -94,8 +94,9 @@ updatePoints game@Game{player} = game { player = (updatePoints' player) }
   where updatePoints' player@Player{points} = player { points = (points + 1)}
 
 drawPoints :: Player -> Picture
-drawPoints p = translate (x + 200) (y + 200) $ color white $ text (show (points p))
+drawPoints p = translate (x + 175) (y + 175) $ color white $ text (show (points'))
   where Position x y = getPos p
+        points' = (points p) `div` 10
 
 handleKeys :: Event -> GTA -> IO GTA
 handleKeys (EventKey (SpecialKey KeyUp)    s _ _) = updateKeyState (Up, Up, s , Up, North)

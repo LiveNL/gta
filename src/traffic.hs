@@ -36,10 +36,12 @@ person (Person (Position x y) s d) = do image@(Bitmap width height _ _) <- loadB
                                                          East  -> 90
 
 block :: Block -> Picture
-block (Block (Position x y) w h t)
-  | t == Road = translate x y $ color (greyN 0.5) $ rectangleSolid w h
-  | t == Building = translate x y $ color (dark red) $ rectangleSolid w h
-  | otherwise = translate x y $ color (greyN 0.7) $ rectangleSolid w h
+block (Block (Position x y) w h t) = case t of
+   Road -> translate x y $ color (greyN 0.5) $ rectangleSolid w h
+   Wall -> translate x y $ color (greyN 0.5) $ rectangleSolid w h
+   Building -> translate x y $ color (dark red) $ rectangleSolid w h
+   Sidewalk -> translate x y $ color (greyN 0.7) $ rectangleSolid w h
+   _ -> translate x y $ color (greyN 0.7) $ rectangleSolid w h
 
 updateCars :: [Car] -> Int -> GTA -> GTA
 updateCars cars rInt game = game { cars = updateCars' }
@@ -48,7 +50,7 @@ updateCars cars rInt game = game { cars = updateCars' }
 updateCar :: GTA -> Int -> Car -> Car
 updateCar game rInt car@Car{velocity} = case velocity of
   0 -> car
-  1 | canMove 4 car walls'  -> newCarPosition $ changeDir rInt car
+  1 | canMove 4 car walls'  -> newCarPosition $ changeDirR rInt car
     | canMove 1 car cars' || canMove 1 (player game) [car] -> car -- collision
     | canMove 4 car blocks' -> newCarPosition car
     | otherwise -> newCarPosition $ changeDir 0 car
@@ -56,7 +58,6 @@ updateCar game rInt car@Car{velocity} = case velocity of
                walls' = moveBlocks (blocks game) [Wall]
                carIndex = fromJust (elemIndex car (cars game))
                cars' = take carIndex (cars game) ++ drop (1 + carIndex) (cars game)
-               cdir = getDir car
 
 newCarPosition :: Car -> Car
 newCarPosition car@(Car (Position _ _) _ d _) = case d of
@@ -70,10 +71,14 @@ updatePeople people rInt game = game { people = updatePeople' }
   where updatePeople' = map (updatePerson game rInt) people
 
 updatePerson :: GTA -> Int -> Person -> Person
-updatePerson game person
+updatePerson game rInt person
+  | canMove 1 person (cars game) = changeDir rInt person
+  | canMove 1 person people' || canMove 1 (player game) [person] = changeDirR rInt person
   | canMove 4 person blocks' = newPersonPosition person { personSprite = Sprite { spriteType = spriteType (personSprite person),  spriteState = sprite' }}
-  | otherwise = changeDir rInt person
+  | otherwise = changeDirR rInt person
     where blocks' = moveBlocks (blocks game) [Sidewalk]
+          people' = take personIndex (people game) ++ drop (1 + personIndex) (people game)
+          personIndex = fromJust (elemIndex person (people game))
           sprite' | mod' (roundDecimals (elapsedTime game) 2) 0.5 == 0 = nextWalking (personSprite person)
                   | otherwise = spriteState (personSprite person)
 
