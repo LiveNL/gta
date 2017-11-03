@@ -55,14 +55,14 @@ updatePlayerPosition game@Game{player}
   | otherwise = game
   where updatePlayerPosition' player@Player{playerPosition, playerVelocity, playerSprite} = player { playerPosition = (fst newPosition'),
                                                                                                      playerVelocity = (snd newPosition'),
-                                                                                                     playerSprite = (playerSprite (player game)) {
-                                                                                                       spriteType = spriteType (playerSprite (player game)),
+                                                                                                     playerSprite = playerSprite {
+                                                                                                       spriteType = spriteType playerSprite,
                                                                                                        spriteState = sprite }
                                                                                                    }
-          blocks' = moveBlocks (blocks game) [Sidewalk, Road, Wall]
-          newPosition' = newPosition (keys player) (getPos player)
-          sprite | mod' (roundDecimals (elapsedTime game) 2) 0.5 == 0 = nextWalking (playerSprite (player game))
-                 | otherwise = spriteState (playerSprite (player game))
+        blocks' = moveBlocks (blocks game) [Sidewalk, Road, Wall]
+        newPosition' = newPosition (keys player) (getPos player)
+        sprite | mod' (roundDecimals (elapsedTime game) 2) 0.5 == 0 = nextWalking (playerSprite player)
+               | otherwise = spriteState (playerSprite player)
 
 newPosition :: Keys -> Position -> (Position, Float)
 newPosition (Keys Down _    _    _   ) (Position x y) = (Position {x = x - 1, y = y     }, 1)
@@ -72,8 +72,8 @@ newPosition (Keys _    _    _    Down) (Position x y) = (Position {x = x    , y 
 newPosition (Keys _    _    _    _   ) (Position x y) = (Position {x = x    , y = y     }, 0)
 
 playerDraw :: GTA -> IO Picture
-playerDraw game = do image@(Bitmap width height _ _) <- loadBMP ("./sprites/" ++ sprite)
-                     return (translate x y $ scale (height (player game)  / fromIntegral(height)) (width (player game) / fromIntegral(width)) $ rotate angle $ image)
+playerDraw game = do image@(Bitmap w' h' _ _) <- loadBMP ("./sprites/" ++ sprite)
+                     return (translate x y $ scale ((height (player game)) / fromIntegral h') ((width (player game)) / fromIntegral(w')) $ rotate angle $ image)
                      where Position x y = getPos (player game)
                            d            = playerDirection (player game)
                            angle = case d of
@@ -86,9 +86,14 @@ playerDraw game = do image@(Bitmap width height _ _) <- loadBMP ("./sprites/" ++
                                       1 -> show (spriteType (playerSprite (player game))) ++ "_" ++ show (spriteState (playerSprite (player game))) ++ ".bmp"
 
 render :: GTA -> IO Picture
-render game = return (scale 5 5 (translate (- x) (- y) (pictures (blockList ++ [pointsText])))) <> playerDraw game <> do x <- sequence (carsList ++ personList)
-                                                                   return (pictures x)
-                                                                     where Position x y = getPos (player game)
+render game = return (pictures (blockList ++ [pointsText])) <> playerDraw game <> do pics <- sequence (carsList ++ personList)
+                                                                                     return (pictures pics)
+  where Position x y = getPos (player game)
+        blockList = map block (blocks game)
+        carsList = map car (cars game)
+        personList = map person (people game)
+        pointsText = drawPoints (player game)
+
 updatePoints :: GTA -> GTA
 updatePoints game@Game{player} = game { player = (updatePoints' player) }
   where updatePoints' player@Player{points} = player { points = (points + 1)}
