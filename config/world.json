@@ -667,7 +667,7 @@
         "y":545.0
       },
       "personSprite":{
-        "spriteType":"Person1",
+        "spriteType":"Person2",
         "spriteState":1
       },
       "personDirection":"North"
@@ -678,7 +678,7 @@
         "y":505.0
       },
       "personSprite":{
-        "spriteType":"Person1",
+        "spriteType":"Person2",
         "spriteState":1
       },
       "personDirection":"North"
@@ -722,7 +722,7 @@
         "y":555.0
       },
       "personSprite":{
-        "spriteType":"Person1",
+        "spriteType":"Person2",
         "spriteState":1
       },
       "personDirection":"North"
@@ -755,7 +755,7 @@
         "y":175.0
       },
       "personSprite":{
-        "spriteType":"Person1",
+        "spriteType":"Person2",
         "spriteState":1
       },
       "personDirection":"North"
@@ -777,7 +777,7 @@
         "y":100.0
       },
       "personSprite":{
-        "spriteType":"Person1",
+        "spriteType":"Person2",
         "spriteState":1
       },
       "personDirection":"North"
@@ -799,7 +799,7 @@
         "y":465.0
       },
       "personSprite":{
-        "spriteType":"Person1",
+        "spriteType":"Person2",
         "spriteState":1
       },
       "personDirection":"North"
@@ -832,7 +832,7 @@
         "y":345.0
       },
       "personSprite":{
-        "spriteType":"Person1",
+        "spriteType":"Person2",
         "spriteState":1
       },
       "personDirection":"North"
@@ -845,7 +845,7 @@
         "y":140.0
       },
       "carSprite":{
-        "spriteType":"Car3",
+        "spriteType":"Car2",
         "spriteState":1
       },
       "carDirection":"West",
@@ -857,7 +857,7 @@
         "y":695.0
       },
       "carSprite":{
-        "spriteType":"Car3",
+        "spriteType":"Car1",
         "spriteState":1
       },
       "carDirection":"West",
@@ -869,7 +869,7 @@
         "y":75.0
       },
       "carSprite":{
-        "spriteType":"Car3",
+        "spriteType":"Car2",
         "spriteState":1
       },
       "carDirection":"West",
@@ -881,7 +881,7 @@
         "y":135.0
       },
       "carSprite":{
-        "spriteType":"Car3",
+        "spriteType":"Car2",
         "spriteState":1
       },
       "carDirection":"North",
@@ -917,7 +917,7 @@
         "y":135.0
       },
       "carSprite":{
-        "spriteType":"Car2",
+        "spriteType":"Car1",
         "spriteState":1
       },
       "carDirection":"North",
@@ -965,7 +965,7 @@
         "y":175.0
       },
       "carSprite":{
-        "spriteType":"Car2",
+        "spriteType":"Car1",
         "spriteState":1
       },
       "carDirection":"North",
@@ -977,7 +977,7 @@
         "y":175.0
       },
       "carSprite":{
-        "spriteType":"Car2",
+        "spriteType":"Car3",
         "spriteState":1
       },
       "carDirection":"North",
@@ -989,7 +989,7 @@
         "y":175.0
       },
       "carSprite":{
-        "spriteType":"Car3",
+        "spriteType":"Car2",
         "spriteState":1
       },
       "carDirection":"North",
@@ -1001,7 +1001,7 @@
         "y":403.0
       },
       "carSprite":{
-        "spriteType":"Car1",
+        "spriteType":"Car3",
         "spriteState":1
       },
       "carDirection":"North",
@@ -1025,7 +1025,7 @@
         "y":350.0
       },
       "carSprite":{
-        "spriteType":"Car3",
+        "spriteType":"Car1",
         "spriteState":1
       },
       "carDirection":"West",
@@ -1037,7 +1037,7 @@
         "y":385.0
       },
       "carSprite":{
-        "spriteType":"Car2",
+        "spriteType":"Car1",
         "spriteState":1
       },
       "carDirection":"East",
@@ -1061,7 +1061,7 @@
         "y":310.0
       },
       "carSprite":{
-        "spriteType":"Car2",
+        "spriteType":"Car3",
         "spriteState":1
       },
       "carDirection":"North",
@@ -1073,7 +1073,7 @@
         "y":255.0
       },
       "carSprite":{
-        "spriteType":"Car1",
+        "spriteType":"Car3",
         "spriteState":1
       },
       "carDirection":"North",
@@ -1085,7 +1085,7 @@
         "y":215.0
       },
       "carSprite":{
-        "spriteType":"Car3",
+        "spriteType":"Car2",
         "spriteState":1
       },
       "carDirection":"West",

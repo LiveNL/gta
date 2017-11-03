@@ -58,7 +58,7 @@ data Sprite = Sprite
   }
   deriving (Show, Eq, Generic)
 
-data SpriteType = Person1 | Person2 | Person3 | Car1 | Car2 | Car3
+data SpriteType = Player1 | Person1 | Person2 | Person3 | Car1 | Car2 | Car3
   deriving (Show, Eq, Generic)
 
 instance FromJSON Sprite

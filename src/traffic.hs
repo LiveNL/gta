@@ -47,16 +47,20 @@ block (Block (Position x y) w h t) = case t of
    _ -> translate x y $ color (greyN 0.7) $ rectangleSolid w h
 
 updateCars :: [Car] -> Int -> GTA -> GTA
-updateCars cars rInt game = game { cars = updateCars' }
-  where updateCars' = map (updateCar game rInt) cars
+updateCars cars rInt game = game { cars = updateCars', gameState = updateGameState }
+  where update = map (updateCar game rInt) cars
+        updateCars' = map snd update
+        updateGameState | elem Dead (map fst update) = Dead
+                        | otherwise = gameState game
 
-updateCar :: GTA -> Int -> Car -> Car
+updateCar :: GTA -> Int -> Car -> (GameState, Car)
 updateCar game rInt car@Car{velocity} = case velocity of
-  0 -> car
-  1 | canMove 4 car walls'  -> newCarPosition $ changeDirR rInt car
-    | canMove 1 car cars' || canMove 1 (player game) [car] -> car -- collision
-    | canMove 4 car blocks' -> newCarPosition car
-    | otherwise -> newCarPosition $ changeDir 0 car
+  0 -> (Running, car)
+  1 | canMove 4 car walls' -> (Running, (newCarPosition $ changeDirR rInt car))
+    | canMove 1 car cars' -> (Running, car)
+    | canMove 1 (player game) [car] -> (Dead, car)
+    | canMove 4 car blocks' -> (Running, newCarPosition car)
+    | otherwise -> (Running, (newCarPosition $ changeDir 0 car))
          where blocks' = moveBlocks (blocks game) [Road]
                walls' = moveBlocks (blocks game) [Wall]
                carIndex = fromJust (elemIndex car (cars game))

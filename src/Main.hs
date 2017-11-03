@@ -38,7 +38,7 @@ initialState = Game
       playerPosition  = Position { x = 480, y = 250 },
       keys            = Keys { left = Up, right = Up, up = Up, down = Up },
       playerDirection = North, playerWidth = 10, playerHeight = 10,
-      playerSprite    = Sprite { spriteType = Person1, spriteState = 1 }, playerVelocity = 0, playerState = Walking, points = 0
+      playerSprite    = Sprite { spriteType = Player1, spriteState = 1 }, playerVelocity = 0, playerState = Walking, points = 0
     },
     cars = [], people = [], blocks = [], gameState = Loading, elapsedTime = 0
   }
@@ -73,7 +73,7 @@ newPosition (Keys _    _    _    Down) (Position x y) = (Position {x = x    , y 
 newPosition (Keys _    _    _    _   ) (Position x y) = (Position {x = x    , y = y     }, 0)
 
 playerDraw :: [(String,Picture)] -> GTA -> Picture
-playerDraw images game = (translate x y $ scale ((height (player game)) / fromIntegral h') ((width (player game)) / fromIntegral(w')) $ rotate angle $ image)
+playerDraw images game = (translate x y $ scale (height (player game) / fromIntegral h') (width (player game) / fromIntegral(w')) $ rotate angle $ image)
                      where Position x y = getPos (player game)
                            d            = playerDirection (player game)
                            angle = case d of
@@ -89,7 +89,7 @@ playerDraw images game = (translate x y $ scale ((height (player game)) / fromIn
                            s = (playerSprite (player game))
 
 
-list = "./sprites/Car1_1.bmp,./sprites/Car2_1.bmp,./sprites/Car3_1.bmp,./sprites/Person1_1.bmp,./sprites/Person1_2.bmp,./sprites/Person1_3.bmp,./sprites/Person2_1.bmp,./sprites/Person2_2.bmp,./sprites/Person2_3.bmp"
+list = "./sprites/Car1_1.bmp,./sprites/Car2_1.bmp,./sprites/Car3_1.bmp,./sprites/Person1_1.bmp,./sprites/Person1_2.bmp,./sprites/Person1_3.bmp,./sprites/Person2_1.bmp,./sprites/Person2_2.bmp,./sprites/Person2_3.bmp,./sprites/Player1_1.bmp,./sprites/Player1_2.bmp,./sprites/Player1_3.bmp"
 
 render :: GTA -> IO Picture
 render game = do images <- sequence $ map loadBMP names
@@ -164,6 +164,7 @@ update secs game = do
   rInt <- randomNr
   case gameState game of
     Loading -> loading game
+    Dead    -> return game
     Paused  -> return game
     Running -> return ( updateTraffic rInt (updatePlayerPosition game { elapsedTime = (elapsedTime game) + secs }))
 
