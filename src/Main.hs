@@ -86,7 +86,7 @@ playerDraw game = do image@(Bitmap width height _ _) <- loadBMP ("./sprites/" ++
                                       1 -> show (spriteType (playerSprite (player game))) ++ "_" ++ show (spriteState (playerSprite (player game))) ++ ".bmp"
 
 render :: GTA -> IO Picture
-render game = return (translate (- x) (- y) (pictures (blockList ++ [pointsText]))) <> playerDraw game <> do x <- sequence (carsList ++ personList)
+render game = return (scale 5 5 (translate (- x) (- y) (pictures (blockList ++ [pointsText])))) <> playerDraw game <> do x <- sequence (carsList ++ personList)
                                                                    return (pictures x)
                                                                      where Position x y = getPos (player game)
 updatePoints :: GTA -> GTA
