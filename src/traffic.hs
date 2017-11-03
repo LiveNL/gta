@@ -5,6 +5,7 @@ import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game
 import Data.List
 import Data.Maybe
+import Data.Fixed (mod')
 import Debug.Trace
 
 import Helpers
@@ -67,9 +68,11 @@ updatePeople people game = game { people = updatePeople' }
 
 updatePerson :: GTA -> Person -> Person
 updatePerson game person
-  | canMove person blocks' = newPersonPosition person
+  | canMove person blocks' = newPersonPosition person { personSprite = Sprite { spriteType = spriteType (personSprite person),  spriteState = sprite' }}
   | otherwise = changeDir person 0
     where blocks' = moveBlocks (blocks game) [Sidewalk]
+          sprite' | mod' (roundDecimals (elapsedTime game) 2) 0.5 == 0 = nextWalking (personSprite person)
+                 | otherwise = spriteState (personSprite person)
 
 newPersonPosition :: Person -> Person
 newPersonPosition person@(Person _ _ d)

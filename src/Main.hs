@@ -54,9 +54,6 @@ updateKeyState (left', right', up', down', direction') game = return updateGame
             playerVelocity  = playerVelocity (player game) }
         }
 
-roundDecimals :: (Fractional a2, RealFrac a1, Integral b) => a1 -> b -> a2
-roundDecimals f n = (fromInteger $ round $ f * (10^n)) / (10.0^^n)
-
 updatePlayerPosition :: GTA -> GTA
 -- TODO: FIX THE DUPLICATION FOR CAN MOVE, but works for now
 updatePlayerPosition game
@@ -90,7 +87,7 @@ newPosition (Keys _    _    _    _   ) (Position x y) = (Position {x = x    , y 
 
 playerDraw :: GTA -> IO Picture
 playerDraw game = do image@(Bitmap width height _ _) <- loadBMP ("./sprites/" ++ sprite)
-                     return (translate x y $ scale (10 / fromIntegral(height)) (10 / fromIntegral(width)) $ rotate angle $ image)
+                     return (translate x y $ scale (playerHeight (player game)  / fromIntegral(height)) (playerWidth (player game) / fromIntegral(width)) $ rotate angle $ image)
                      where Position x y = getPos (player game)
                            d            = playerDirection (player game)
                            angle = case d of

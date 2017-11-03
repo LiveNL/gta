@@ -48,6 +48,9 @@ changeDir a rInt = case rInt of
                      1 -> setDir (prev x) a
   where x = getDir a
 
+roundDecimals :: (Fractional a2, RealFrac a1, Integral b) => a1 -> b -> a2
+roundDecimals f n = (fromInteger $ round $ f * (10^n)) / (10.0^^n)
+
 data Sprite = Sprite
   {
     spriteType  :: SpriteType,
