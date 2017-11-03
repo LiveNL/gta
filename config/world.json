@@ -2,6 +2,78 @@
   "blocksJSON":[
     {
       "blockPosition":{
+        "x":180.0,
+        "y":125.0
+      },
+      "blockWidth":30.0,
+      "blockHeight":30.0,
+      "blockType":"Sidewalk"
+    },
+    {
+      "blockPosition":{
+        "x":120.0,
+        "y":125.0
+      },
+      "blockWidth":30.0,
+      "blockHeight":30.0,
+      "blockType":"Sidewalk"
+    },
+    {
+      "blockPosition":{
+        "x":150.0,
+        "y":125.0
+      },
+      "blockWidth":30.0,
+      "blockHeight":30.0,
+      "blockType":"Sidewalk"
+    },
+    {
+      "blockPosition":{
+        "x":180.0,
+        "y":155.0
+      },
+      "blockWidth":30.0,
+      "blockHeight":30.0,
+      "blockType":"Sidewalk"
+    },
+    {
+      "blockPosition":{
+        "x":180.0,
+        "y":185.0
+      },
+      "blockWidth":30.0,
+      "blockHeight":30.0,
+      "blockType":"Sidewalk"
+    },
+    {
+      "blockPosition":{
+        "x":150.0,
+        "y":155.0
+      },
+      "blockWidth":30.0,
+      "blockHeight":30.0,
+      "blockType":"Sidewalk"
+    },
+    {
+      "blockPosition":{
+        "x":150.0,
+        "y":185.0
+      },
+      "blockWidth":30.0,
+      "blockHeight":30.0,
+      "blockType":"Sidewalk"
+    },
+    {
+      "blockPosition":{
+        "x":120.0,
+        "y":155.0
+      },
+      "blockWidth":30.0,
+      "blockHeight":30.0,
+      "blockType":"Sidewalk"
+    },
+    {
+      "blockPosition":{
         "x":122.5,
         "y":555.0
       },
@@ -83,11 +155,11 @@
     },
     {
       "blockPosition":{
-        "x":150.0,
-        "y":145.0
+        "x":120.0,
+        "y":185.0
       },
-      "blockWidth":100.0,
-      "blockHeight":110.0,
+      "blockWidth":30.0,
+      "blockHeight":30.0,
       "blockType":"Sidewalk"
     },
     {
@@ -128,6 +200,51 @@
     },
     {
       "blockPosition":{
+        "x":90.0,
+        "y":135.0
+      },
+      "blockWidth":30.0,
+      "blockHeight":30.0,
+      "blockType":"Road"
+    },
+    {
+      "blockPosition":{
+        "x":90.0,
+        "y":105.0
+      },
+      "blockWidth":30.0,
+      "blockHeight":30.0,
+      "blockType":"Road"
+    },
+    {
+      "blockPosition":{
+        "x":60.0,
+        "y":135.0
+      },
+      "blockWidth":30.0,
+      "blockHeight":30.0,
+      "blockType":"Road"
+    },
+    {
+      "blockPosition":{
+        "x":60.0,
+        "y":105.0
+      },
+      "blockWidth":30.0,
+      "blockHeight":30.0,
+      "blockType":"Road"
+    },
+    {
+      "blockPosition":{
+        "x":30.0,
+        "y":105.0
+      },
+      "blockWidth":30.0,
+      "blockHeight":30.0,
+      "blockType":"Road"
+    },
+    {
+      "blockPosition":{
         "x":565.0,
         "y":130.0
       },
@@ -146,11 +263,11 @@
     },
     {
       "blockPosition":{
-        "x":57.5,
-        "y":127.5
+        "x":30.0,
+        "y":135.0
       },
-      "blockWidth":85.0,
-      "blockHeight":75.0,
+      "blockWidth":30.0,
+      "blockHeight":30.0,
       "blockType":"Road"
     },
     {
@@ -488,11 +605,11 @@
     },
     {
       "blockPosition":{
-        "x":57.5,
-        "y":182.5
+        "x":60.0,
+        "y":175.0
       },
-      "blockWidth":85.0,
-      "blockHeight":35.0,
+      "blockWidth":90.0,
+      "blockHeight":50.0,
       "blockType":"Building"
     },
     {
@@ -656,7 +773,7 @@
         "y":595.0
       },
       "personSprite":{
-        "spriteType":"Person2",
+        "spriteType":"person1",
         "spriteState":1
       },
       "personDirection":"North"
@@ -667,7 +784,7 @@
         "y":545.0
       },
       "personSprite":{
-        "spriteType":"Person2",
+        "spriteType":"person1",
         "spriteState":1
       },
       "personDirection":"North"
@@ -678,7 +795,7 @@
         "y":505.0
       },
       "personSprite":{
-        "spriteType":"Person2",
+        "spriteType":"person2",
         "spriteState":1
       },
       "personDirection":"North"
@@ -689,7 +806,7 @@
         "y":425.0
       },
       "personSprite":{
-        "spriteType":"Person2",
+        "spriteType":"person2",
         "spriteState":1
       },
       "personDirection":"North"
@@ -700,7 +817,7 @@
         "y":550.0
       },
       "personSprite":{
-        "spriteType":"Person2",
+        "spriteType":"person2",
         "spriteState":1
       },
       "personDirection":"North"
@@ -711,7 +828,7 @@
         "y":655.0
       },
       "personSprite":{
-        "spriteType":"Person1",
+        "spriteType":"person1",
         "spriteState":1
       },
       "personDirection":"North"
@@ -722,7 +839,7 @@
         "y":555.0
       },
       "personSprite":{
-        "spriteType":"Person2",
+        "spriteType":"person1",
         "spriteState":1
       },
       "personDirection":"North"
@@ -733,18 +850,18 @@
         "y":185.0
       },
       "personSprite":{
-        "spriteType":"Person1",
+        "spriteType":"person2",
         "spriteState":1
       },
       "personDirection":"North"
     },
     {
       "personPosition":{
-        "x":160.0,
-        "y":115.0
+        "x":150.0,
+        "y":125.0
       },
       "personSprite":{
-        "spriteType":"Person1",
+        "spriteType":"person2",
         "spriteState":1
       },
       "personDirection":"North"
@@ -755,7 +872,7 @@
         "y":175.0
       },
       "personSprite":{
-        "spriteType":"Person2",
+        "spriteType":"person1",
         "spriteState":1
       },
       "personDirection":"North"
@@ -766,7 +883,7 @@
         "y":110.0
       },
       "personSprite":{
-        "spriteType":"Person1",
+        "spriteType":"person1",
         "spriteState":1
       },
       "personDirection":"North"
@@ -777,7 +894,7 @@
         "y":100.0
       },
       "personSprite":{
-        "spriteType":"Person2",
+        "spriteType":"person2",
         "spriteState":1
       },
       "personDirection":"North"
@@ -788,7 +905,7 @@
         "y":435.0
       },
       "personSprite":{
-        "spriteType":"Person1",
+        "spriteType":"person2",
         "spriteState":1
       },
       "personDirection":"North"
@@ -799,7 +916,7 @@
         "y":465.0
       },
       "personSprite":{
-        "spriteType":"Person2",
+        "spriteType":"person1",
         "spriteState":1
       },
       "personDirection":"North"
@@ -810,7 +927,7 @@
         "y":425.0
       },
       "personSprite":{
-        "spriteType":"Person2",
+        "spriteType":"person2",
         "spriteState":1
       },
       "personDirection":"North"
@@ -821,7 +938,7 @@
         "y":385.0
       },
       "personSprite":{
-        "spriteType":"Person1",
+        "spriteType":"person2",
         "spriteState":1
       },
       "personDirection":"North"
@@ -832,7 +949,7 @@
         "y":345.0
       },
       "personSprite":{
-        "spriteType":"Person2",
+        "spriteType":"person1",
         "spriteState":1
       },
       "personDirection":"North"
@@ -842,10 +959,10 @@
     {
       "carPosition":{
         "x":70.0,
-        "y":140.0
+        "y":135.0
       },
       "carSprite":{
-        "spriteType":"Car2",
+        "spriteType":"car3",
         "spriteState":1
       },
       "carDirection":"West",
@@ -857,7 +974,7 @@
         "y":695.0
       },
       "carSprite":{
-        "spriteType":"Car1",
+        "spriteType":"car2",
         "spriteState":1
       },
       "carDirection":"West",
@@ -869,7 +986,7 @@
         "y":75.0
       },
       "carSprite":{
-        "spriteType":"Car2",
+        "spriteType":"car3",
         "spriteState":1
       },
       "carDirection":"West",
@@ -881,7 +998,7 @@
         "y":135.0
       },
       "carSprite":{
-        "spriteType":"Car2",
+        "spriteType":"car1",
         "spriteState":1
       },
       "carDirection":"North",
@@ -893,7 +1010,7 @@
         "y":135.0
       },
       "carSprite":{
-        "spriteType":"Car2",
+        "spriteType":"car1",
         "spriteState":1
       },
       "carDirection":"North",
@@ -905,7 +1022,7 @@
         "y":135.0
       },
       "carSprite":{
-        "spriteType":"Car3",
+        "spriteType":"car1",
         "spriteState":1
       },
       "carDirection":"North",
@@ -917,7 +1034,7 @@
         "y":135.0
       },
       "carSprite":{
-        "spriteType":"Car1",
+        "spriteType":"car3",
         "spriteState":1
       },
       "carDirection":"North",
@@ -929,7 +1046,7 @@
         "y":135.0
       },
       "carSprite":{
-        "spriteType":"Car1",
+        "spriteType":"car1",
         "spriteState":1
       },
       "carDirection":"North",
@@ -941,7 +1058,7 @@
         "y":175.0
       },
       "carSprite":{
-        "spriteType":"Car3",
+        "spriteType":"car2",
         "spriteState":1
       },
       "carDirection":"North",
@@ -953,7 +1070,7 @@
         "y":175.0
       },
       "carSprite":{
-        "spriteType":"Car3",
+        "spriteType":"car3",
         "spriteState":1
       },
       "carDirection":"North",
@@ -965,7 +1082,7 @@
         "y":175.0
       },
       "carSprite":{
-        "spriteType":"Car1",
+        "spriteType":"car1",
         "spriteState":1
       },
       "carDirection":"North",
@@ -977,7 +1094,7 @@
         "y":175.0
       },
       "carSprite":{
-        "spriteType":"Car3",
+        "spriteType":"car2",
         "spriteState":1
       },
       "carDirection":"North",
@@ -989,7 +1106,7 @@
         "y":175.0
       },
       "carSprite":{
-        "spriteType":"Car2",
+        "spriteType":"car3",
         "spriteState":1
       },
       "carDirection":"North",
@@ -1001,7 +1118,7 @@
         "y":403.0
       },
       "carSprite":{
-        "spriteType":"Car3",
+        "spriteType":"car2",
         "spriteState":1
       },
       "carDirection":"North",
@@ -1013,7 +1130,7 @@
         "y":565.0
       },
       "carSprite":{
-        "spriteType":"Car3",
+        "spriteType":"car2",
         "spriteState":1
       },
       "carDirection":"North",
@@ -1025,7 +1142,7 @@
         "y":350.0
       },
       "carSprite":{
-        "spriteType":"Car1",
+        "spriteType":"car1",
         "spriteState":1
       },
       "carDirection":"West",
@@ -1037,7 +1154,7 @@
         "y":385.0
       },
       "carSprite":{
-        "spriteType":"Car1",
+        "spriteType":"car3",
         "spriteState":1
       },
       "carDirection":"East",
@@ -1049,7 +1166,7 @@
         "y":305.0
       },
       "carSprite":{
-        "spriteType":"Car3",
+        "spriteType":"car2",
         "spriteState":1
       },
       "carDirection":"North",
@@ -1061,7 +1178,7 @@
         "y":310.0
       },
       "carSprite":{
-        "spriteType":"Car3",
+        "spriteType":"car1",
         "spriteState":1
       },
       "carDirection":"North",
@@ -1073,7 +1190,7 @@
         "y":255.0
       },
       "carSprite":{
-        "spriteType":"Car3",
+        "spriteType":"car1",
         "spriteState":1
       },
       "carDirection":"North",
@@ -1085,7 +1202,7 @@
         "y":215.0
       },
       "carSprite":{
-        "spriteType":"Car2",
+        "spriteType":"car2",
         "spriteState":1
       },
       "carDirection":"West",

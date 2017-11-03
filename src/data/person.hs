@@ -24,4 +24,6 @@ instance Movable Person where
   width _ = 10
   height _ = 10
 
+  getSprite Person{personSprite} = Sprite (spriteType personSprite) (spriteState personSprite)
+
 instance FromJSON Person

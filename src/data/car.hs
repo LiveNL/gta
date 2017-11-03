@@ -31,4 +31,6 @@ instance Movable Car where
                then 20
                else 30
 
+  getSprite Car{carSprite} = Sprite (spriteType carSprite) (spriteState carSprite)
+
 instance FromJSON Car

@@ -34,7 +34,7 @@ cars_json = grouped["Car"].first[:children].map do |car|
   dir = car[:name] == "None" ? "North" : car[:name]
   v = car[:name] == "None" ? 0 : 1
 
-  types = ["Car1","Car2","Car3"]
+  types = ["car1","car2","car3"]
 
   {"carPosition": { "x": x, "y": y}, "carSprite": { "spriteType": types.sample, "spriteState": 1 },
    "carDirection": dir, "velocity": v}
@@ -45,7 +45,7 @@ people_json = grouped["Person"].first[:children].map do |person|
   x = person[:x].to_f + (person[:w].to_f / 2)
   y = person[:y].to_f + (person[:h].to_f / 2)
 
-  types = ["Person1", "Person2"]
+  types = ["person1", "person2"]
   {"personPosition": { "x": x, "y": y}, "personSprite": { "spriteType": types.sample, "spriteState": 1 }, "personDirection": "North"}
 end
 
