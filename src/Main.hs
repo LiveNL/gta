@@ -66,10 +66,10 @@ updatePlayerPosition game@Game{player}
                | otherwise = spriteState (playerSprite player)
 
 newPosition :: Keys -> Position -> (Position, Float)
-newPosition (Keys Down _    _    _   ) (Position x y) = (Position {x = x - 1, y = y     }, 1)
-newPosition (Keys _    Down _    _   ) (Position x y) = (Position {x = x + 1, y = y     }, 1)
-newPosition (Keys _    _    Down _   ) (Position x y) = (Position {x = x    , y = y + 1 }, 1)
-newPosition (Keys _    _    _    Down) (Position x y) = (Position {x = x    , y = y - 1 }, 1)
+newPosition (Keys Down _    _    _   ) (Position x y) = (Position {x = x - 2, y = y     }, 1)
+newPosition (Keys _    Down _    _   ) (Position x y) = (Position {x = x + 2, y = y     }, 1)
+newPosition (Keys _    _    Down _   ) (Position x y) = (Position {x = x    , y = y + 2 }, 1)
+newPosition (Keys _    _    _    Down) (Position x y) = (Position {x = x    , y = y - 2 }, 1)
 newPosition (Keys _    _    _    _   ) (Position x y) = (Position {x = x    , y = y     }, 0)
 
 playerDraw :: [(String,Picture)] -> GTA -> Picture
