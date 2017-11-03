@@ -27,7 +27,7 @@ offset = 0
 
 -- Functions
 main :: IO ()
-main = playIO window (dark $ dark green) 60 initialState render handleKeys update
+main = playIO window (dark $ dark green) 80 initialState render handleKeys update
 
 window :: Display
 window = FullScreen
