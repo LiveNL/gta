@@ -4,6 +4,7 @@ module Main where
 import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game
 import Data.List
+import Data.List.Split
 
 import Helpers
 import Traffic
@@ -71,9 +72,8 @@ newPosition (Keys _    _    Down _   ) (Position x y) = (Position {x = x    , y 
 newPosition (Keys _    _    _    Down) (Position x y) = (Position {x = x    , y = y - 1 }, 1)
 newPosition (Keys _    _    _    _   ) (Position x y) = (Position {x = x    , y = y     }, 0)
 
-playerDraw :: GTA -> IO Picture
-playerDraw game = do image@(Bitmap w' h' _ _) <- loadBMP ("./sprites/" ++ sprite)
-                     return (translate x y $ scale ((height (player game)) / fromIntegral h') ((width (player game)) / fromIntegral(w')) $ rotate angle $ image)
+playerDraw :: [(String,Picture)] -> GTA -> Picture
+playerDraw images game = (translate x y $ scale ((height (player game)) / fromIntegral h') ((width (player game)) / fromIntegral(w')) $ rotate angle $ image)
                      where Position x y = getPos (player game)
                            d            = playerDirection (player game)
                            angle = case d of
@@ -84,15 +84,22 @@ playerDraw game = do image@(Bitmap w' h' _ _) <- loadBMP ("./sprites/" ++ sprite
                            sprite = case playerVelocity (player game) of
                                       0 -> show (spriteType (playerSprite (player game))) ++ "_1.bmp"
                                       1 -> show (spriteType (playerSprite (player game))) ++ "_" ++ show (spriteState (playerSprite (player game))) ++ ".bmp"
+                           image@(Bitmap w' h' _ True) = fromJust (lookup name images)
+                           name = "./sprites/" ++ show (spriteType s) ++ "_" ++ show (spriteState s) ++ ".bmp"
+                           s = (playerSprite (player game))
+
+
+list = "./sprites/Car1_1.bmp,./sprites/Car2_1.bmp,./sprites/Car3_1.bmp,./sprites/Person1_1.bmp,./sprites/Person1_2.bmp,./sprites/Person1_3.bmp,./sprites/Person2_1.bmp,./sprites/Person2_2.bmp,./sprites/Person2_3.bmp"
 
 render :: GTA -> IO Picture
-render game = return (pictures (blockList ++ [pointsText])) <> playerDraw game <> do pics <- sequence (carsList ++ personList)
-                                                                                     return (pictures pics)
-  where Position x y = getPos (player game)
-        blockList = map block (blocks game)
-        carsList = map car (cars game)
-        personList = map person (people game)
-        pointsText = drawPoints (player game)
+render game = do images <- sequence $ map loadBMP names
+                 let images' = zip names images
+                 return (scale 5 5 (translate (- x) (- y) (pictures (
+                   (map block (blocks game)) ++ (map (car images') (cars game)) ++
+                   (map (person images') (people game)) ++ [(playerDraw images' game)] ++ [pointsText]))))
+ where names = splitOn "," list
+       pointsText = drawPoints (player game)
+       Position x y = getPos (player game)
 
 updatePoints :: GTA -> GTA
 updatePoints game@Game{player} = game { player = (updatePoints' player) }

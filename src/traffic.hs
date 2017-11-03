@@ -14,26 +14,29 @@ import Data.Car
 import Data.Position
 import Data.Person
 import Data.Game
+import Debug.Trace
 
-car :: Car -> IO Picture
-car car@(Car (Position x y) s d _) = do image@(Bitmap width height _ _) <- loadBMP ("./sprites/" ++ show (spriteType s) ++ "_" ++ show (spriteState s) ++ ".bmp")
-                                        return (translate x y $ scale (h' / fromIntegral(height)) (w' / fromIntegral(width)) $ rotate angle $ image)
-                                    where angle = case d of
-                                                     North -> 0
-                                                     West  -> 270
-                                                     South -> 180
-                                                     East  -> 90
-                                          w' = width car
-                                          h' = height car
+car :: [([Char],Picture)] -> Car -> Picture
+car images car@(Car (Position x y) s d _) = translate x y $ scale (carHeight / fromIntegral(h')) (carWidth / fromIntegral(w')) $ rotate angle $ image
+  where angle = case d of
+                   North -> 0
+                   West  -> 270
+                   South -> 180
+                   East  -> 90
+        carWidth = width car
+        carHeight = height car
+        image@(Bitmap w' h' _ _) = fromJust (lookup name images)
+        name = "./sprites/" ++ show (spriteType s) ++ "_" ++ show (spriteState s) ++ ".bmp"
 
-person :: Person -> IO Picture
-person (Person (Position x y) s d) = do image@(Bitmap width height _ _) <- loadBMP ("./sprites/" ++ show (spriteType s) ++ "_" ++ show (spriteState s) ++ ".bmp")
-                                        return (translate x y $ scale (10 / fromIntegral(height)) (10 / fromIntegral(width)) $ rotate angle $ image)
-                                        where angle = case d of
-                                                         North -> 0
-                                                         West  -> 270
-                                                         South -> 180
-                                                         East  -> 90
+person :: [([Char],Picture)] -> Person -> Picture
+person images (Person (Position x y) s d) = (translate x y $ scale (10 / fromIntegral(h')) (10 / fromIntegral(w')) $ rotate angle $ image)
+  where angle = case d of
+                  North -> 0
+                  West  -> 270
+                  South -> 180
+                  East  -> 90
+        image@(Bitmap w' h' _ _) = fromJust (lookup name images)
+        name = "./sprites/" ++ show (spriteType s) ++ "_" ++ show (spriteState s) ++ ".bmp"
 
 block :: Block -> Picture
 block (Block (Position x y) w h t) = case t of
