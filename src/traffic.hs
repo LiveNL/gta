@@ -17,24 +17,34 @@ import Data.Game
 import Debug.Trace
 
 car :: [([Char],Picture)] -> Car -> Picture
-car images car@(Car (Position x y) s d _) = translate x y $ scale (carHeight / fromIntegral(h')) (carWidth / fromIntegral(w')) $ rotate angle $ image
+car images car@(Car (Position x y) s d _) = translate x y $ scale scaleX scaleY $ rotate angle $ image
   where angle = case d of
                    North -> 0
                    West  -> 270
                    South -> 180
                    East  -> 90
-        carWidth = width car
-        carHeight = height car
+        scaleX | d == North || d == South = (20 / fromIntegral(w'))
+               | otherwise                = (30 / fromIntegral(h'))
+
+        scaleY | d == North || d == South = (30 / fromIntegral(h'))
+               | otherwise                = (20 / fromIntegral(w'))
         image@(Bitmap w' h' _ _) = fromJust (lookup name images)
         name = "./sprites/" ++ show (spriteType s) ++ "_" ++ show (spriteState s) ++ ".bmp"
 
 person :: [([Char],Picture)] -> Person -> Picture
-person images (Person (Position x y) s d) = (translate x y $ scale (10 / fromIntegral(h')) (10 / fromIntegral(w')) $ rotate angle $ image)
+person images (Person (Position x y) s d) = (translate x y $ scale scaleX scaleY $ rotate angle $ image)
   where angle = case d of
                   North -> 0
                   West  -> 270
                   South -> 180
                   East  -> 90
+
+        scaleX | d == North || d == South = (10 / fromIntegral(w'))
+               | otherwise                = (10 / fromIntegral(h'))
+
+        scaleY | d == North || d == South = (10 / fromIntegral(h'))
+               | otherwise                = (10 / fromIntegral(w'))
+
         image@(Bitmap w' h' _ _) = fromJust (lookup name images)
         name = "./sprites/" ++ show (spriteType s) ++ "_" ++ show (spriteState s) ++ ".bmp"
 

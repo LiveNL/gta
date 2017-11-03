@@ -23,9 +23,9 @@ instance Movable Car where
   getDir Car{carDirection} = carDirection
   setDir x car@Car{carDirection} = car { carDirection = x }
 
-  width c = if (carDirection c) == North || (carDirection c) == South
-              then 20
-              else 30
+  width c = if (carDirection c) == East || (carDirection c) == West
+              then 30
+              else 20
 
   height c = if (carDirection c) == East || (carDirection c) == West
                then 20

@@ -27,7 +27,7 @@ offset = 0
 
 -- Functions
 main :: IO ()
-main = playIO window (dark $ dark green) 60 initialState render handleKeys update
+main = playIO window (dark $ dark green) 80 initialState render handleKeys update
 
 window :: Display
 window = FullScreen
@@ -73,7 +73,7 @@ newPosition (Keys _    _    _    Down) (Position x y) = (Position {x = x    , y 
 newPosition (Keys _    _    _    _   ) (Position x y) = (Position {x = x    , y = y     }, 0)
 
 playerDraw :: [(String,Picture)] -> GTA -> Picture
-playerDraw images game = (translate x y $ scale (height (player game) / fromIntegral h') (width (player game) / fromIntegral(w')) $ rotate angle $ image)
+playerDraw images game = (translate x y $ scale scaleX scaleY $ rotate angle $ image)
                      where Position x y = getPos (player game)
                            d            = playerDirection (player game)
                            angle = case d of
@@ -81,6 +81,13 @@ playerDraw images game = (translate x y $ scale (height (player game) / fromInte
                                       West  -> 270
                                       South -> 180
                                       East  -> 90
+
+                           scaleX | d == North || d == South = (width (player game) / fromIntegral(w'))
+                                  | otherwise                = (width (player game) / fromIntegral(h'))
+                  
+                           scaleY | d == East || d == West = (height (player game) / fromIntegral(w'))
+                                  | otherwise              = (height (player game) / fromIntegral(h'))
+
                            sprite = case playerVelocity (player game) of
                                       0 -> show (spriteType (playerSprite (player game))) ++ "_1.bmp"
                                       1 -> show (spriteType (playerSprite (player game))) ++ "_" ++ show (spriteState (playerSprite (player game))) ++ ".bmp"
