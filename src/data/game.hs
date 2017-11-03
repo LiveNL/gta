@@ -18,11 +18,12 @@ import Data.Maybe
 data Player = Player
   { playerPosition  :: Position,
     keys            :: Keys,
-    playerColor     :: Color,
     playerDirection :: Direction,
     playerHeight    :: Float,
-    playerWidth     :: Float }
-  deriving (Show, Generic)
+    playerWidth     :: Float,
+    playerSprite    :: Sprite,
+    playerVelocity  :: Float }
+  deriving (Show)
 
 data Keys = Keys
   { left  :: KeyState,
@@ -36,7 +37,8 @@ data GTA = Game
     cars   :: [Car],
     people :: [Person],
     blocks :: [Block],
-    gameState :: GameState }
+    gameState :: GameState,
+    elapsedTime :: Float }
   deriving (Show, Generic)
 
 data GTAJSON = GameJSON
@@ -63,7 +65,6 @@ readWorld = do x <- readJSON
                return (Game { cars = carsJSON x, people = peopleJSON x, blocks = blocksJSON x }) -- Missing fields are added in Main.hs
 
 instance FromJSON GTAJSON
-instance FromJSON Player
 instance FromJSON Keys
 
 instance Movable Player where

@@ -5,6 +5,7 @@ import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game
 import Data.List
 import Data.Maybe
+import Data.Fixed (mod')
 import Debug.Trace
 
 import Helpers
@@ -17,13 +18,23 @@ import Data.Game
 
 import Debug.Trace
 
-car :: Car -> Picture
-car car@(Car (Position x y) c d _) = translate x y $ color c $ rectangleSolid w' h'
-  where w' = width car
-        h' = height car
+car :: Car -> IO Picture
+car (Car (Position x y) s d _) = do image@(Bitmap width height _ _) <- loadBMP ("./sprites/" ++ show (spriteType s) ++ "_" ++ show (spriteState s) ++ ".bmp")
+                                    return (translate x y $ scale (30 / fromIntegral(height)) (20 / fromIntegral(width)) $ rotate angle $ image)
+                                    where angle = case d of
+                                                     North -> 0
+                                                     West  -> 270
+                                                     South -> 180
+                                                     East  -> 90
 
-person :: Person -> Picture
-person (Person (Position x y) c _) = translate x y $ color c $ rectangleSolid 10 10
+person :: Person -> IO Picture
+person (Person (Position x y) s d) = do image@(Bitmap width height _ _) <- loadBMP ("./sprites/" ++ show (spriteType s) ++ "_" ++ show (spriteState s) ++ ".bmp")
+                                        return (translate x y $ scale (10 / fromIntegral(height)) (10 / fromIntegral(width)) $ rotate angle $ image)
+                                        where angle = case d of
+                                                         North -> 0
+                                                         West  -> 270
+                                                         South -> 180
+                                                         East  -> 90
 
 block :: Block -> Picture
 block (Block (Position x y) w h t)
@@ -57,9 +68,11 @@ updatePeople people game = game { people = updatePeople' }
 
 updatePerson :: GTA -> Person -> Person
 updatePerson game person
-  | canMove person blocks' = newPersonPosition person
+  | canMove person blocks' = newPersonPosition person { personSprite = Sprite { spriteType = spriteType (personSprite person),  spriteState = sprite' }}
   | otherwise = changeDir person 0
     where blocks' = moveBlocks (blocks game) [Sidewalk]
+          sprite' | mod' (roundDecimals (elapsedTime game) 2) 0.5 == 0 = nextWalking (personSprite person)
+                 | otherwise = spriteState (personSprite person)
 
 newPersonPosition :: Person -> Person
 newPersonPosition person@(Person _ _ d)

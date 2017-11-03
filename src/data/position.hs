@@ -47,3 +47,24 @@ changeDir a rInt = case rInt of
                      0 -> setDir (next x) a
                      1 -> setDir (prev x) a
   where x = getDir a
+
+roundDecimals :: (Fractional a2, RealFrac a1, Integral b) => a1 -> b -> a2
+roundDecimals f n = (fromInteger $ round $ f * (10^n)) / (10.0^^n)
+
+data Sprite = Sprite
+  {
+    spriteType  :: SpriteType,
+    spriteState :: Int
+  }
+  deriving (Show, Eq, Generic)
+
+data SpriteType = Person1 | Person2 | Person3 | Car1 | Car2 | Car3
+  deriving (Show, Eq, Generic)
+
+instance FromJSON Sprite
+instance FromJSON SpriteType
+
+nextWalking :: Sprite -> Int
+nextWalking (Sprite t s) | t == Car1 || t == Car2 || t == Car3 = 1
+                         | s == 3 = 1
+                         | otherwise = succ s
