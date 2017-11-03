@@ -22,6 +22,13 @@ instance Movable Block where
   width b = blockWidth b
   height b = blockHeight b
 
+  getDir _ = North
+
+  getSprite b = Sprite sprite 1
+    where sprite = case blockType b of
+                  Road -> "road"
+                  Sidewalk -> "sidewalk"
+
 instance FromJSON BlockType
 
 moveBlocks :: [Block] -> [BlockType] -> [Block]

@@ -89,6 +89,11 @@ instance Movable Player where
              then playerWidth p
              else playerHeight p
 
+  getSprite player@Player{playerSprite} = Sprite (spriteType playerSprite) state
+    where state = case playerVelocity player of
+                     0 -> 1
+                     1 -> spriteState playerSprite
+
 instance FromJSON KeyState where
   parseJSON (String s) = maybe mzero return $ stringToKeyState s
   parseJSON _ = mzero

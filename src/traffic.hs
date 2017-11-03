@@ -17,43 +17,17 @@ import Data.Game
 import Debug.Trace
 
 car :: [([Char],Picture)] -> Car -> Picture
-car images car@(Car (Position x y) s d _) = translate x y $ scale scaleX scaleY $ rotate angle $ image
-  where angle = case d of
-                   North -> 0
-                   West  -> 270
-                   South -> 180
-                   East  -> 90
-        scaleX | d == North || d == South = (20 / fromIntegral(w'))
-               | otherwise                = (30 / fromIntegral(h'))
-
-        scaleY | d == North || d == South = (30 / fromIntegral(h'))
-               | otherwise                = (20 / fromIntegral(w'))
-        image@(Bitmap w' h' _ _) = fromJust (lookup name images)
-        name = "./sprites/" ++ show (spriteType s) ++ "_" ++ show (spriteState s) ++ ".bmp"
+car images car = draw images car
 
 person :: [([Char],Picture)] -> Person -> Picture
-person images (Person (Position x y) s d) = (translate x y $ scale scaleX scaleY $ rotate angle $ image)
-  where angle = case d of
-                  North -> 0
-                  West  -> 270
-                  South -> 180
-                  East  -> 90
+person images person = draw images person
 
-        scaleX | d == North || d == South = (10 / fromIntegral(w'))
-               | otherwise                = (10 / fromIntegral(h'))
-
-        scaleY | d == North || d == South = (10 / fromIntegral(h'))
-               | otherwise                = (10 / fromIntegral(w'))
-
-        image@(Bitmap w' h' _ _) = fromJust (lookup name images)
-        name = "./sprites/" ++ show (spriteType s) ++ "_" ++ show (spriteState s) ++ ".bmp"
-
-block :: Block -> Picture
-block (Block (Position x y) w h t) = case t of
-   Road -> translate x y $ color (greyN 0.5) $ rectangleSolid w h
+block :: [([Char],Picture)] -> Block -> Picture
+block images block@(Block (Position x y) w h t) = case t of
+   Road -> draw images block
    Wall -> translate x y $ color (greyN 0.5) $ rectangleSolid w h
    Building -> translate x y $ color (dark red) $ rectangleSolid w h
-   Sidewalk -> translate x y $ color (greyN 0.7) $ rectangleSolid w h
+   Sidewalk -> draw images block
    _ -> translate x y $ color (greyN 0.7) $ rectangleSolid w h
 
 updateCars :: [Car] -> Int -> GTA -> GTA
@@ -90,13 +64,14 @@ updatePeople people rInt game = game { people = updatePeople' }
 updatePerson :: GTA -> Int -> Person -> Person
 updatePerson game rInt person
   | canMove 1 person (cars game) = changeDir rInt person
-  | canMove 1 person people' || canMove 1 (player game) [person] = changeDirR rInt person
+  | canMove 1 person people' = changeDirR rInt person
+  | canMove 1 person [player game] = person
   | canMove 4 person blocks' = newPersonPosition person { personSprite = Sprite { spriteType = spriteType (personSprite person),  spriteState = sprite' }}
   | otherwise = changeDirR rInt person
     where blocks' = moveBlocks (blocks game) [Sidewalk]
           people' = take personIndex (people game) ++ drop (1 + personIndex) (people game)
           personIndex = fromJust (elemIndex person (people game))
-          sprite' | mod' (roundDecimals (elapsedTime game) 2) 0.5 == 0 = nextWalking (personSprite person)
+          sprite' | mod' (roundDecimals (elapsedTime game) 2) 0.5 == 0 = nextSprite (personSprite person)
                   | otherwise = spriteState (personSprite person)
 
 newPersonPosition :: Person -> Person

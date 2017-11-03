@@ -27,7 +27,7 @@ offset = 0
 
 -- Functions
 main :: IO ()
-main = playIO window (dark $ dark green) 80 initialState render handleKeys update
+main = playIO window (dark $ dark green) 40 initialState render handleKeys update
 
 window :: Display
 window = FullScreen
@@ -38,7 +38,7 @@ initialState = Game
       playerPosition  = Position { x = 480, y = 250 },
       keys            = Keys { left = Up, right = Up, up = Up, down = Up },
       playerDirection = North, playerWidth = 10, playerHeight = 10,
-      playerSprite    = Sprite { spriteType = Player1, spriteState = 1 }, playerVelocity = 0, playerState = Walking, points = 0
+      playerSprite    = Sprite { spriteType = "player1", spriteState = 1 }, playerVelocity = 0, playerState = Walking, points = 0
     },
     cars = [], people = [], blocks = [], gameState = Loading, elapsedTime = 0
   }
@@ -62,7 +62,7 @@ updatePlayerPosition game@Game{player}
                                                                                                    }
         blocks' = moveBlocks (blocks game) [Sidewalk, Road, Wall]
         newPosition' = newPosition (keys player) (getPos player)
-        sprite | mod' (roundDecimals (elapsedTime game) 2) 0.5 == 0 = nextWalking (playerSprite player)
+        sprite | mod' (roundDecimals (elapsedTime game) 2) 0.5 == 0 = nextSprite (playerSprite player)
                | otherwise = spriteState (playerSprite player)
 
 newPosition :: Keys -> Position -> (Position, Float)
@@ -73,36 +73,15 @@ newPosition (Keys _    _    _    Down) (Position x y) = (Position {x = x    , y 
 newPosition (Keys _    _    _    _   ) (Position x y) = (Position {x = x    , y = y     }, 0)
 
 playerDraw :: [(String,Picture)] -> GTA -> Picture
-playerDraw images game = (translate x y $ scale scaleX scaleY $ rotate angle $ image)
-                     where Position x y = getPos (player game)
-                           d            = playerDirection (player game)
-                           angle = case d of
-                                      North -> 0
-                                      West  -> 270
-                                      South -> 180
-                                      East  -> 90
+playerDraw images game = draw images (player game)
 
-                           scaleX | d == North || d == South = (width (player game) / fromIntegral(w'))
-                                  | otherwise                = (width (player game) / fromIntegral(h'))
-                  
-                           scaleY | d == East || d == West = (height (player game) / fromIntegral(w'))
-                                  | otherwise              = (height (player game) / fromIntegral(h'))
-
-                           sprite = case playerVelocity (player game) of
-                                      0 -> show (spriteType (playerSprite (player game))) ++ "_1.bmp"
-                                      1 -> show (spriteType (playerSprite (player game))) ++ "_" ++ show (spriteState (playerSprite (player game))) ++ ".bmp"
-                           image@(Bitmap w' h' _ True) = fromJust (lookup name images)
-                           name = "./sprites/" ++ show (spriteType s) ++ "_" ++ show (spriteState s) ++ ".bmp"
-                           s = (playerSprite (player game))
-
-
-list = "./sprites/Car1_1.bmp,./sprites/Car2_1.bmp,./sprites/Car3_1.bmp,./sprites/Person1_1.bmp,./sprites/Person1_2.bmp,./sprites/Person1_3.bmp,./sprites/Person2_1.bmp,./sprites/Person2_2.bmp,./sprites/Person2_3.bmp,./sprites/Player1_1.bmp,./sprites/Player1_2.bmp,./sprites/Player1_3.bmp"
+list = "./sprites/car1_1.bmp,./sprites/car2_1.bmp,./sprites/car3_1.bmp,./sprites/person1_1.bmp,./sprites/person1_2.bmp,./sprites/person1_3.bmp,./sprites/person2_1.bmp,./sprites/person2_2.bmp,./sprites/person2_3.bmp,./sprites/player1_1.bmp,./sprites/player1_2.bmp,./sprites/player1_3.bmp,./sprites/road_1.bmp,./sprites/sidewalk_1.bmp"
 
 render :: GTA -> IO Picture
 render game = do images <- sequence $ map loadBMP names
                  let images' = zip names images
                  return (scale 5 5 (translate (- x) (- y) (pictures (
-                   (map block (blocks game)) ++ (map (car images') (cars game)) ++
+                   (map (block images') (blocks game)) ++ (map (car images') (cars game)) ++
                    (map (person images') (people game)) ++ [(playerDraw images' game)] ++ [pointsText]))))
  where names = splitOn "," list
        pointsText = drawPoints (player game)
@@ -138,7 +117,7 @@ makeCar (Player(Position x' y') k d h w s v _ p) game = return game { cars = (ne
         car = Car { carPosition = Position {x = x', y = y'}, carSprite = s, carDirection = d, velocity = 0 }
         newPlayer game = Player { playerWidth = 10, playerHeight = 10, playerDirection = d,
                                   playerPosition = Position { x = (x' + 15),
-                                  y = y'}, keys = k, playerSprite = Sprite { spriteType = Person1, spriteState = 1 }, playerVelocity = v, playerState = Walking, points = p }
+                                  y = y'}, keys = k, playerSprite = Sprite { spriteType = "player1", spriteState = 1 }, playerVelocity = v, playerState = Walking, points = p }
 
 enterCar' :: GTA -> IO GTA
 enterCar' game =

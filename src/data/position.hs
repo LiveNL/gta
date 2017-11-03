@@ -1,8 +1,11 @@
 {-# LANGUAGE DeriveGeneric, NamedFieldPuns #-}
 module Data.Position where
 
+import Graphics.Gloss
 import GHC.Generics
 import Data.Aeson
+import Data.Maybe
+import Debug.Trace
 
 data Position = Position
   { x :: Float,
@@ -18,6 +21,30 @@ class Movable a where
   setDir :: Direction -> a -> a
   width  :: a -> Float
   height :: a -> Float
+  getSprite :: a -> Sprite
+
+draw :: (Movable a) => [(String,Picture)] -> a -> Picture
+draw images a = translate x y $ scale w'' h'' $ rotate angle $ image
+  where angle = case d of
+                   North -> 0
+                   West  -> 270
+                   South -> 180
+                   East  -> 90
+
+        w'' = if d == North || d == South
+              then (width a) / fromIntegral w'
+              else (width a) / fromIntegral h'
+
+        h'' = if d == North || d == South
+              then (height a) / fromIntegral h'
+              else (height a) / fromIntegral w'
+
+        image@(Bitmap w' h' _ _) = fromJust (lookup name images)
+        name = "./sprites/" ++ (spriteType s) ++ "_" ++ show (spriteState s) ++ ".bmp"
+        d = getDir a
+        s = getSprite a
+        Position x y = getPos a
+
 
 move :: (Movable a) => Position -> a -> a
 move (Position dx dy) a = setPos (Position (x + dx) (y + dy)) a
@@ -53,21 +80,17 @@ roundDecimals f n = (fromInteger $ round $ f * (10^n)) / (10.0^^n)
 
 data Sprite = Sprite
   {
-    spriteType  :: SpriteType,
+    spriteType  :: String,
     spriteState :: Int
   }
   deriving (Show, Eq, Generic)
 
-data SpriteType = Player1 | Person1 | Person2 | Person3 | Car1 | Car2 | Car3
-  deriving (Show, Eq, Generic)
-
 instance FromJSON Sprite
-instance FromJSON SpriteType
 
-nextWalking :: Sprite -> Int
-nextWalking (Sprite t s) | t == Car1 || t == Car2 || t == Car3 = 1
-                         | s == 3 = 1
-                         | otherwise = succ s
+nextSprite :: Sprite -> Int
+nextSprite (Sprite t s) | t == "car1" || t == "car2" || t == "car3" = 1
+                        | s == 3 = 1
+                        | otherwise = succ s
 
 changeDirR :: (Movable a) => Int -> a -> a
 changeDirR rInt a = case rInt of
