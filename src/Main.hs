@@ -89,8 +89,8 @@ newPosition (Keys _    _    _    Down) (Position x y) = (Position {x = x    , y 
 newPosition (Keys _    _    _    _   ) (Position x y) = (Position {x = x    , y = y     }, 0)
 
 playerDraw :: GTA -> IO Picture
-playerDraw game = do image <- loadBMP ("./sprites/" ++ sprite)
-                     return (translate x y $ rotate angle $ image)
+playerDraw game = do image@(Bitmap width height _ _) <- loadBMP ("./sprites/" ++ sprite)
+                     return (translate x y $ scale (10 / fromIntegral(height)) (10 / fromIntegral(width)) $ rotate angle $ image)
                      where Position x y = getPos (player game)
                            d            = playerDirection (player game)
                            angle = case d of

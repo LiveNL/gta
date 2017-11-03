@@ -24,13 +24,7 @@ move (Position dx dy) a = setPos (Position (x + dx) (y + dy)) a
   where (Position x y) = getPos a
 
 data Direction = North | West | South | East
-  deriving (Enum, Eq, Generic)
-
-instance Show Direction where
-  show North = "n"
-  show West = "w"
-  show East = "e"
-  show South = "s"
+  deriving (Show, Enum, Eq, Generic)
 
 instance FromJSON Direction
 
@@ -67,31 +61,7 @@ data SpriteType = Person1 | Person2 | Person3 | Car1 | Car2 | Car3
 instance FromJSON Sprite
 instance FromJSON SpriteType
 
-{-instance Show SpriteType where
-  show Person1_1 = "p1_1"
-  show Person1_2 = "p1_2"
-  show Person1_3 = "p1_3"
-
-  show Person2_1 = "p2_1"
-  show Person2_2 = "p2_2"
-  show Person2_3 = "p2_3"
-
-  show Car1 = "c1"
-  show Car2 = "c2"
-  show Car3 = "c3"-}
-
 nextWalking :: Sprite -> Int
 nextWalking (Sprite t s) | t == Car1 || t == Car2 || t == Car3 = 1
                          | s == 3 = 1
                          | otherwise = succ s
-
-
-
-
-
-
-
-
-
-
-
