@@ -22,7 +22,9 @@ data Player = Player
     playerHeight    :: Float,
     playerWidth     :: Float,
     playerSprite    :: Sprite,
-    playerVelocity  :: Float }
+    playerVelocity  :: Float,
+    playerState     :: PlayerState,
+    points          :: Int }
   deriving (Show)
 
 data Keys = Keys
@@ -50,6 +52,9 @@ data GTAJSON = GameJSON
 data GameState = Loading | Running | Paused | Dead
   deriving (Show, Eq, Generic)
 
+data PlayerState = Walking | Driving
+  deriving (Show, Eq, Generic)
+
 jsonFile :: FilePath
 jsonFile = "./config/world.json"
 
@@ -66,6 +71,7 @@ readWorld = do x <- readJSON
 
 instance FromJSON GTAJSON
 instance FromJSON Keys
+instance FromJSON PlayerState
 
 instance Movable Player where
   getPos Player{playerPosition} = Position (x playerPosition) (y playerPosition)
@@ -75,8 +81,13 @@ instance Movable Player where
   getDir Player{playerDirection} = playerDirection
   setDir x player@Player{playerDirection} = player { playerDirection = x }
 
-  width _ = 10
-  height _ = 10
+  width p = if (playerDirection p) == North || (playerDirection p) == South
+            then playerWidth p
+            else playerHeight p
+
+  height p = if (playerDirection p) == East || (playerDirection p) == West
+             then playerWidth p
+             else playerHeight p
 
 instance FromJSON KeyState where
   parseJSON (String s) = maybe mzero return $ stringToKeyState s
