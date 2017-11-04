@@ -19,6 +19,8 @@ import Data.Maybe
 import Debug.Trace
 import System.Random
 
+import Graphics.Gloss.Interface.Environment
+
 -- Variables
 windowWidth, windowHeight, offset :: Int
 windowWidth  = 600
@@ -80,21 +82,22 @@ list = "./sprites/car1_1.bmp,./sprites/car2_1.bmp,./sprites/car3_1.bmp,./sprites
 render :: GTA -> IO Picture
 render game = do images <- sequence $ map loadBMP names
                  let images' = zip names images
+                 screenSize <- getScreenSize
                  return (scale 5 5 (translate (- x) (- y) (pictures (
                    (map (block images') (blocks game)) ++ (map (car images') (cars game)) ++
-                   (map (person images') (people game)) ++ [(playerDraw images' game)] ++ [pointsText]))))
+                   (map (person images') (people game)) ++ [(playerDraw images' game)] ++ [drawPoints game screenSize]))))
  where names = splitOn "," list
-       pointsText = drawPoints game
        Position x y = getPos (player game)
 
 updatePoints :: GTA -> GTA
 updatePoints game@Game{player} = game { player = (updatePoints' player) }
   where updatePoints' player@Player{points} = player { points = (points + 1)}
 
-drawPoints :: GTA -> Picture
-drawPoints game = translate (x + 5) (y + 5) $ scale (0.2) (0.2) $ color black $ text (show (highscore game))
+drawPoints :: GTA -> (Int, Int) -> Picture 
+drawPoints game (x, y) = translate (90 + x) (90 + y) $ scale 0.2 0.2 $ pictures [text1, text2]
   where Position x y = getPos (player game)
-        points' = (points (player game)) `div` 10
+        text1 = text (show x)
+        text2 = translate 0 (-150) $ text (show y)
 
 handleKeys :: Event -> GTA -> IO GTA
 handleKeys (EventKey (SpecialKey KeyUp)    s _ _) = updateKeyState (Up, Up, s , Up, North)
