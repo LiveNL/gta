@@ -71,9 +71,11 @@ readWorld :: IO GTA
 readWorld = do x <- readJSON
                return (Game { cars = carsJSON x, people = peopleJSON x, blocks = blocksJSON x, highscore = highscoreJSON x }) -- Missing fields are added in Main.hs
 
-writeJSON :: IO ()
-writeJSON = do x <- (encode <$> readJSON)
-               B.writeFile "./config/world.json" x
+writeJSON :: IO GTA -> IO GTA
+writeJSON game = do g <- game
+                    r <- readJSON
+                    B.writeFile "./config/world.json" (encode GameJSON { carsJSON = carsJSON r, peopleJSON = peopleJSON r, blocksJSON = blocksJSON r, highscoreJSON = highscore g })
+                    return g
 
 instance Movable Player where
   getPos Player{playerPosition} = Position (x playerPosition) (y playerPosition)

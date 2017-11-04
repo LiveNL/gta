@@ -90,14 +90,20 @@ render game = do images <- sequence $ map loadBMP names
        Position x y = getPos (player game)
 
 updatePoints :: GTA -> GTA
-updatePoints game@Game{player} = game { player = (updatePoints' player) }
+updatePoints game@Game{player} = game { player = (updatePoints' player), highscore = updateHighscore player }
   where updatePoints' player@Player{points} = player { points = (points + 1)}
+        updateHighscore player@Player{points} | (points + 1) >= highscore game = (points + 1)
+                                              | otherwise                      = highscore game
+
 
 drawPoints :: GTA -> (Int, Int) -> Picture 
-drawPoints game (x, y) = translate (90 + x) (90 + y) $ scale 0.2 0.2 $ pictures [text1, text2]
-  where Position x y = getPos (player game)
-        text1 = text (show x)
-        text2 = translate 0 (-150) $ text (show y)
+drawPoints game (x, y) = translate (fromIntegral (-topLeftX) + x') (fromIntegral topLeftY + y') $ scale 0.05 0.05 $ pictures [rectangle, score]
+  where Position x' y' = getPos (player game)
+        topLeftX = (x `div` 5 `div` 2) - 2
+        topLeftY = (y `div` 5 `div` 2) - 8
+        score =  text ("Score: " ++ show (points (player game)) ++ " (" ++ show (highscore game) ++ ")")
+        rectangle = pictures [ translate 740 45 $ color black $ rectangleSolid 1500 180, 
+                               translate 740 45 $ color white $ rectangleSolid 1480 160 ]
 
 handleKeys :: Event -> GTA -> IO GTA
 handleKeys (EventKey (SpecialKey KeyUp)    s _ _) = updateKeyState (Up, Up, s , Up, North)
@@ -152,10 +158,10 @@ update :: Float -> GTA -> IO GTA
 update secs game = do
   rInt <- randomNr
   case gameState game of
-    Loading -> loading game
+    Loading -> loading game 
     Dead    -> return game
     Paused  -> return game
-    Running -> return ( updateTraffic rInt (updatePlayerPosition game { elapsedTime = (elapsedTime game) + secs }))
+    Running -> writeJSON ( return ( updateTraffic rInt (updatePlayerPosition game { elapsedTime = (elapsedTime game) + secs })))
 
 loading :: GTA -> IO GTA
 loading game = do x <- readWorld
