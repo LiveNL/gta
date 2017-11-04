@@ -40,7 +40,7 @@ initialState = Game
       playerDirection = North, playerWidth = 10, playerHeight = 10,
       playerSprite    = Sprite { spriteType = "player1", spriteState = 1 }, playerVelocity = 0, playerState = Walking, points = 0
     },
-    cars = [], people = [], blocks = [], gameState = Loading, elapsedTime = 0
+    cars = [], people = [], blocks = [], gameState = Loading, elapsedTime = 0, highscore = 0
   }
 
 updateKeyState :: (KeyState, KeyState, KeyState, KeyState, Direction) -> GTA -> IO GTA
@@ -84,17 +84,17 @@ render game = do images <- sequence $ map loadBMP names
                    (map (block images') (blocks game)) ++ (map (car images') (cars game)) ++
                    (map (person images') (people game)) ++ [(playerDraw images' game)] ++ [pointsText]))))
  where names = splitOn "," list
-       pointsText = drawPoints (player game)
+       pointsText = drawPoints game
        Position x y = getPos (player game)
 
 updatePoints :: GTA -> GTA
 updatePoints game@Game{player} = game { player = (updatePoints' player) }
   where updatePoints' player@Player{points} = player { points = (points + 1)}
 
-drawPoints :: Player -> Picture
-drawPoints p = translate (x + 175) (y + 175) $ color white $ text (show (points'))
-  where Position x y = getPos p
-        points' = (points p) `div` 10
+drawPoints :: GTA -> Picture
+drawPoints game = translate (x + 5) (y + 5) $ scale (0.2) (0.2) $ color black $ text (show (highscore game))
+  where Position x y = getPos (player game)
+        points' = (points (player game)) `div` 10
 
 handleKeys :: Event -> GTA -> IO GTA
 handleKeys (EventKey (SpecialKey KeyUp)    s _ _) = updateKeyState (Up, Up, s , Up, North)
@@ -156,7 +156,7 @@ update secs game = do
 
 loading :: GTA -> IO GTA
 loading game = do x <- readWorld
-                  return game { cars = cars x, blocks = blocks x, people = people x, gameState = Running }
+                  return game { cars = cars x, blocks = blocks x, people = people x, highscore = highscore x, gameState = Running }
 
 randomNr :: IO Int
 randomNr = getStdRandom (randomR (0,1))

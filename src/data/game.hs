@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveGeneric, OverloadedStrings, NamedFieldPuns #-}
+{-# LANGUAGE DeriveGeneric, OverloadedStrings, NamedFieldPuns, DeriveAnyClass #-}
 module Data.Game where
 
 import Data.Aeson
@@ -32,7 +32,7 @@ data Keys = Keys
     right :: KeyState,
     up    :: KeyState,
     down  :: KeyState }
-  deriving (Show, Generic)
+  deriving (Show, Generic, FromJSON)
 
 data GTA = Game
   { player :: Player,
@@ -40,14 +40,16 @@ data GTA = Game
     people :: [Person],
     blocks :: [Block],
     gameState :: GameState,
-    elapsedTime :: Float }
+    elapsedTime :: Float,
+    highscore :: Int }
   deriving (Show, Generic)
 
 data GTAJSON = GameJSON
-  { carsJSON   :: [Car],
-    peopleJSON :: [Person],
-    blocksJSON :: [Block] }
-  deriving (Show, Generic)
+  { blocksJSON    :: [Block],
+    peopleJSON    :: [Person], 
+    carsJSON      :: [Car],
+    highscoreJSON :: Int }
+  deriving (Show, Generic, FromJSON, ToJSON)
 
 data GameState = Loading | Running | Paused | Dead
   deriving (Show, Eq, Generic)
@@ -67,11 +69,11 @@ readJSON = do x <- (decode <$> getJSON) :: IO (Maybe GTAJSON)
 
 readWorld :: IO GTA
 readWorld = do x <- readJSON
-               return (Game { cars = carsJSON x, people = peopleJSON x, blocks = blocksJSON x }) -- Missing fields are added in Main.hs
+               return (Game { cars = carsJSON x, people = peopleJSON x, blocks = blocksJSON x, highscore = highscoreJSON x }) -- Missing fields are added in Main.hs
 
-instance FromJSON GTAJSON
-instance FromJSON Keys
-instance FromJSON PlayerState
+writeJSON :: IO ()
+writeJSON = do x <- (encode <$> readJSON)
+               B.writeFile "./config/world.json" x
 
 instance Movable Player where
   getPos Player{playerPosition} = Position (x playerPosition) (y playerPosition)

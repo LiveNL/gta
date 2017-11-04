@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveGeneric, NamedFieldPuns #-}
+{-# LANGUAGE DeriveGeneric, NamedFieldPuns, DeriveAnyClass #-}
 module Data.Position where
 
 import Graphics.Gloss
@@ -10,9 +10,7 @@ import Debug.Trace
 data Position = Position
   { x :: Float,
     y :: Float }
-  deriving (Show, Generic, Eq)
-
-instance FromJSON Position
+  deriving (Show, Generic, Eq, FromJSON, ToJSON)
 
 class Movable a where
   getPos :: a -> Position
@@ -51,9 +49,7 @@ move (Position dx dy) a = setPos (Position (x + dx) (y + dy)) a
   where (Position x y) = getPos a
 
 data Direction = North | East | South | West
-  deriving (Show, Enum, Eq, Generic)
-
-instance FromJSON Direction
+  deriving (Show, Enum, Eq, Generic, FromJSON, ToJSON)
 
 coordinates :: (Movable a) => a -> [(Float, Float)]
 coordinates a = [(x'-w',y'-h'),(x'+w',y'-h'),(x'+w',y'+h'),(x'-w',y'+h')]
@@ -83,9 +79,7 @@ data Sprite = Sprite
     spriteType  :: String,
     spriteState :: Int
   }
-  deriving (Show, Eq, Generic)
-
-instance FromJSON Sprite
+  deriving (Show, Eq, Generic, FromJSON, ToJSON)
 
 nextSprite :: Sprite -> Int
 nextSprite (Sprite t s) | t == "car1" || t == "car2" || t == "car3" = 1
