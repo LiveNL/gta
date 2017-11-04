@@ -1208,5 +1208,6 @@
       "carDirection":"West",
       "velocity":1
     }
-  ]
+  ],
+  "highscoreJSON": 0
 }
