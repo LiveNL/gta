@@ -24,7 +24,7 @@ class Movable a where
   getSprite :: a -> Sprite
 
 draw :: (Movable a) => [(String,Picture)] -> a -> Picture
-draw images a = translate x y $ scale w'' h'' $ rotate angle $ image
+draw images a = trace (show image) $ translate x y $ scale w'' h'' $ rotate angle $ image
   where angle = case d of
                    North -> 0
                    West  -> 270
@@ -39,7 +39,7 @@ draw images a = translate x y $ scale w'' h'' $ rotate angle $ image
               then (height a) / fromIntegral h'
               else (height a) / fromIntegral w'
 
-        image@(Bitmap w' h' _ _) = fromJust (lookup name images)
+        image@(Bitmap w' h' _ True) = trace (show name) $ fromJust (lookup name images)
         name = "./sprites/" ++ (spriteType s) ++ "_" ++ show (spriteState s) ++ ".bmp"
         d = getDir a
         s = getSprite a
