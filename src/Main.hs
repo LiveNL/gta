@@ -62,8 +62,10 @@ updatePlayerPosition game@Game{player}
                                                                                                    }
         blocks' = moveBlocks (blocks game) [Sidewalk, Road, Wall, Tree]
         newPosition' = newPosition (keys player) (getPos player)
-        sprite | mod' (roundDecimals (elapsedTime game) 2) 0.5 == 0 = nextSprite (playerSprite player)
-               | otherwise = spriteState (playerSprite player)
+        sprite = case playerState player of
+                   Walking | mod' (roundDecimals (elapsedTime game) 2) 0.5 == 0 -> nextSprite (playerSprite player)
+                           | otherwise -> spriteState (playerSprite player)
+                   Driving -> spriteState (playerSprite player)
 
 newPosition :: Keys -> Position -> (Position, Float)
 newPosition (Keys Down _    _    _   ) (Position x y) = (Position {x = x - 1, y = y     }, 1)

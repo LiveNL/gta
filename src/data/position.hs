@@ -24,7 +24,7 @@ class Movable a where
   getSprite :: a -> Sprite
 
 draw :: (Movable a) => [(String,Picture)] -> a -> Picture
-draw images a = trace (show image) $ translate x y $ scale w'' h'' $ rotate angle $ image
+draw images a = translate x y $ scale w'' h'' $ rotate angle $ image
   where angle = case d of
                    North -> 0
                    West  -> 270
@@ -39,7 +39,7 @@ draw images a = trace (show image) $ translate x y $ scale w'' h'' $ rotate angl
               then (height a) / fromIntegral h'
               else (height a) / fromIntegral w'
 
-        image@(Bitmap w' h' _ True) = trace (show name) $ fromJust (lookup name images)
+        image@(Bitmap w' h' _ True) = fromJust (lookup name images)
         name = "./sprites/" ++ (spriteType s) ++ "_" ++ show (spriteState s) ++ ".bmp"
         d = getDir a
         s = getSprite a
@@ -88,8 +88,7 @@ data Sprite = Sprite
 instance FromJSON Sprite
 
 nextSprite :: Sprite -> Int
-nextSprite (Sprite t s) | t == "car1" || t == "car2" || t == "car3" = 1
-                        | s == 3 = 1
+nextSprite (Sprite t s) | s == 3 = 1
                         | otherwise = succ s
 
 changeDirR :: (Movable a) => Int -> a -> a
