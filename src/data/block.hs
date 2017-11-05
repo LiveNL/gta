@@ -10,10 +10,12 @@ data Block = Block
   { blockPosition :: Position,
     blockWidth    :: Float,
     blockHeight   :: Float,
-    blockType     :: BlockType }
+    blockType     :: BlockType,
+    blockSprite   :: Sprite
+  }
   deriving (Show, Generic)
 
-data BlockType = Road | Sidewalk | Building | Wall
+data BlockType = Road | Sidewalk | Building | Wall | Tree
   deriving (Show, Eq, Generic)
 
 instance Movable Block where
@@ -24,15 +26,12 @@ instance Movable Block where
 
   getDir _ = North
 
-  getSprite b = Sprite sprite 1
-    where sprite = case blockType b of
-                  Road -> "road"
-                  Sidewalk -> "sidewalk"
+  getSprite Block{blockSprite} = Sprite (spriteType blockSprite) (spriteState blockSprite)
 
 instance FromJSON BlockType
 
 moveBlocks :: [Block] -> [BlockType] -> [Block]
 moveBlocks xs t = filter f xs
-  where f (Block _ _ _ x) = elem x t
+  where f (Block _ _ _ x _) = elem x t
 
 instance FromJSON Block

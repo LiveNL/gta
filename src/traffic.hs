@@ -23,12 +23,13 @@ person :: [([Char],Picture)] -> Person -> Picture
 person images person = draw images person
 
 block :: [([Char],Picture)] -> Block -> Picture
-block images block@(Block (Position x y) w h t) = case t of
+block images block@(Block (Position x y) w h t s) = case t of
    Road -> draw images block
-   Wall -> translate x y $ color (greyN 0.5) $ rectangleSolid w h
-   Building -> translate x y $ color (dark red) $ rectangleSolid w h
+   Wall -> translate x y $ color (greyN 0.5) $ rectangleSolid 0 0
+   Building -> draw images block
    Sidewalk -> draw images block
-   _ -> translate x y $ color (greyN 0.7) $ rectangleSolid w h
+   Tree -> draw images block
+   _ -> translate x y $ rectangleSolid w h
 
 updateCars :: [Car] -> Int -> GTA -> GTA
 updateCars cars rInt game = game { cars = updateCars', gameState = updateGameState }

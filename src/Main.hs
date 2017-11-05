@@ -60,7 +60,7 @@ updatePlayerPosition game@Game{player}
                                                                                                        spriteType = spriteType playerSprite,
                                                                                                        spriteState = sprite }
                                                                                                    }
-        blocks' = moveBlocks (blocks game) [Sidewalk, Road, Wall]
+        blocks' = moveBlocks (blocks game) [Sidewalk, Road, Wall, Tree]
         newPosition' = newPosition (keys player) (getPos player)
         sprite | mod' (roundDecimals (elapsedTime game) 2) 0.5 == 0 = nextSprite (playerSprite player)
                | otherwise = spriteState (playerSprite player)
@@ -75,7 +75,7 @@ newPosition (Keys _    _    _    _   ) (Position x y) = (Position {x = x    , y 
 playerDraw :: [(String,Picture)] -> GTA -> Picture
 playerDraw images game = draw images (player game)
 
-list = "./sprites/car1_1.bmp,./sprites/car2_1.bmp,./sprites/car3_1.bmp,./sprites/person1_1.bmp,./sprites/person1_2.bmp,./sprites/person1_3.bmp,./sprites/person2_1.bmp,./sprites/person2_2.bmp,./sprites/person2_3.bmp,./sprites/player1_1.bmp,./sprites/player1_2.bmp,./sprites/player1_3.bmp,./sprites/road_1.bmp,./sprites/sidewalk_1.bmp"
+list = "./sprites/car1_1.bmp,./sprites/car2_1.bmp,./sprites/car3_1.bmp,./sprites/car4_1.bmp,./sprites/car5_1.bmp,./sprites/car6_1.bmp,./sprites/car7_1.bmp,./sprites/car8_1.bmp,./sprites/person1_1.bmp,./sprites/person1_2.bmp,./sprites/person1_3.bmp,./sprites/person2_1.bmp,./sprites/person2_2.bmp,./sprites/person2_3.bmp,./sprites/player1_1.bmp,./sprites/player1_2.bmp,./sprites/player1_3.bmp,./sprites/road_1.bmp,./sprites/sidewalk_1.bmp,./sprites/building_1.bmp,./sprites/tree1_1.bmp,./sprites/tree2_1.bmp"
 
 render :: GTA -> IO Picture
 render game = do images <- sequence $ map loadBMP names
