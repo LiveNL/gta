@@ -51,7 +51,8 @@ updateKeyState (left', right', up', down', d') game@Game{player} = return (game 
 updatePlayerPosition :: GTA -> GTA
 updatePlayerPosition game@Game{player}
   | canMove 1 player (cars game) && ((playerState player) == Driving) = updatePoints game -- collision
-  | canMove 1 player (cars game) || canMove 1 player (people game) = game -- collision
+  | canMove 1 player (people game) && ((playerState player) == Driving) = deadPeople game -- collision
+  | canMove 1 player (cars game) && canMove 1 player (people game) = game
   | canMove 4 player blocks' = game { player = (updatePlayerPosition' player) }
   | otherwise = game
   where updatePlayerPosition' player@Player{playerPosition, playerVelocity, playerSprite} = player { playerPosition = (fst newPosition'),
@@ -67,6 +68,21 @@ updatePlayerPosition game@Game{player}
                            | otherwise -> spriteState (playerSprite player)
                    Driving -> spriteState (playerSprite player)
 
+deadPeople :: GTA -> GTA
+deadPeople game = updatePeople
+  where updatePeople = game { people = newPeople }
+        newPeople = take peopleIndex (people game )++ drop (1 + peopleIndex) (people game) ++ [newPerson]
+        newPerson = person { personPosition = (personPosition person), personSprite = Sprite { spriteType = "person2", spriteState =  0 }, personDirection = North, personVelocity = 0}
+        peopleIndex' = (elemIndex True (deadPeople' game))
+        peopleIndex = fromJust peopleIndex'
+        person = (people game) !! peopleIndex
+
+deadPeople' :: GTA -> [Bool]
+deadPeople' game = map (canMove 1 p ) c'
+  where c' = [[x] | x <- c]
+        c = people game
+        p = player game
+
 newPosition :: Keys -> Position -> (Position, Float)
 newPosition (Keys Down _    _    _   ) (Position x y) = (Position {x = x - 1, y = y     }, 1)
 newPosition (Keys _    Down _    _   ) (Position x y) = (Position {x = x + 1, y = y     }, 1)
@@ -77,7 +93,7 @@ newPosition (Keys _    _    _    _   ) (Position x y) = (Position {x = x    , y 
 playerDraw :: [(String,Picture)] -> GTA -> Picture
 playerDraw images game = draw images (player game)
 
-list = "./sprites/car1_1.bmp,./sprites/car2_1.bmp,./sprites/car3_1.bmp,./sprites/car4_1.bmp,./sprites/car5_1.bmp,./sprites/car6_1.bmp,./sprites/car7_1.bmp,./sprites/car8_1.bmp,./sprites/person1_1.bmp,./sprites/person1_2.bmp,./sprites/person1_3.bmp,./sprites/person2_1.bmp,./sprites/person2_2.bmp,./sprites/person2_3.bmp,./sprites/player1_1.bmp,./sprites/player1_2.bmp,./sprites/player1_3.bmp,./sprites/road_1.bmp,./sprites/sidewalk_1.bmp,./sprites/building_1.bmp,./sprites/tree1_1.bmp,./sprites/tree2_1.bmp"
+list = "./sprites/car1_1.bmp,./sprites/car2_1.bmp,./sprites/car3_1.bmp,./sprites/car4_1.bmp,./sprites/car5_1.bmp,./sprites/car6_1.bmp,./sprites/car7_1.bmp,./sprites/car8_1.bmp,./sprites/person1_1.bmp,./sprites/person1_2.bmp,./sprites/person1_3.bmp,./sprites/person2_1.bmp,./sprites/person2_2.bmp,./sprites/person2_3.bmp,./sprites/player1_1.bmp,./sprites/player1_2.bmp,./sprites/player1_3.bmp,./sprites/road_1.bmp,./sprites/sidewalk_1.bmp,./sprites/building_1.bmp,./sprites/tree1_1.bmp,./sprites/tree2_1.bmp,./sprites/person2_0.bmp"
 
 render :: GTA -> IO Picture
 render game = do images <- sequence $ map loadBMP names

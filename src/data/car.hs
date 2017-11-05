@@ -12,7 +12,7 @@ data Car = Car
   { carPosition  :: Position,
     carSprite    :: Sprite,
     carDirection :: Direction,
-    velocity     :: Int}
+    velocity     :: Int }
   deriving (Show, Generic, Eq)
 
 instance Movable Car where
