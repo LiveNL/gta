@@ -67,7 +67,7 @@ readJSON = do x <- (decode <$> getJSON) :: IO (Maybe GTAJSON)
 
 readWorld :: IO GTA
 readWorld = do x <- readJSON
-               return (Game { cars = carsJSON x, people = peopleJSON x, blocks = blocksJSON x }) -- Missing fields are added in Main.hs
+               return Game { cars = carsJSON x, people = peopleJSON x, blocks = blocksJSON x } -- Missing fields are added in Main.hs
 
 instance FromJSON GTAJSON
 instance FromJSON Keys
