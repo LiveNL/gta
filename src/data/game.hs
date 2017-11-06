@@ -15,6 +15,8 @@ import Data.Person
 import Data.Block
 import Data.Maybe
 
+import System.Directory
+
 data Player = Player
   { playerPosition  :: Position,
     keys            :: Keys,
@@ -60,6 +62,10 @@ data PlayerState = Walking | Driving
 jsonFile :: FilePath
 jsonFile = "./config/world.json"
 
+updateFile :: IO ()
+updateFile = do exists <- doesFileExist "./config/world_new.json"
+                when exists (renameFile "./config/world_new.json" jsonFile)
+
 getJSON :: IO B.ByteString
 getJSON = B.readFile jsonFile
 
@@ -68,13 +74,14 @@ readJSON = do x <- (decode <$> getJSON) :: IO (Maybe GTAJSON)
               return ((fromJust x) :: GTAJSON)
 
 readWorld :: IO GTA
-readWorld = do x <- readJSON
+readWorld = do _ <- updateFile
+               x <- readJSON
                return (Game { cars = carsJSON x, people = peopleJSON x, blocks = blocksJSON x, highscore = highscoreJSON x }) -- Missing fields are added in Main.hs
 
 writeJSON :: IO GTA -> IO GTA
 writeJSON game = do g <- game
                     r <- readJSON
-                    B.writeFile "./config/world.json" (encode GameJSON { carsJSON = carsJSON r, peopleJSON = peopleJSON r, blocksJSON = blocksJSON r, highscoreJSON = highscore g })
+                    B.writeFile "./config/world_new.json" (encode GameJSON { carsJSON = carsJSON r, peopleJSON = peopleJSON r, blocksJSON = blocksJSON r, highscoreJSON = highscore g })
                     return g
 
 instance Movable Player where

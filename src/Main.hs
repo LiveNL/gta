@@ -32,7 +32,7 @@ main :: IO ()
 main = playIO window (dark $ dark green) 40 initialState render handleKeys update
 
 window :: Display
-window = FullScreen
+window = FullScreen -- InWindow "GTA" (windowWidth, windowHeight) (offset, offset)
 
 initialState :: GTA
 initialState = Game
