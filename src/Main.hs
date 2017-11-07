@@ -45,7 +45,9 @@ initialState = Game
 
 
 updateKeyState :: (KeyState, KeyState, KeyState, KeyState, Direction) -> GTA -> IO GTA
-updateKeyState (left', right', up', down', d') game@Game{player} = return (game { player = (updateKeyState' player) })
+updateKeyState (left', right', up', down', d') game@Game{player} = if gameState game == Running
+                                                                      then return (game { player = (updateKeyState' player) })
+                                                                      else return game
   where updateKeyState' player = player { keys = keys', playerDirection = d'}
         keys' = Keys { left = left', right = right', up = up', down = down' }
 
@@ -100,7 +102,7 @@ newPosition (Keys _    _    _    _   ) (Position x y) = (Position {x = x    , y 
 playerDraw :: [(String,Picture)] -> GTA -> Picture
 playerDraw images game = draw images (player game)
 
-list = "./sprites/car1_1.bmp,./sprites/car2_1.bmp,./sprites/car3_1.bmp,./sprites/car4_1.bmp,./sprites/car5_1.bmp,./sprites/car6_1.bmp,./sprites/car7_1.bmp,./sprites/car8_1.bmp,./sprites/person1_1.bmp,./sprites/person1_2.bmp,./sprites/person1_3.bmp,./sprites/person2_1.bmp,./sprites/person2_2.bmp,./sprites/person2_3.bmp,./sprites/player1_1.bmp,./sprites/player1_2.bmp,./sprites/player1_3.bmp,./sprites/road_1.bmp,./sprites/sidewalk_1.bmp,./sprites/building_1.bmp,./sprites/tree1_1.bmp,./sprites/tree2_1.bmp,./sprites/person2_0.bmp"
+list = "./sprites/car1_1.bmp,./sprites/car2_1.bmp,./sprites/car3_1.bmp,./sprites/car4_1.bmp,./sprites/car5_1.bmp,./sprites/car6_1.bmp,./sprites/car7_1.bmp,./sprites/car8_1.bmp,./sprites/person1_1.bmp,./sprites/person1_2.bmp,./sprites/person1_3.bmp,./sprites/person2_1.bmp,./sprites/person2_2.bmp,./sprites/person2_3.bmp,./sprites/player1_1.bmp,./sprites/player1_2.bmp,./sprites/player1_3.bmp,./sprites/road_1.bmp,./sprites/sidewalk_1.bmp,./sprites/building_1.bmp,./sprites/tree1_1.bmp,./sprites/tree2_1.bmp,./sprites/person2_0.bmp,./sprites/player1_0.bmp"
 
 render :: GTA -> IO Picture
 render game = do images <- mapM loadBMP names
@@ -186,13 +188,16 @@ changeGameState game = case gameState game of
   _       -> return game { gameState = Running }
 
 update :: Float -> GTA -> IO GTA
-update secs game = do
+update secs game@Game{player} = do
   rInt <- randomNr
   case gameState game of
     Loading -> loading game
-    Dead    -> return game
+    Dead    -> return game { player = killPlayer player }
     Paused  -> return game
     Running -> return ( updateTraffic rInt (updatePlayerPosition game { elapsedTime = (elapsedTime game) + secs }))
+
+killPlayer :: Player -> Player
+killPlayer player@Player{} = player { playerSprite = Sprite { spriteType = "player1", spriteState =  2 }, playerVelocity = 2 }
 
 loading :: GTA -> IO GTA
 loading game = do x <- readWorld
