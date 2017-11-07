@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveGeneric, NamedFieldPuns #-}
+{-# LANGUAGE DeriveGeneric, NamedFieldPuns, DeriveAnyClass #-}
 module Data.Block where
 
 import Data.Aeson
@@ -12,10 +12,10 @@ data Block = Block
     blockHeight   :: Float,
     blockType     :: BlockType,
     blockSprite   :: Sprite }
-  deriving (Show, Generic)
+  deriving (Show, Generic, FromJSON, ToJSON)
 
 data BlockType = Road | Sidewalk | Building | Wall | Tree
-  deriving (Show, Eq, Generic)
+  deriving (Show, Eq, Generic, FromJSON, ToJSON)
 
 instance Movable Block where
   getPos Block{blockPosition} = Position (x blockPosition) (y blockPosition)
@@ -27,10 +27,6 @@ instance Movable Block where
 
   getSprite Block{blockSprite} = Sprite (spriteType blockSprite) (spriteState blockSprite)
 
-instance FromJSON BlockType
-
 moveBlocks :: [Block] -> [BlockType] -> [Block]
 moveBlocks xs t = filter f xs
   where f (Block _ _ _ x _) = elem x t
-
-instance FromJSON Block

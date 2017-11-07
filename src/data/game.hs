@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveGeneric, OverloadedStrings, NamedFieldPuns #-}
+{-# LANGUAGE DeriveGeneric, OverloadedStrings, NamedFieldPuns, DeriveAnyClass #-}
 module Data.Game where
 
 import Data.Aeson
@@ -14,6 +14,8 @@ import Data.Car
 import Data.Person
 import Data.Block
 import Data.Maybe
+
+import System.Directory
 
 data Player = Player
   { playerPosition  :: Position,
@@ -32,7 +34,7 @@ data Keys = Keys
     right :: KeyState,
     up    :: KeyState,
     down  :: KeyState }
-  deriving (Show, Generic)
+  deriving (Show, Generic, FromJSON)
 
 data GTA = Game
   { player :: Player,
@@ -40,14 +42,16 @@ data GTA = Game
     people :: [Person],
     blocks :: [Block],
     gameState :: GameState,
-    elapsedTime :: Float }
+    elapsedTime :: Float,
+    highscore :: Int }
   deriving (Show, Generic)
 
 data GTAJSON = GameJSON
-  { carsJSON   :: [Car],
-    peopleJSON :: [Person],
-    blocksJSON :: [Block] }
-  deriving (Show, Generic)
+  { blocksJSON    :: [Block],
+    peopleJSON    :: [Person], 
+    carsJSON      :: [Car],
+    highscoreJSON :: Int }
+  deriving (Show, Generic, FromJSON, ToJSON)
 
 data GameState = Loading | Running | Paused | Dead
   deriving (Show, Eq, Generic)
@@ -58,6 +62,10 @@ data PlayerState = Walking | Driving
 jsonFile :: FilePath
 jsonFile = "./config/world.json"
 
+updateFile :: IO ()
+updateFile = do exists <- doesFileExist "./config/world_new.json"
+                when exists (renameFile "./config/world_new.json" jsonFile)
+
 getJSON :: IO B.ByteString
 getJSON = B.readFile jsonFile
 
@@ -66,12 +74,15 @@ readJSON = do x <- (decode <$> getJSON) :: IO (Maybe GTAJSON)
               return ((fromJust x) :: GTAJSON)
 
 readWorld :: IO GTA
-readWorld = do x <- readJSON
-               return Game { cars = carsJSON x, people = peopleJSON x, blocks = blocksJSON x } -- Missing fields are added in Main.hs
+readWorld = do _ <- updateFile
+               x <- readJSON
+               return (Game { cars = carsJSON x, people = peopleJSON x, blocks = blocksJSON x, highscore = highscoreJSON x })
 
-instance FromJSON GTAJSON
-instance FromJSON Keys
-instance FromJSON PlayerState
+writeJSON :: IO GTA -> IO GTA
+writeJSON game = do g <- game
+                    r <- readJSON
+                    B.writeFile "./config/world_new.json" (encode GameJSON { carsJSON = carsJSON r, peopleJSON = peopleJSON r, blocksJSON = blocksJSON r, highscoreJSON = highscore g })
+                    return g
 
 instance Movable Player where
   getPos Player{playerPosition} = Position (x playerPosition) (y playerPosition)

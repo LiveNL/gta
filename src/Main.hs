@@ -19,6 +19,8 @@ import Data.Maybe
 import Debug.Trace
 import System.Random
 
+import Graphics.Gloss.Interface.Environment
+
 -- Variables
 windowWidth, windowHeight, offset :: Int
 windowWidth  = 600
@@ -30,7 +32,7 @@ main :: IO ()
 main = playIO window (dark $ dark green) 60 initialState render handleKeys update
 
 window :: Display
-window = FullScreen
+window = FullScreen -- InWindow "GTA" (windowWidth, windowHeight) (offset, offset)
 
 initialState :: GTA
 initialState = Game
@@ -40,7 +42,7 @@ initialState = Game
       playerDirection = North, playerWidth = 10, playerHeight = 10,
       playerSprite    = Sprite { spriteType = "player1", spriteState = 1 }, playerVelocity = 0, playerState = Walking, points = 0
     },
-    cars = [], people = [], blocks = [], gameState = Loading, elapsedTime = 0
+    cars = [], people = [], blocks = [], gameState = Loading, elapsedTime = 0, highscore = 0
   }
 
 
@@ -93,10 +95,10 @@ deadPerson game = map (canMove 1 p ) c'
         p = player game
 
 newPosition :: Keys -> Position -> (Position, Float)
-newPosition (Keys Down _    _    _   ) (Position x y) = (Position {x = x - 1, y = y     }, 1)
-newPosition (Keys _    Down _    _   ) (Position x y) = (Position {x = x + 1, y = y     }, 1)
-newPosition (Keys _    _    Down _   ) (Position x y) = (Position {x = x    , y = y + 1 }, 1)
-newPosition (Keys _    _    _    Down) (Position x y) = (Position {x = x    , y = y - 1 }, 1)
+newPosition (Keys Down _    _    _   ) (Position x y) = (Position {x = x - 2, y = y     }, 1)
+newPosition (Keys _    Down _    _   ) (Position x y) = (Position {x = x + 2, y = y     }, 1)
+newPosition (Keys _    _    Down _   ) (Position x y) = (Position {x = x    , y = y + 2 }, 1)
+newPosition (Keys _    _    _    Down) (Position x y) = (Position {x = x    , y = y - 2 }, 1)
 newPosition (Keys _    _    _    _   ) (Position x y) = (Position {x = x    , y = y     }, 0)
 
 list = "./sprites/car1_1.bmp,./sprites/car2_1.bmp,./sprites/car3_1.bmp,./sprites/car4_1.bmp,./sprites/car5_1.bmp,./sprites/car6_1.bmp,./sprites/car7_1.bmp,./sprites/car8_1.bmp,./sprites/person1_1.bmp,./sprites/person1_2.bmp,./sprites/person1_3.bmp,./sprites/person2_1.bmp,./sprites/person2_2.bmp,./sprites/person2_3.bmp,./sprites/player1_1.bmp,./sprites/player1_2.bmp,./sprites/player1_3.bmp,./sprites/road_1.bmp,./sprites/sidewalk_1.bmp,./sprites/building_1.bmp,./sprites/tree1_1.bmp,./sprites/tree2_1.bmp,./sprites/person2_0.bmp,./sprites/player1_0.bmp"
@@ -104,22 +106,28 @@ list = "./sprites/car1_1.bmp,./sprites/car2_1.bmp,./sprites/car3_1.bmp,./sprites
 render :: GTA -> IO Picture
 render game = do images <- mapM loadBMP names
                  let images' = zip names images
-                 return (scale 1 1 (translate (- x) (- y) (pictures (
+                 screenSize <- getScreenSize
+                 return (scale 5 5 (translate (- x) (- y) (pictures (
                    (map (block images') (blocks game)) ++ (map (draw images') (cars game)) ++
-                     (map (draw images') (people game)) ++ [(draw images' (player game))] ++ [pointsText]))))
+                     (map (draw images') (people game)) ++ [(draw images' (player game))] ++ [drawPoints game screenSize]))))
  where names = splitOn "," list
-       pointsText = drawPoints (player game)
        Position x y = getPos (player game)
 
 updatePoints :: GTA -> GTA
-updatePoints game@Game{player} = game { player = (updatePoints' player) }
+updatePoints game@Game{player} = game { player = (updatePoints' player), highscore = updateHighscore player }
   where updatePoints' player@Player{points} = player { points = (points + 1)}
+        updateHighscore player@Player{points} | (points + 1) >= highscore game = (points + 1)
+                                              | otherwise                      = highscore game
 
-drawPoints :: Player -> Picture
-drawPoints p = translate (x + 175) (y + 175) $ color white $ text (show points')
-  where Position x y = getPos p
-        points' = (points p) `div` 10
-
+drawPoints :: GTA -> (Int, Int) -> Picture 
+drawPoints game (x, y) = translate (fromIntegral (-topLeftX) + x') (fromIntegral topLeftY + y') $ scale 0.05 0.05 $ pictures [rectangle, score]
+  where Position x' y' = getPos (player game)
+        topLeftX = (x `div` 5 `div` 2) - 2
+        topLeftY = (y `div` 5 `div` 2) - 8
+        score =  text ("Score: " ++ show (points (player game)) ++ " (" ++ show (highscore game) ++ ")")
+        rectangle = pictures [ translate 740 45 $ color black $ rectangleSolid 1500 180, 
+                               translate 740 45 $ color white $ rectangleSolid 1480 160 ]
+                               
 handleKeys :: Event -> GTA -> IO GTA
 handleKeys (EventKey (SpecialKey KeyUp)    s _ _) = updateKeyState (Up, Up, s , Up, North)
 handleKeys (EventKey (SpecialKey KeyDown)  s _ _) = updateKeyState (Up, Up, Up, s , South)
@@ -191,14 +199,14 @@ update secs game@Game{player} = do
     Loading -> loading game
     Dead    -> return game { player = killPlayer player }
     Paused  -> return game
-    Running -> return ( updateTraffic rInt (updatePlayerPosition game { elapsedTime = (elapsedTime game) + secs }))
+    Running -> writeJSON ( return ( updateTraffic rInt (updatePlayerPosition game { elapsedTime = (elapsedTime game) + secs })))
 
 killPlayer :: Player -> Player
 killPlayer player@Player{} = player { playerSprite = Sprite { spriteType = "player1", spriteState =  2 }, playerVelocity = 2 }
 
 loading :: GTA -> IO GTA
 loading game = do x <- readWorld
-                  return game { cars = cars x, blocks = blocks x, people = people x, gameState = Running }
+                  return game { cars = cars x, blocks = blocks x, people = people x, highscore = highscore x, gameState = Running }
 
 randomNr :: IO Int
 randomNr = getStdRandom (randomR (0,2))

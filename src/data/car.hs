@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveGeneric, NamedFieldPuns #-}
+{-# LANGUAGE DeriveGeneric, NamedFieldPuns, DeriveAnyClass #-}
 module Data.Car where
 
 import Data.Aeson
@@ -13,7 +13,7 @@ data Car = Car
     carSprite    :: Sprite,
     carDirection :: Direction,
     velocity     :: Int }
-  deriving (Show, Generic, Eq)
+  deriving (Show, Generic, Eq, FromJSON, ToJSON)
 
 instance Movable Car where
   getPos Car{carPosition} = Position (x carPosition) (y carPosition)
@@ -32,5 +32,3 @@ instance Movable Car where
                else 30
 
   getSprite Car{carSprite} = Sprite (spriteType carSprite) (spriteState carSprite)
-
-instance FromJSON Car

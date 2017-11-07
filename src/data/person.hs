@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveGeneric, NamedFieldPuns #-}
+{-# LANGUAGE DeriveGeneric, NamedFieldPuns, DeriveAnyClass #-}
 module Data.Person where
 
 import Data.Aeson
@@ -12,7 +12,7 @@ data Person = Person
     personSprite     :: Sprite,
     personDirection :: Direction,
     personVelocity :: Int }
-  deriving (Show, Generic, Eq)
+  deriving (Show, Generic, Eq, FromJSON, ToJSON)
 
 instance Movable Person where
   getPos Person{personPosition} = Position (x personPosition) (y personPosition)
@@ -26,5 +26,3 @@ instance Movable Person where
   height _ = 10
 
   getSprite Person{personSprite} = Sprite (spriteType personSprite) (spriteState personSprite)
-
-instance FromJSON Person
