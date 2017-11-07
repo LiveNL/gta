@@ -51,17 +51,18 @@ updateKeyState (left', right', up', down', d') game@Game{player} = return (game 
 
 updatePlayerPosition :: GTA -> GTA
 updatePlayerPosition game@Game{player}
-  | canMove 1 player (cars game) && ((playerState player) == Driving) = updatePoints game -- collision
-  | canMove 1 player (people game) && ((playerState player) == Driving) = deadPeople game -- collision
-  | canMove 1 player (cars game) || canMove 1 player (people game) = game
-  | canMove 4 player blocks' = game { player = (updatePlayerPosition' player) }
+  | canMove 1 player (cars game)         && ((playerState player) == Driving) = updatePoints game
+  | canMove 1 player (livingPeople game) && ((playerState player) == Driving) = killPerson game
+  | canMove 1 player (cars game)                                              = game
+  | canMove 1 player (livingPeople game)                                      = game
+  | canMove 4 player blocks'                                                  = game { player = (updatePlayerPosition' player) }
   | otherwise = game
-  where updatePlayerPosition' player@Player{playerPosition, playerVelocity, playerSprite} = player { playerPosition = (fst newPosition'),
-                                                                                                     playerVelocity = (snd newPosition'),
-                                                                                                     playerSprite = playerSprite {
-                                                                                                       spriteType = spriteType playerSprite,
-                                                                                                       spriteState = sprite }
-                                                                                                   }
+  where updatePlayerPosition' player@Player{playerSprite} = player { playerPosition = (fst newPosition'),
+                                                                     playerVelocity = (snd newPosition'),
+                                                                     playerSprite = playerSprite {
+                                                                       spriteType = spriteType playerSprite,
+                                                                       spriteState = sprite }
+                                                                   }
         blocks' = moveBlocks (blocks game) [Sidewalk, Road, Wall, Tree]
         newPosition' = newPosition (keys player) (getPos player)
         sprite = case playerState player of
@@ -69,17 +70,22 @@ updatePlayerPosition game@Game{player}
                            | otherwise -> spriteState (playerSprite player)
                    Driving -> spriteState (playerSprite player)
 
-deadPeople :: GTA -> GTA
-deadPeople game = updatePeople
-  where updatePeople = game { people = newPeople }
-        newPeople = take peopleIndex (people game ) ++ drop (1 + peopleIndex) (people game) ++ [newPerson]
-        newPerson = person { personPosition = (personPosition person), personSprite = Sprite { spriteType = "person2", spriteState =  0 }, personDirection = North, personVelocity = 0}
-        peopleIndex' = (elemIndex True (deadPeople' game))
-        peopleIndex = fromJust peopleIndex'
-        person = (people game) !! peopleIndex
+livingPeople :: GTA -> [Person]
+livingPeople game = filter (\x -> personVelocity x == 1) people'
+  where people' = people game
 
-deadPeople' :: GTA -> [Bool]
-deadPeople' game = map (canMove 1 p ) c'
+killPerson :: GTA -> GTA
+killPerson game = updatePeople
+  where updatePeople = game { people = newPeople }
+        newPeople = take deadPersonIndex (people game) ++ drop (1 + deadPersonIndex) (people game) ++ [newPerson]
+        newPerson = person { personPosition = (personPosition person), personSprite = sprite, personDirection = North, personVelocity = 0}
+        sprite = Sprite { spriteType = "person2", spriteState =  0 }
+        deadPersonIndex' = (elemIndex True (deadPerson game))
+        deadPersonIndex = fromJust deadPersonIndex'
+        person = (people game) !! deadPersonIndex
+
+deadPerson :: GTA -> [Bool]
+deadPerson game = map (canMove 1 p ) c'
   where c' = [[x] | x <- c]
         c = people game
         p = player game
