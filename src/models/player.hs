@@ -79,7 +79,7 @@ updatePlayerPosition' player@Player{playerSprite} elapsedTime =
 sprite :: Player -> Float -> Sprite
 sprite player@Player{playerSprite} elapsedTime = Sprite { spriteType = spriteType playerSprite, spriteState = spriteState' }
   where spriteState' = case playerState player of
-                         Walking | mod' (roundDecimals elapsedTime 2) 0.5 == 0 -> nextSprite playerSprite
+                         Walking | mod' (roundDecimals elapsedTime 2) 0.25 == 0 -> nextSprite playerSprite
                                  | otherwise -> spriteState playerSprite
                          Driving -> spriteState playerSprite
 
