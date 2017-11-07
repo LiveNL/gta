@@ -46,7 +46,7 @@ initialState = Game
 
 updateKeyState :: (KeyState, KeyState, KeyState, KeyState, Direction) -> GTA -> IO GTA
 updateKeyState (left', right', up', down', d') game@Game{player} = return (game { player = (updateKeyState' player) })
-  where updateKeyState' player@Player{keys, playerDirection} = player { keys = keys', playerDirection = d'}
+  where updateKeyState' player = player { keys = keys', playerDirection = d'}
         keys' = Keys { left = left', right = right', up = up', down = down' }
 
 updatePlayerPosition :: GTA -> GTA
@@ -72,7 +72,7 @@ updatePlayerPosition game@Game{player}
 deadPeople :: GTA -> GTA
 deadPeople game = updatePeople
   where updatePeople = game { people = newPeople }
-        newPeople = take peopleIndex (people game )++ drop (1 + peopleIndex) (people game) ++ [newPerson]
+        newPeople = take peopleIndex (people game ) ++ drop (1 + peopleIndex) (people game) ++ [newPerson]
         newPerson = person { personPosition = (personPosition person), personSprite = Sprite { spriteType = "person2", spriteState =  0 }, personDirection = North, personVelocity = 0}
         peopleIndex' = (elemIndex True (deadPeople' game))
         peopleIndex = fromJust peopleIndex'
