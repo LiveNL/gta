@@ -12,29 +12,11 @@ import Graphics.Gloss.Interface.IO.Game
 import Data.Position
 import Data.Car
 import Data.Person
+import Models.Player
 import Data.Block
 import Data.Maybe
 
 import System.Directory
-
-data Player = Player
-  { playerPosition  :: Position,
-    keys            :: Keys,
-    playerDirection :: Direction,
-    playerHeight    :: Float,
-    playerWidth     :: Float,
-    playerSprite    :: Sprite,
-    playerVelocity  :: Float,
-    playerState     :: PlayerState,
-    points          :: Int }
-  deriving (Show)
-
-data Keys = Keys
-  { left  :: KeyState,
-    right :: KeyState,
-    up    :: KeyState,
-    down  :: KeyState }
-  deriving (Show, Generic, FromJSON)
 
 data GTA = Game
   { player :: Player,
@@ -48,15 +30,12 @@ data GTA = Game
 
 data GTAJSON = GameJSON
   { blocksJSON    :: [Block],
-    peopleJSON    :: [Person], 
+    peopleJSON    :: [Person],
     carsJSON      :: [Car],
     highscoreJSON :: Int }
   deriving (Show, Generic, FromJSON, ToJSON)
 
 data GameState = Loading | Running | Paused | Dead
-  deriving (Show, Eq, Generic)
-
-data PlayerState = Walking | Driving
   deriving (Show, Eq, Generic)
 
 jsonFile :: FilePath
@@ -83,38 +62,6 @@ writeJSON game = do g <- game
                     r <- readJSON
                     B.writeFile "./config/world_new.json" (encode GameJSON { carsJSON = carsJSON r, peopleJSON = peopleJSON r, blocksJSON = blocksJSON r, highscoreJSON = highscore g })
                     return g
-
-instance Movable Player where
-  getPos Player{playerPosition} = Position (x playerPosition) (y playerPosition)
-  setPos (Position x' y') player@Player{playerPosition} =
-    player { playerPosition = Position { x = x', y = y' } }
-
-  getDir Player{playerDirection} = playerDirection
-  setDir x player@Player{playerDirection} = player { playerDirection = x }
-
-  width p = if (playerDirection p) == North || (playerDirection p) == South
-            then playerWidth p
-            else playerHeight p
-
-  height p = if (playerDirection p) == East || (playerDirection p) == West
-             then playerWidth p
-             else playerHeight p
-
-  getSprite player@Player{playerSprite} = Sprite (spriteType playerSprite) state
-    where state = case playerVelocity player of
-                     0 -> 1
-                     1 -> spriteState playerSprite
-                     2 -> 0
-
-instance FromJSON KeyState where
-  parseJSON (String s) = maybe mzero return $ stringToKeyState s
-  parseJSON _ = mzero
-
---stringToKeyState :: Text -> Maybe KeyState
-stringToKeyState s
-  | s == "Up" = Just Up
-  | s == "Down" = Just Down
-  | otherwise = Nothing
 
 instance FromJSON GameState where
   parseJSON (String s) = maybe mzero return $ stringToGameState s
