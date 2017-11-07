@@ -8,7 +8,6 @@ import Data.List.Split
 
 import Helpers
 import Traffic
-import Data.Car
 import Data.Person
 import Data.Position
 import Data.Maybe
@@ -17,6 +16,7 @@ import System.Random
 import Graphics.Gloss.Interface.Environment
 
 import Models.Block
+import Models.Car
 import Models.Game
 import Models.Player
 
@@ -161,3 +161,26 @@ enterCar game =
           updateCars game = game { cars = newCars }
           newCars = take carIndex carsGame ++ drop (1 + carIndex) carsGame
           carsGame = cars game
+
+updateCars :: [Car] -> Int -> GTA -> GTA
+updateCars cars rInt game = game { cars = updateCars', gameState = updateGameState }
+  where update = map (updateCar game rInt) cars
+        updateCars' = map snd update
+        updateGameState | elem Dead (map fst update) = Dead
+                        | otherwise = gameState game
+
+-- TODO: CARSTUFF
+updateCar :: GTA -> Int -> Car -> (GameState, Car)
+updateCar game rInt car@Car{velocity} = case velocity of
+  0 -> (Running, car)
+  1 | canMove 4 car walls' -> (Running, (changeDirR rInt car))
+    | canMove 1 car cars' -> (Running, changeDir 2 car)
+    | canMove 1 (player game) [car] && (playerState (player game) == Walking ) -> (Dead, car)
+    | canMove 1 car [(player game)] -> (Running, car)
+    | canMove 4 car blocks' -> (Running, newCarPosition car)
+    | otherwise -> (Running, (changeDir rInt car))
+         where blocks' = moveBlocks (blocks game) [Road]
+               walls' = moveBlocks (blocks game) [Wall]
+               carIndex = fromJust (elemIndex car (cars game))
+               cars' = take carIndex (cars game) ++ drop (1 + carIndex) (cars game)
+

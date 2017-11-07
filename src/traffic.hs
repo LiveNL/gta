@@ -1,5 +1,5 @@
 {-# LANGUAGE NamedFieldPuns #-}
-module Traffic (block, updateCars, updatePeople) where
+module Traffic (updatePeople) where
 
 import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game
@@ -10,42 +10,13 @@ import Data.Fixed (mod')
 import Helpers
 
 import Models.Block
-import Data.Car
 import Data.Position
 import Data.Person
 import Debug.Trace
 
+import Models.Car
 import Models.Game
 import Models.Player
-
-updateCars :: [Car] -> Int -> GTA -> GTA
-updateCars cars rInt game = game { cars = updateCars', gameState = updateGameState }
-  where update = map (updateCar game rInt) cars
-        updateCars' = map snd update
-        updateGameState | elem Dead (map fst update) = Dead
-                        | otherwise = gameState game
-
-updateCar :: GTA -> Int -> Car -> (GameState, Car)
-updateCar game rInt car@Car{velocity} = case velocity of
-  0 -> (Running, car)
-  1 | canMove 4 car walls' -> (Running, (changeDirR rInt car))
-    | canMove 1 car cars' -> (Running, changeDir 2 car)
---    | canMove 1 car cars' -> (Running, car)
-    | canMove 1 (player game) [car] && (playerState (player game) == Walking ) -> (Dead, car)
-    | canMove 1 car [(player game)] -> (Running, car)
-    | canMove 4 car blocks' -> (Running, newCarPosition car)
-    | otherwise -> (Running, (changeDir rInt car))
-         where blocks' = moveBlocks (blocks game) [Road]
-               walls' = moveBlocks (blocks game) [Wall]
-               carIndex = fromJust (elemIndex car (cars game))
-               cars' = take carIndex (cars game) ++ drop (1 + carIndex) (cars game)
-
-newCarPosition :: Car -> Car
-newCarPosition car@(Car (Position _ _) _ d _) = case d of
-  North -> move (Position 0    1)  car
-  West  -> move (Position (-1) 0)  car
-  South -> move (Position 0  (-1)) car
-  _     -> move (Position 1    0)  car
 
 updatePeople :: [Person] -> Int -> GTA -> GTA
 updatePeople people rInt game = game { people = updatePeople' }

@@ -11,9 +11,9 @@ import GHC.Generics
 
 import Helpers
 import Models.Block
+import Models.Car
 
 -- TODO: Rename to models:
-import Data.Car
 import Data.Person
 import Data.Position
 

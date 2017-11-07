@@ -10,10 +10,10 @@ import System.Directory
 import qualified Data.ByteString.Lazy.Char8 as B
 
 import Data.Position
-import Data.Car
 import Data.Person
 
 import Models.Block
+import Models.Car
 import Models.Player
 
 data GTA = Game
