@@ -10,30 +10,22 @@ import Helpers
 import Traffic
 import Data.Block
 import Data.Car
-import Data.Game
 import Data.Person
 import Data.Position
-import Data.Fixed (mod')
 import Data.Maybe
-import Data.Monoid
-import Debug.Trace
 import System.Random
 
 import Graphics.Gloss.Interface.Environment
+
+import Models.Game
 import Models.Player
 
--- Variables
-windowWidth, windowHeight, offset :: Int
-windowWidth  = 600
-windowHeight = 600
-offset = 0
-
--- Functions
+-- GAME settings
 main :: IO ()
 main = playIO window (dark $ dark green) 60 initialState render handleKeys update
 
 window :: Display
-window = FullScreen -- InWindow "GTA" (windowWidth, windowHeight) (offset, offset)
+window = FullScreen
 
 initialState :: GTA
 initialState = Game
@@ -46,15 +38,27 @@ initialState = Game
     cars = [], people = [], blocks = [], gameState = Loading, elapsedTime = 0, highscore = 0
   }
 
+list = "./sprites/car1_1.bmp,./sprites/car2_1.bmp,./sprites/car3_1.bmp,./sprites/car4_1.bmp,./sprites/car5_1.bmp,./sprites/car6_1.bmp,./sprites/car7_1.bmp,./sprites/car8_1.bmp,./sprites/person1_1.bmp,./sprites/person1_2.bmp,./sprites/person1_3.bmp,./sprites/person2_1.bmp,./sprites/person2_2.bmp,./sprites/person2_3.bmp,./sprites/player1_1.bmp,./sprites/player1_2.bmp,./sprites/player1_3.bmp,./sprites/road_1.bmp,./sprites/sidewalk_1.bmp,./sprites/building_1.bmp,./sprites/tree1_1.bmp,./sprites/tree2_1.bmp,./sprites/person2_0.bmp,./sprites/player1_0.bmp"
+
+-- KEY updates
+handleKeys :: Event -> GTA -> IO GTA
+handleKeys (EventKey (SpecialKey KeyUp)    s _ _) = updateKeyState (Up, Up, s , Up, North)
+handleKeys (EventKey (SpecialKey KeyDown)  s _ _) = updateKeyState (Up, Up, Up, s , South)
+handleKeys (EventKey (SpecialKey KeyLeft)  s _ _) = updateKeyState (s , Up, Up, Up, West )
+handleKeys (EventKey (SpecialKey KeyRight) s _ _) = updateKeyState (Up, s , Up, Up, East )
+handleKeys (EventKey (Char 'p')            Down  _ _) = changeGameState
+handleKeys (EventKey (Char 'c')            Down  _ _) = enterOrLeaveCar
+handleKeys (EventKey (Char 'r')            Down  _ _) = return . return initialState
+handleKeys _                                          = return
+
 updateKeyState :: (KeyState, KeyState, KeyState, KeyState, Direction) -> GTA -> IO GTA
-updateKeyState (left', right', up', down', d') game@Game{player} = if gameState game == Running
-                                                                      then return (game { player = (updateKeyState' player) })
-                                                                      else return game
+updateKeyState (left', right', up', down', d') game@Game{player}
+  | gameState game == Running = return (game { player = (updateKeyState' player) })
+  | otherwise = return game
   where updateKeyState' player = player { keys = keys', playerDirection = d'}
         keys' = Keys { left = left', right = right', up = up', down = down' }
 
-list = "./sprites/car1_1.bmp,./sprites/car2_1.bmp,./sprites/car3_1.bmp,./sprites/car4_1.bmp,./sprites/car5_1.bmp,./sprites/car6_1.bmp,./sprites/car7_1.bmp,./sprites/car8_1.bmp,./sprites/person1_1.bmp,./sprites/person1_2.bmp,./sprites/person1_3.bmp,./sprites/person2_1.bmp,./sprites/person2_2.bmp,./sprites/person2_3.bmp,./sprites/player1_1.bmp,./sprites/player1_2.bmp,./sprites/player1_3.bmp,./sprites/road_1.bmp,./sprites/sidewalk_1.bmp,./sprites/building_1.bmp,./sprites/tree1_1.bmp,./sprites/tree2_1.bmp,./sprites/person2_0.bmp,./sprites/player1_0.bmp"
-
+-- PICTURES
 render :: GTA -> IO Picture
 render game = do images <- mapM loadBMP names
                  let images' = zip names images
@@ -74,15 +78,15 @@ drawPoints game (x, y) = translate (fromIntegral (-topLeftX) + x') (fromIntegral
         rectangle = pictures [ translate 740 45 $ color black $ rectangleSolid 1500 180,
                                translate 740 45 $ color white $ rectangleSolid 1480 160 ]
 
-handleKeys :: Event -> GTA -> IO GTA
-handleKeys (EventKey (SpecialKey KeyUp)    s _ _) = updateKeyState (Up, Up, s , Up, North)
-handleKeys (EventKey (SpecialKey KeyDown)  s _ _) = updateKeyState (Up, Up, Up, s , South)
-handleKeys (EventKey (SpecialKey KeyLeft)  s _ _) = updateKeyState (s , Up, Up, Up, West )
-handleKeys (EventKey (SpecialKey KeyRight) s _ _) = updateKeyState (Up, s , Up, Up, East )
-handleKeys (EventKey (Char 'p')            Down  _ _) = changeGameState
-handleKeys (EventKey (Char 'c')            Down  _ _) = enterOrLeaveCar
-handleKeys (EventKey (Char 'r')            Down  _ _) = return . return initialState
-handleKeys _                                          = return
+-- GAME updates
+update :: Float -> GTA -> IO GTA
+update secs game@Game{player} = do
+  rInt <- randomNr
+  case gameState game of
+    Loading -> loading game
+    Dead    -> return game { player = killPlayer player }
+    Paused  -> return game
+    Running -> writeJSON ( return ( updateTraffic rInt (updatePlayerPosition game { elapsedTime = (elapsedTime game) + secs })))
 
 enterOrLeaveCar :: GTA -> IO GTA
 enterOrLeaveCar game = if playerState (player game) == Walking
@@ -93,18 +97,6 @@ changeGameState :: GTA -> IO GTA
 changeGameState game = case gameState game of
   Running -> return game { gameState = Paused }
   _       -> return game { gameState = Running }
-
-update :: Float -> GTA -> IO GTA
-update secs game@Game{player} = do
-  rInt <- randomNr
-  case gameState game of
-    Loading -> loading game
-    Dead    -> return game { player = killPlayer player }
-    Paused  -> return game
-    Running -> writeJSON ( return ( updateTraffic rInt (updatePlayerPosition game { elapsedTime = (elapsedTime game) + secs })))
-
-killPlayer :: Player -> Player
-killPlayer player@Player{} = player { playerSprite = Sprite { spriteType = "player1", spriteState =  2 }, playerVelocity = 2 }
 
 loading :: GTA -> IO GTA
 loading game = do x <- readWorld
@@ -150,12 +142,6 @@ deadPerson game = map (canMove 1 p ) c'
         c = people game
         p = player game
 
-updatePoints :: GTA -> GTA
-updatePoints game@Game{player} = game { player = (updatePoints' player), highscore = updateHighscore player }
-  where updatePoints' player@Player{points} = player { points = (points + 1)}
-        updateHighscore player@Player{points} | (points + 1) >= highscore game = (points + 1)
-                                              | otherwise                      = highscore game
-
 leaveCar :: GTA -> GTA
 leaveCar game = game { cars = newCars, player = (carToPlayer (player game)) }
   where newCars = car : (cars game)
@@ -175,4 +161,3 @@ enterCar game =
           updateCars game = game { cars = newCars }
           newCars = take carIndex carsGame ++ drop (1 + carIndex) carsGame
           carsGame = cars game
-

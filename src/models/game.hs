@@ -1,21 +1,19 @@
 {-# LANGUAGE DeriveGeneric, OverloadedStrings, NamedFieldPuns, DeriveAnyClass #-}
-module Data.Game where
+module Models.Game where
 
 import Data.Aeson
+import Data.Maybe
 import Control.Monad
 import GHC.Generics
-import qualified Data.ByteString.Lazy.Char8 as B
 
-import Graphics.Gloss
-import Graphics.Gloss.Interface.IO.Game
+import qualified Data.ByteString.Lazy.Char8 as B
 
 import Data.Position
 import Data.Car
 import Data.Person
-import Models.Player
 import Data.Block
-import Data.Maybe
 
+import Models.Player
 import System.Directory
 
 data GTA = Game
@@ -38,6 +36,10 @@ data GTAJSON = GameJSON
 data GameState = Loading | Running | Paused | Dead
   deriving (Show, Eq, Generic)
 
+instance FromJSON GameState where
+  parseJSON (String s) = maybe mzero return $ stringToGameState s
+  parseJSON _ = mzero
+
 jsonFile :: FilePath
 jsonFile = "./config/world.json"
 
@@ -55,19 +57,24 @@ readJSON = do x <- (decode <$> getJSON) :: IO (Maybe GTAJSON)
 readWorld :: IO GTA
 readWorld = do _ <- updateFile
                x <- readJSON
-               return (Game { cars = carsJSON x, people = peopleJSON x, blocks = blocksJSON x, highscore = highscoreJSON x })
+               return Game { cars = carsJSON x, people = peopleJSON x, blocks = blocksJSON x, highscore = highscoreJSON x }
 
 writeJSON :: IO GTA -> IO GTA
 writeJSON game = do g <- game
                     r <- readJSON
-                    B.writeFile "./config/world_new.json" (encode GameJSON { carsJSON = carsJSON r, peopleJSON = peopleJSON r, blocksJSON = blocksJSON r, highscoreJSON = highscore g })
+                    B.writeFile "./config/world_new.json" ( encode
+                      GameJSON { carsJSON = carsJSON r, peopleJSON = peopleJSON r,
+                        blocksJSON = blocksJSON r, highscoreJSON = highscore g })
                     return g
-
-instance FromJSON GameState where
-  parseJSON (String s) = maybe mzero return $ stringToGameState s
-  parseJSON _ = mzero
 
 --stringToKeyState :: Text -> Maybe KeyState
 stringToGameState s
   | s == "Running" = Just Running
   | otherwise = Nothing
+
+updatePoints :: GTA -> GTA
+updatePoints game@Game{player} = game { player = updatePoints' player, highscore = updateHighscore player }
+  where updatePoints' player@Player{points} = player { points = (points + 1)}
+        updateHighscore player@Player{points} | (points + 1) >= highscore game = (points + 1)
+                                              | otherwise                      = highscore game
+
