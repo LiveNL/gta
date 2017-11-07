@@ -35,12 +35,13 @@ updateCars cars rInt game = game { cars = updateCars', gameState = updateGameSta
 updateCar :: GTA -> Int -> Car -> (GameState, Car)
 updateCar game rInt car@Car{velocity} = case velocity of
   0 -> (Running, car)
-  1 | canMove 4 car walls' -> (Running, (newCarPosition $ changeDirR rInt car))
-    | canMove 1 car cars' -> (Running, car)
+  1 | canMove 4 car walls' -> (Running, (changeDirR rInt car))
+    | canMove 1 car cars' -> (Running, changeDir 2 car)
+--    | canMove 1 car cars' -> (Running, car)
     | canMove 1 (player game) [car] && (playerState (player game) == Walking ) -> (Dead, car)
     | canMove 1 car [(player game)] -> (Running, car)
     | canMove 4 car blocks' -> (Running, newCarPosition car)
-    | otherwise -> (Running, (newCarPosition $ changeDir 0 car))
+    | otherwise -> (Running, (changeDir rInt car))
          where blocks' = moveBlocks (blocks game) [Road]
                walls' = moveBlocks (blocks game) [Wall]
                carIndex = fromJust (elemIndex car (cars game))
@@ -62,7 +63,7 @@ updatePerson game rInt person
   | personVelocity person == 0 = person
   | canMove 1 person (cars game) = changeDir rInt person
   | canMove 1 person people' = changeDirR rInt person
-  | canMove 1 person [player game] = person
+  | canMove 1 person [player game] = changeDirR rInt person
   | canMove 4 person blocks' = newPersonPosition person { personSprite = Sprite { spriteType = spriteType (personSprite person), spriteState = sprite' }}
   | otherwise = changeDirR rInt person
     where blocks' = moveBlocks (blocks game) [Sidewalk]

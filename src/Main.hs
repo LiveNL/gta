@@ -104,7 +104,7 @@ list = "./sprites/car1_1.bmp,./sprites/car2_1.bmp,./sprites/car3_1.bmp,./sprites
 render :: GTA -> IO Picture
 render game = do images <- mapM loadBMP names
                  let images' = zip names images
-                 return (scale 5 5 (translate (- x) (- y) (pictures (
+                 return (scale 1 1 (translate (- x) (- y) (pictures (
                    (map (block images') (blocks game)) ++ (map (draw images') (cars game)) ++
                      (map (draw images') (people game)) ++ [(draw images' (player game))] ++ [pointsText]))))
  where names = splitOn "," list
@@ -201,7 +201,7 @@ loading game = do x <- readWorld
                   return game { cars = cars x, blocks = blocks x, people = people x, gameState = Running }
 
 randomNr :: IO Int
-randomNr = getStdRandom (randomR (0,1))
+randomNr = getStdRandom (randomR (0,2))
 
 updateTraffic :: Int -> GTA -> GTA
 updateTraffic rInt game = (updatePeople (people game) rInt ) $ (updateCars (cars game) rInt game)
