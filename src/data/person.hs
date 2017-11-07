@@ -10,7 +10,8 @@ import Data.Color
 data Person = Person
   { personPosition  :: Position,
     personSprite     :: Sprite,
-    personDirection :: Direction }
+    personDirection :: Direction,
+    personVelocity :: Int }
   deriving (Show, Generic, Eq, FromJSON, ToJSON)
 
 instance Movable Person where

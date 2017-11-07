@@ -1,5 +1,5 @@
 {-# LANGUAGE NamedFieldPuns #-}
-module Traffic (car, person, block, updateCars, updatePeople) where
+module Traffic (block, updateCars, updatePeople) where
 
 import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game
@@ -16,19 +16,14 @@ import Data.Person
 import Data.Game
 import Debug.Trace
 
-car :: [([Char],Picture)] -> Car -> Picture
-car images car = draw images car
-
-person :: [([Char],Picture)] -> Person -> Picture
-person images person = draw images person
-
 block :: [([Char],Picture)] -> Block -> Picture
-block images block@(Block (Position x y) w h t) = case t of
+block images block@(Block (Position x y) w h t s) = case t of
    Road -> draw images block
-   Wall -> translate x y $ color (greyN 0.5) $ rectangleSolid w h
-   Building -> translate x y $ color (dark red) $ rectangleSolid w h
+   Wall -> translate x y $ color (greyN 0.5) $ rectangleSolid 0 0
+   Building -> draw images block
    Sidewalk -> draw images block
-   _ -> translate x y $ color (greyN 0.7) $ rectangleSolid w h
+   Tree -> draw images block
+   _ -> translate x y $ rectangleSolid w h
 
 updateCars :: [Car] -> Int -> GTA -> GTA
 updateCars cars rInt game = game { cars = updateCars', gameState = updateGameState }
@@ -40,11 +35,13 @@ updateCars cars rInt game = game { cars = updateCars', gameState = updateGameSta
 updateCar :: GTA -> Int -> Car -> (GameState, Car)
 updateCar game rInt car@Car{velocity} = case velocity of
   0 -> (Running, car)
-  1 | canMove 4 car walls' -> (Running, (newCarPosition $ changeDirR rInt car))
-    | canMove 1 car cars' -> (Running, car)
-    | canMove 1 (player game) [car] -> (Dead, car)
+  1 | canMove 4 car walls' -> (Running, (changeDirR rInt car))
+    | canMove 1 car cars' -> (Running, changeDir 2 car)
+--    | canMove 1 car cars' -> (Running, car)
+    | canMove 1 (player game) [car] && (playerState (player game) == Walking ) -> (Dead, car)
+    | canMove 1 car [(player game)] -> (Running, car)
     | canMove 4 car blocks' -> (Running, newCarPosition car)
-    | otherwise -> (Running, (newCarPosition $ changeDir 0 car))
+    | otherwise -> (Running, (changeDir rInt car))
          where blocks' = moveBlocks (blocks game) [Road]
                walls' = moveBlocks (blocks game) [Wall]
                carIndex = fromJust (elemIndex car (cars game))
@@ -63,10 +60,11 @@ updatePeople people rInt game = game { people = updatePeople' }
 
 updatePerson :: GTA -> Int -> Person -> Person
 updatePerson game rInt person
+  | personVelocity person == 0 = person
   | canMove 1 person (cars game) = changeDir rInt person
   | canMove 1 person people' = changeDirR rInt person
-  | canMove 1 person [player game] = person
-  | canMove 4 person blocks' = newPersonPosition person { personSprite = Sprite { spriteType = spriteType (personSprite person),  spriteState = sprite' }}
+  | canMove 1 person [player game] = changeDirR rInt person
+  | canMove 4 person blocks' = newPersonPosition person { personSprite = Sprite { spriteType = spriteType (personSprite person), spriteState = sprite' }}
   | otherwise = changeDirR rInt person
     where blocks' = moveBlocks (blocks game) [Sidewalk]
           people' = take personIndex (people game) ++ drop (1 + personIndex) (people game)
@@ -75,7 +73,7 @@ updatePerson game rInt person
                   | otherwise = spriteState (personSprite person)
 
 newPersonPosition :: Person -> Person
-newPersonPosition person@(Person _ _ d)
+newPersonPosition person@(Person _ _ d _)
   | d == North = move (Position 0    1)  person
   | d == West  = move (Position (-1) 0)  person
   | d == South = move (Position 0  (-1)) person

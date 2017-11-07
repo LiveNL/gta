@@ -76,7 +76,7 @@ readJSON = do x <- (decode <$> getJSON) :: IO (Maybe GTAJSON)
 readWorld :: IO GTA
 readWorld = do _ <- updateFile
                x <- readJSON
-               return (Game { cars = carsJSON x, people = peopleJSON x, blocks = blocksJSON x, highscore = highscoreJSON x }) -- Missing fields are added in Main.hs
+               return (Game { cars = carsJSON x, people = peopleJSON x, blocks = blocksJSON x, highscore = highscoreJSON x })
 
 writeJSON :: IO GTA -> IO GTA
 writeJSON game = do g <- game
@@ -104,6 +104,7 @@ instance Movable Player where
     where state = case playerVelocity player of
                      0 -> 1
                      1 -> spriteState playerSprite
+                     2 -> 0
 
 instance FromJSON KeyState where
   parseJSON (String s) = maybe mzero return $ stringToKeyState s

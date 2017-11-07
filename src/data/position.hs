@@ -37,7 +37,7 @@ draw images a = translate x y $ scale w'' h'' $ rotate angle $ image
               then (height a) / fromIntegral h'
               else (height a) / fromIntegral w'
 
-        image@(Bitmap w' h' _ _) = fromJust (lookup name images)
+        image@(Bitmap w' h' _ True) = fromJust (lookup name images)
         name = "./sprites/" ++ (spriteType s) ++ "_" ++ show (spriteState s) ++ ".bmp"
         d = getDir a
         s = getSprite a
@@ -69,6 +69,7 @@ changeDir :: (Movable a) => Int -> a -> a
 changeDir rInt a = case rInt of
                      0 -> setDir (next x) a
                      1 -> setDir x a
+                     2 -> setDir (next (next x)) a
   where x = getDir a
 
 roundDecimals :: (Fractional a2, RealFrac a1, Integral b) => a1 -> b -> a2
@@ -82,12 +83,12 @@ data Sprite = Sprite
   deriving (Show, Eq, Generic, FromJSON, ToJSON)
 
 nextSprite :: Sprite -> Int
-nextSprite (Sprite t s) | t == "car1" || t == "car2" || t == "car3" = 1
-                        | s == 3 = 1
+nextSprite (Sprite t s) | s == 3 = 1
                         | otherwise = succ s
 
 changeDirR :: (Movable a) => Int -> a -> a
 changeDirR rInt a = case rInt of
                       0 -> setDir (next x) a
-                      1 -> setDir (prev x) a
+                      1 -> setDir x a
+                      2 -> setDir (prev x) a
   where x = getDir a
