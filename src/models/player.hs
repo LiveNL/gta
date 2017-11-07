@@ -113,3 +113,7 @@ playerToCar player car =
 closeCars :: Player -> [Car] -> [Bool]
 closeCars p c = map (canMove 1 p ) c'
   where c' = [[x] | x <- c]
+
+killPlayer :: Player -> Player
+killPlayer player@Player{} = player { playerSprite = Sprite { spriteType = "player1", spriteState =  2 }, playerVelocity = 2 }
+
