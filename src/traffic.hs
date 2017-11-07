@@ -1,5 +1,5 @@
 {-# LANGUAGE NamedFieldPuns #-}
-module Traffic (car, person, block, updateCars, updatePeople) where
+module Traffic (block, updateCars, updatePeople) where
 
 import Graphics.Gloss
 import Graphics.Gloss.Interface.IO.Game
@@ -15,12 +15,6 @@ import Data.Position
 import Data.Person
 import Data.Game
 import Debug.Trace
-
-car :: [([Char],Picture)] -> Car -> Picture
-car images car = draw images car
-
-person :: [([Char],Picture)] -> Person -> Picture
-person images person = draw images person
 
 block :: [([Char],Picture)] -> Block -> Picture
 block images block@(Block (Position x y) w h t s) = case t of

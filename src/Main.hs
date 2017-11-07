@@ -99,17 +99,14 @@ newPosition (Keys _    _    Down _   ) (Position x y) = (Position {x = x    , y 
 newPosition (Keys _    _    _    Down) (Position x y) = (Position {x = x    , y = y - 1 }, 1)
 newPosition (Keys _    _    _    _   ) (Position x y) = (Position {x = x    , y = y     }, 0)
 
-playerDraw :: [(String,Picture)] -> GTA -> Picture
-playerDraw images game = draw images (player game)
-
 list = "./sprites/car1_1.bmp,./sprites/car2_1.bmp,./sprites/car3_1.bmp,./sprites/car4_1.bmp,./sprites/car5_1.bmp,./sprites/car6_1.bmp,./sprites/car7_1.bmp,./sprites/car8_1.bmp,./sprites/person1_1.bmp,./sprites/person1_2.bmp,./sprites/person1_3.bmp,./sprites/person2_1.bmp,./sprites/person2_2.bmp,./sprites/person2_3.bmp,./sprites/player1_1.bmp,./sprites/player1_2.bmp,./sprites/player1_3.bmp,./sprites/road_1.bmp,./sprites/sidewalk_1.bmp,./sprites/building_1.bmp,./sprites/tree1_1.bmp,./sprites/tree2_1.bmp,./sprites/person2_0.bmp,./sprites/player1_0.bmp"
 
 render :: GTA -> IO Picture
 render game = do images <- mapM loadBMP names
                  let images' = zip names images
                  return (scale 5 5 (translate (- x) (- y) (pictures (
-                   (map (block images') (blocks game)) ++ (map (car images') (cars game)) ++
-                   (map (person images') (people game)) ++ [(playerDraw images' game)] ++ [pointsText]))))
+                   (map (block images') (blocks game)) ++ (map (draw images') (cars game)) ++
+                     (map (draw images') (people game)) ++ [(draw images' (player game))] ++ [pointsText]))))
  where names = splitOn "," list
        pointsText = drawPoints (player game)
        Position x y = getPos (player game)
