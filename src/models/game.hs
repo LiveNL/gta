@@ -5,16 +5,16 @@ import Data.Aeson
 import Data.Maybe
 import Control.Monad
 import GHC.Generics
+import System.Directory
 
 import qualified Data.ByteString.Lazy.Char8 as B
 
 import Data.Position
 import Data.Car
 import Data.Person
-import Data.Block
 
+import Models.Block
 import Models.Player
-import System.Directory
 
 data GTA = Game
   { player :: Player,

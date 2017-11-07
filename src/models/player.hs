@@ -10,9 +10,9 @@ import Graphics.Gloss.Interface.IO.Game
 import GHC.Generics
 
 import Helpers
+import Models.Block
 
 -- TODO: Rename to models:
-import Data.Block
 import Data.Car
 import Data.Person
 import Data.Position

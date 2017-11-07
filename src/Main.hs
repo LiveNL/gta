@@ -8,7 +8,6 @@ import Data.List.Split
 
 import Helpers
 import Traffic
-import Data.Block
 import Data.Car
 import Data.Person
 import Data.Position
@@ -17,6 +16,7 @@ import System.Random
 
 import Graphics.Gloss.Interface.Environment
 
+import Models.Block
 import Models.Game
 import Models.Player
 
