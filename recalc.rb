@@ -51,7 +51,7 @@ people_json = grouped["Person"].first[:children].map do |person|
   y = person[:y].to_f + (person[:h].to_f / 2)
 
   types = ["person1"]
-  {"personPosition": { "x": x, "y": y}, "personSprite": { "spriteType": types.sample, "spriteState": 1 }, "personDirection": "North"}
+  {"personPosition": { "x": x, "y": y}, "personSprite": { "spriteType": types.sample, "spriteState": 1 }, "personDirection": "North", "personVelocity": 1 }
 end
 
 newJson[:blocksJSON] = blocks_json

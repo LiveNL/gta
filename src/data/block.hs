@@ -11,8 +11,7 @@ data Block = Block
     blockWidth    :: Float,
     blockHeight   :: Float,
     blockType     :: BlockType,
-    blockSprite   :: Sprite
-  }
+    blockSprite   :: Sprite }
   deriving (Show, Generic)
 
 data BlockType = Road | Sidewalk | Building | Wall | Tree
@@ -21,8 +20,8 @@ data BlockType = Road | Sidewalk | Building | Wall | Tree
 instance Movable Block where
   getPos Block{blockPosition} = Position (x blockPosition) (y blockPosition)
 
-  width b = blockWidth b
-  height b = blockHeight b
+  width = blockWidth
+  height = blockHeight
 
   getDir _ = North
 

@@ -73,6 +73,7 @@ changeDir :: (Movable a) => Int -> a -> a
 changeDir rInt a = case rInt of
                      0 -> setDir (next x) a
                      1 -> setDir x a
+                     2 -> setDir (next (next x)) a
   where x = getDir a
 
 roundDecimals :: (Fractional a2, RealFrac a1, Integral b) => a1 -> b -> a2
@@ -94,5 +95,6 @@ nextSprite (Sprite t s) | s == 3 = 1
 changeDirR :: (Movable a) => Int -> a -> a
 changeDirR rInt a = case rInt of
                       0 -> setDir (next x) a
-                      1 -> setDir (prev x) a
+                      1 -> setDir x a
+                      2 -> setDir (prev x) a
   where x = getDir a
