@@ -17,7 +17,7 @@ cabal-version:       >=1.10
 
 executable gta
   main-is:             Main.hs
-  other-modules:       Traffic, Data.Position, Data.Person, Data.Color, Helpers, Models.Block, Models.Car, Models.Game, Models.Player
+  other-modules:       Data.Position, Data.Color, Helpers, Models.Block, Models.Car, Models.Game, Models.Person, Models.Player
   -- other-extensions:
   build-depends:       base >=4.10 && <4.11, gloss == 1.11.*, aeson == 1.2.3.0, bytestring == 0.10.8.2, random == 1.1, split == 0.2.3.2, directory
   hs-source-dirs:      src

@@ -12,9 +12,9 @@ import GHC.Generics
 import Helpers
 import Models.Block
 import Models.Car
+import Models.Person
 
 -- TODO: Rename to models:
-import Data.Person
 import Data.Position
 
 data Player = Player
