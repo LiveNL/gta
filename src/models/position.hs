@@ -91,7 +91,3 @@ changeDirR rInt a = case rInt of
                       1 -> setDir x a
                       2 -> setDir (prev x) a
   where x = getDir a
-
-close :: (Movable a, Movable b) => a -> [b] -> [Bool]
-close p c = map (canMove 1 p ) c'
-  where c' = [[x] | x <- c]

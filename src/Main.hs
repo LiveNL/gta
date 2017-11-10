@@ -81,7 +81,7 @@ drawPoints game (x, y) = translate (fromIntegral (-topLeftX) + x') (fromIntegral
   where Position x' y' = getPos (player game)
         topLeftX       = (x `div` 5 `div` 2) - 2
         topLeftY       = (y `div` 5 `div` 2) - 8
-        score          = text ("Score: " ++ show (points (player game)) ++ " (" ++ show (highscore game) ++ ")" ++ cccnt)
+        score          = text ("$" ++ show (points (player game)) ++ " (" ++ show (highscore game) ++ ")" ++ cccnt)
         cccnt          = " -- Coins: " ++ show (fst (coinCount game)) ++ "/" ++ show (snd (coinCount game))
         rectangle = pictures [ translate 1000 45 $ color black $ rectangleSolid 2020 180,
                                translate 1000 45 $ color white $ rectangleSolid 2000 160 ]
@@ -246,6 +246,8 @@ updatePerson game rInt person
           people'     = take personIndex (people game) ++ drop (1 + personIndex) (people game)
           personIndex = fromJust (elemIndex person (people game))
           sprite' | mod' (roundDecimals (elapsedTime game) 2) 0.25 == 0 = nextSprite (personSprite person)
-                  | otherwise                                          = spriteState (personSprite person)
+                  | otherwise                                           = spriteState (personSprite person)
 
-
+close :: (Movable a, Movable b) => a -> [b] -> [Bool]
+close p c = map (canMove 1 p ) c'
+  where c' = [[x] | x <- c]
