@@ -114,7 +114,7 @@ updateCoins rInt game@Game{blocks} = game { blocks = (blocks'' ++ coins') }
   where sprite' coin       = Sprite { spriteType = spriteType (blockSprite coin), spriteState = spriteState' coin }
         coins'             = map updateSprite (coins game)
         updateSprite coin' = coin' { blockSprite = sprite' coin' }
-        blocks''           = filter (\x -> blockType x /= Coin) (blocks' game)
+        blocks''           = filter (\x -> blockType x /= Coin) blocks
         spriteState' coin | mod' (roundDecimals (elapsedTime game) 3) 0.125 == 0 = nextSprite (blockSprite coin)
                           | otherwise                                            = spriteState (blockSprite coin)
 
