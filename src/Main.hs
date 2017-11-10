@@ -89,11 +89,11 @@ drawTimer game (x, y) = translate (fromIntegral (topLeftX) + x') (fromIntegral t
 
 timeLeftText :: GTA -> Picture
 timeLeftText game = text ("Time left: " ++ min ++ ":" ++ sec)
-  where tl2 = (timeLeft game) - (elapsedTime game)
-        secCalc = floor (mod' (tl2) 60)
+  where count              = timeLeft game - elapsedTime game
+        secCalc            = floor (mod' count 60)
         sec | secCalc < 10 = "0" ++ show secCalc
             | otherwise    = show secCalc
-        minCalc = floor ((tl2) / 60)
+        minCalc            = floor (count / 60)
         min | minCalc < 10 = "0" ++ show minCalc
             | otherwise    = show minCalc
 
@@ -102,10 +102,15 @@ update :: Float -> GTA -> IO GTA
 update secs game@Game{player} = do
   rInt <- randomNr
   case gameState game of
-    Loading -> loading game
-    Dead    -> return game { player = killPlayer player }
-    Paused  -> return game
-    Running -> writeJSON ( return ( updateTraffic rInt (updatePlayerPosition game { elapsedTime = (elapsedTime game) + secs })))
+    Loading  -> loading game
+    Dead     -> return game { player = killPlayer player }
+    GameOver -> return game
+    Paused   -> return game
+    Running  -> writeJSON (return ( timeUp (updateTraffic rInt (updatePlayerPosition game { elapsedTime = (elapsedTime game) + secs }))))
+
+timeUp :: GTA -> GTA
+timeUp game | (timeLeft game - elapsedTime game) <= 1 = game {gameState = GameOver }
+            | otherwise                               = game
 
 enterOrLeaveCar :: GTA -> IO GTA
 enterOrLeaveCar game = if playerState (player game) == Walking
