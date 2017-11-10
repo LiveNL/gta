@@ -64,8 +64,8 @@ render game = do images <- mapM loadBMP names
                  let images' = zip names images
                  screenSize <- getScreenSize
                  return (scale 5 5 (translate (- x) (- y) (pictures (
-                   (map (block images') (blocks game)) ++ (map (draw images') (cars game)) ++
-                     (map (draw images') (people game)) ++ [(draw images' (player game))] ++ [drawPoints game screenSize]))))
+                   (map (block images') (blocks game)) ++ (map (draw images') (people game)) ++
+                     (map (draw images') (cars game)) ++ [(draw images' (player game))] ++ [drawPoints game screenSize]))))
  where names = splitOn "," list
        Position x y = getPos (player game)
 
