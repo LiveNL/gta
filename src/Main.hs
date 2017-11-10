@@ -202,4 +202,3 @@ updatePerson game rInt person
           personIndex = fromJust (elemIndex person (people game))
           sprite' | mod' (roundDecimals (elapsedTime game) 2) 0.5 == 0 = nextSprite (personSprite person)
                   | otherwise                                          = spriteState (personSprite person)
-

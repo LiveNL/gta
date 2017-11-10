@@ -15,6 +15,9 @@ import Data.Person
 import Data.Block
 import Data.Maybe
 
+import Debug.Trace
+import Data.Fixed (mod')
+
 import System.Directory
 
 data Player = Player
@@ -79,10 +82,12 @@ readWorld = do _ <- updateFile
                return (Game { cars = carsJSON x, people = peopleJSON x, blocks = blocksJSON x, highscore = highscoreJSON x })
 
 writeJSON :: IO GTA -> IO GTA
-writeJSON game = do g <- game
-                    r <- readJSON
-                    -- B.writeFile "./config/world_new.json" (encode GameJSON { carsJSON = carsJSON r, peopleJSON = peopleJSON r, blocksJSON = blocksJSON r, highscoreJSON = highscore g })
-                    return g
+writeJSON game= do g <- game
+                   if ((points) (player g) >= (highscore g) && mod' (roundDecimals (elapsedTime g) 2) 0.5 == 0) 
+                    then do r <- readJSON
+                            B.writeFile "./config/world_new.json" (encode GameJSON { carsJSON = carsJSON r, peopleJSON = peopleJSON r, blocksJSON = blocksJSON r, highscoreJSON = highscore g })
+                            return g
+                    else return g
 
 instance Movable Player where
   getPos Player{playerPosition} = Position (x playerPosition) (y playerPosition)
