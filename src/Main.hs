@@ -67,13 +67,14 @@ render game = do names <- (readFile "./config/sprites.txt")
                  screenSize <- getScreenSize
                  let images' = zip (lines names) images
                  return (scale 5 5 (translate (- x) (- y) (pictures (
-                   (map (block images') (blocks game)) ++
+                   (map (draw images') (blocks' game)) ++
                      (map (draw images') (people game)) ++
                        (map (draw images') (cars game)) ++
                          [(draw images' (player game))] ++
                            [drawTimer game screenSize] ++
                              [drawPoints game screenSize]))))
  where Position x y = getPos (player game)
+       blocks' game = moveBlocks (blocks game) [Sidewalk, Road, Tree, Building, Coin]
 
 drawPoints :: GTA -> (Int, Int) -> Picture
 drawPoints game (x, y) = translate (fromIntegral (-topLeftX) + x') (fromIntegral topLeftY + y') $ scale 0.05 0.05 $ pictures [rectangle, score]
