@@ -22,7 +22,8 @@ data GTA = Game
     blocks :: [Block],
     gameState :: GameState,
     elapsedTime :: Float,
-    highscore :: Int }
+    highscore :: Int,
+    timeLeft :: Float }
   deriving (Show, Generic)
 
 data GTAJSON = GameJSON
@@ -73,6 +74,6 @@ stringToGameState s
 updatePoints :: GTA -> GTA
 updatePoints game@Game{player} = game { player = updatePoints' player, highscore = updateHighscore player }
   where updatePoints' player@Player{points} = player { points = (points + 1)}
-        updateHighscore player@Player{points} | (points + 1) >= highscore game = (points + 1)
-                                              | otherwise                      = highscore game
+        updateHighscore player@Player{points} | points >= highscore game = points + 1
+                                              | otherwise                = highscore game
 
