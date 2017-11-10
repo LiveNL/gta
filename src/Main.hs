@@ -182,11 +182,11 @@ drawTimer game (x, y) = translate (fromIntegral (topLeftX) + x') (fromIntegral t
 
 timeLeftText :: GTA -> Picture
 timeLeftText game = text ("Time left: " ++ min ++ ":" ++ sec)
-  where tl2 = (timeLeft game) - (elapsedTime game)
-        secCalc = round (mod' (tl2) 60)
+  where tl      = timeLeft game - elapsedTime game
+        secCalc = round (mod' tl 60)
         sec | secCalc < 10 = "0" ++ show secCalc
             | otherwise    = show secCalc
-        minCalc = floor ((tl2) / 60)
+        minCalc = floor (tl / 60)
         min | minCalc < 10 = "0" ++ show minCalc
             | otherwise    = show minCalc
 
