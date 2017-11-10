@@ -54,27 +54,34 @@ handleKeys _                                          = return
 updateKeyState :: (KeyState, KeyState, KeyState, KeyState, Direction) -> GTA -> IO GTA
 updateKeyState (left', right', up', down', d') game@Game{player}
   | gameState game == Running = return (game { player = (updateKeyState' player) })
-  | otherwise = return game
+  | otherwise                 = return game
   where updateKeyState' player = player { keys = keys', playerDirection = d'}
-        keys' = Keys { left = left', right = right', up = up', down = down' }
+        keys'                  = Keys   { left = left',
+                                          right = right',
+                                          up = up',
+                                          down = down' }
 
 -- PICTURES
 render :: GTA -> IO Picture
-render game = do images <- mapM loadBMP names
-                 let images' = zip names images
+render game = do images     <- mapM loadBMP names
                  screenSize <- getScreenSize
+                 let images' = zip names images
                  return (scale 5 5 (translate (- x) (- y) (pictures (
-                   (map (block images') (blocks game)) ++ (map (draw images') (people game)) ++
-                     (map (draw images') (cars game)) ++ [(draw images' (player game))] ++ [drawTimer game screenSize] ++ [drawPoints game screenSize]))))
+                   (map (block images') (blocks game)) ++
+                     (map (draw images') (people game)) ++
+                       (map (draw images') (cars game)) ++
+                         [(draw images' (player game))] ++
+                           [drawTimer game screenSize] ++
+                             [drawPoints game screenSize]))))
  where names = splitOn "," list
        Position x y = getPos (player game)
 
 drawPoints :: GTA -> (Int, Int) -> Picture
 drawPoints game (x, y) = translate (fromIntegral (-topLeftX) + x') (fromIntegral topLeftY + y') $ scale 0.05 0.05 $ pictures [rectangle, score]
   where Position x' y' = getPos (player game)
-        topLeftX = (x `div` 5 `div` 2) - 2
-        topLeftY = (y `div` 5 `div` 2) - 8
-        score =  text ("Score: " ++ show (points (player game)) ++ " (" ++ show (highscore game) ++ ")")
+        topLeftX       = (x `div` 5 `div` 2) - 2
+        topLeftY       = (y `div` 5 `div` 2) - 8
+        score          = text ("Score: " ++ show (points (player game)) ++ " (" ++ show (highscore game) ++ ")")
         rectangle = pictures [ translate 740 45 $ color black $ rectangleSolid 1500 180,
                                translate 740 45 $ color white $ rectangleSolid 1480 160 ]
 
@@ -143,30 +150,19 @@ livingPeople game = filter (\x -> personVelocity x == 1) people'
 
 killPerson :: GTA -> GTA
 killPerson game = game { people = newPeople }
-  where newPeople = take deadPersonIndex (people game) ++ drop (1 + deadPersonIndex) (people game) ++ [newPerson]
-        newPerson = person { personPosition = (personPosition person), personSprite = sprite, personDirection = North, personVelocity = 0}
-        sprite = Sprite { spriteType = "person2", spriteState =  0 }
-        deadPersonIndex' = (elemIndex True (deadPerson game))
-        deadPersonIndex = fromJust deadPersonIndex'
-        person = (people game) !! deadPersonIndex
+  where newPeople        = take deadPersonIndex (people game) ++ drop (1 + deadPersonIndex) (people game) ++ [newPerson]
+        newPerson        = person { personPosition = (personPosition person), personSprite = sprite, personDirection = North, personVelocity = 0}
+        sprite           = Sprite { spriteType = "person2", spriteState =  0 }
+        deadPersonIndex' = (elemIndex True (close (player game) (people game)))
+        deadPersonIndex  = fromJust deadPersonIndex'
+        person           = (people game) !! deadPersonIndex
 
 removeCoin :: GTA -> GTA
 removeCoin game = game { blocks = newBlocks }
-  where newBlocks = take coinIndex (coins game) ++ drop (1 + coinIndex) (coins game) ++ blocks' game
-        coinIndex' = (elemIndex True (nearestCoin game))
-        coinIndex = fromJust coinIndex'
-
-nearestCoin :: GTA -> [Bool]
-nearestCoin game = map (canMove 1 p ) c'
-  where c' = [[x] | x <- c]
-        c = coins game
-        p = player game
-
-deadPerson :: GTA -> [Bool]
-deadPerson game = map (canMove 1 p ) c'
-  where c' = [[x] | x <- c]
-        c = people game
-        p = player game
+  where newBlocks  = take coinIndex (coins game) ++ drop (1 + coinIndex) (coins game) ++ blocks'
+        coinIndex' = (elemIndex True (close (player game) (coins game)))
+        coinIndex  = fromJust coinIndex'
+        blocks'    = moveBlocks (blocks game) [Sidewalk, Road, Wall, Tree, Building]
 
 leaveCar :: GTA -> GTA
 leaveCar game = game { cars = newCars, player = (carToPlayer (player game)) }
@@ -200,7 +196,7 @@ enterCar game =
   if isJust carIndex'
   then updateCars (game { player = (playerToCar (player game) car) })
   else game
-    where carIndex' = (elemIndex True (closeCars (player game) carsGame))
+    where carIndex' = (elemIndex True (close (player game) carsGame))
           carIndex = fromJust carIndex'
           car = carsGame !! carIndex
           updateCars game = game { cars = newCars }
@@ -245,5 +241,9 @@ updatePerson game rInt person
     where blocks'     = moveBlocks (blocks game) [Sidewalk]
           people'     = take personIndex (people game) ++ drop (1 + personIndex) (people game)
           personIndex = fromJust (elemIndex person (people game))
-          sprite' | mod' (roundDecimals (elapsedTime game) 2) 0.5 == 0 = nextSprite (personSprite person)
+          sprite' | mod' (roundDecimals (elapsedTime game) 2) 0.25 == 0 = nextSprite (personSprite person)
                   | otherwise                                          = spriteState (personSprite person)
+
+close :: (Movable a) => Player -> [a] -> [Bool]
+close p c = map (canMove 1 p ) c'
+  where c' = [[x] | x <- c]

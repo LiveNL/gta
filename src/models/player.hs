@@ -84,10 +84,10 @@ sprite player@Player{playerSprite} elapsedTime = Sprite { spriteType = spriteTyp
                          Driving -> spriteState playerSprite
 
 newPosition :: Keys -> Position -> (Position, Float)
-newPosition (Keys Down _    _    _   ) (Position x y) = (Position {x = x - 2, y = y     }, 1)
-newPosition (Keys _    Down _    _   ) (Position x y) = (Position {x = x + 2, y = y     }, 1)
-newPosition (Keys _    _    Down _   ) (Position x y) = (Position {x = x    , y = y + 2 }, 1)
-newPosition (Keys _    _    _    Down) (Position x y) = (Position {x = x    , y = y - 2 }, 1)
+newPosition (Keys Down _    _    _   ) (Position x y) = (Position {x = x - 1.5, y = y     }, 1)
+newPosition (Keys _    Down _    _   ) (Position x y) = (Position {x = x + 1.5, y = y     }, 1)
+newPosition (Keys _    _    Down _   ) (Position x y) = (Position {x = x    , y = y + 1.5 }, 1)
+newPosition (Keys _    _    _    Down) (Position x y) = (Position {x = x    , y = y - 1.5 }, 1)
 newPosition (Keys _    _    _    _   ) (Position x y) = (Position {x = x    , y = y     }, 0)
 
 carToPlayer :: Player -> Player
@@ -108,10 +108,6 @@ playerToCar player car =
       s' = carSprite car
       d' = getDir car
       p' = getPos car
-
-closeCars :: Player -> [Car] -> [Bool]
-closeCars p c = map (canMove 1 p ) c'
-  where c' = [[x] | x <- c]
 
 killPlayer :: Player -> Player
 killPlayer player@Player{} = player { playerSprite = Sprite { spriteType = "player1", spriteState =  2 }, playerVelocity = 2 }

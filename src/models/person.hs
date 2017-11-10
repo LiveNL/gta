@@ -29,7 +29,7 @@ instance Movable Person where
 
 newPersonPosition :: Person -> Person
 newPersonPosition person@(Person _ _ d _)
-  | d == North = move (Position 0    1)  person
-  | d == West  = move (Position (-1) 0)  person
-  | d == South = move (Position 0  (-1)) person
-  | otherwise  = move (Position 1    0)  person
+  | d == North = move (Position 0    0.5)  person
+  | d == West  = move (Position (-0.5) 0)  person
+  | d == South = move (Position 0  (-0.5)) person
+  | otherwise  = move (Position 0.5    0)  person
