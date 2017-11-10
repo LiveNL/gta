@@ -111,8 +111,8 @@ updateTraffic rInt game = (updatePeople (people game) rInt ) $ (updateCars (cars
 -- TODO: PLAYERSTUFF
 updatePlayerPosition :: GTA -> GTA
 updatePlayerPosition game@Game{player}
-  | canMove 1 player (cars game)         && ((playerState player) == Driving) = updatePoints game
-  | canMove 1 player (livingPeople game) && ((playerState player) == Driving) = killPerson game
+  | canMove 1 player (cars game)         && ((playerState player) == Driving) = game
+  | canMove 1 player (livingPeople game) && ((playerState player) == Driving) = updatePoints (killPerson game)
   | canMove 1 player (cars game)                                              = game
   | canMove 1 player (livingPeople game)                                      = game
   | canMove 4 player (blocks' game)                                           = game { player = (updatePlayerPosition' player elapsedTime') }
