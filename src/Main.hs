@@ -78,6 +78,25 @@ drawPoints game (x, y) = translate (fromIntegral (-topLeftX) + x') (fromIntegral
         rectangle = pictures [ translate 740 45 $ color black $ rectangleSolid 1500 180,
                                translate 740 45 $ color white $ rectangleSolid 1480 160 ]
 
+drawTimer :: GTA -> (Int, Int) -> Picture
+drawTimer game (x, y) = translate (fromIntegral (topLeftX) + x') (fromIntegral topLeftY + y') $ scale 0.05 0.05 $ pictures [rectangle, score]
+  where Position x' y' = getPos (player game)
+        topLeftX = (x `div` 5 `div` 2) - 60
+        topLeftY = (y `div` 5 `div` 2) - 8
+        score = timeLeftText game
+        rectangle = pictures [ translate 550 45 $ color black $ rectangleSolid 1150 180,
+                               translate 550 45 $ color white $ rectangleSolid 1130 160 ]
+
+timeLeftText :: GTA -> Picture
+timeLeftText game = text ("Time left: " ++ min ++ ":" ++ sec)
+  where tl2 = (timeLeft game) - (elapsedTime game)
+        secCalc = floor (mod' (tl2) 60)
+        sec | secCalc < 10 = "0" ++ show secCalc
+            | otherwise    = show secCalc
+        minCalc = floor ((tl2) / 60)
+        min | minCalc < 10 = "0" ++ show minCalc
+            | otherwise    = show minCalc
+
 -- GAME updates
 update :: Float -> GTA -> IO GTA
 update secs game@Game{player} = do
@@ -149,25 +168,6 @@ leaveCar game = game { cars = newCars, player = (carToPlayer (player game)) }
         Position x' y' = getPos (player game)
         s = playerSprite (player game)
         d = getDir (player game)
-
-drawTimer :: GTA -> (Int, Int) -> Picture
-drawTimer game (x, y) = translate (fromIntegral (topLeftX) + x') (fromIntegral topLeftY + y') $ scale 0.05 0.05 $ pictures [rectangle, score]
-  where Position x' y' = getPos (player game)
-        topLeftX = (x `div` 5 `div` 2) - 60
-        topLeftY = (y `div` 5 `div` 2) - 8
-        score = timeLeftText game
-        rectangle = pictures [ translate 550 45 $ color black $ rectangleSolid 1150 180,
-                               translate 550 45 $ color white $ rectangleSolid 1130 160 ]
-
-timeLeftText :: GTA -> Picture
-timeLeftText game = text ("Time left: " ++ min ++ ":" ++ sec)
-  where tl2 = (timeLeft game) - (elapsedTime game)
-        secCalc = round (mod' (tl2) 60)
-        sec | secCalc < 10 = "0" ++ show secCalc
-            | otherwise    = show secCalc
-        minCalc = floor ((tl2) / 60)
-        min | minCalc < 10 = "0" ++ show minCalc
-            | otherwise    = show minCalc
 
 enterCar :: GTA -> GTA
 enterCar game =
