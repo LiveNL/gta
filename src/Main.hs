@@ -104,8 +104,8 @@ update secs game@Game{player} = do
     Loading -> loading game
     Dead    -> return game { player = killPlayer player }
     Paused  -> return game
-    Init  -> return game
-    Running -> writeJSON ( return ( updateTraffic rInt (updatePlayerPosition game { elapsedTime = (elapsedTime game) + secs })))
+    Init    -> return game
+    Running -> writeJSON (return ( updateTraffic rInt (updatePlayerPosition game { elapsedTime = (elapsedTime game) + secs })))
 
 enterOrLeaveCar :: GTA -> IO GTA
 enterOrLeaveCar game = if playerState (player game) == Walking

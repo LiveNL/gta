@@ -6,6 +6,7 @@ import Data.Maybe
 import Control.Monad
 import GHC.Generics
 import System.Directory
+import Data.Fixed (mod')
 
 import qualified Data.ByteString.Lazy.Char8 as B
 
@@ -55,17 +56,17 @@ readJSON = do x <- (decode <$> getJSON) :: IO (Maybe GTAJSON)
               return ((fromJust x) :: GTAJSON)
 
 readWorld :: IO GTA
-readWorld = do -- _ <- updateFile
+readWorld = do _ <- updateFile
                x <- readJSON
                return Game { cars = carsJSON x, people = peopleJSON x, blocks = blocksJSON x, highscore = highscoreJSON x }
 
 writeJSON :: IO GTA -> IO GTA
 writeJSON game = do g <- game
-                    r <- readJSON
---                    B.writeFile "./config/world_new.json" ( encode
- --                     GameJSON { carsJSON = carsJSON r, peopleJSON = peopleJSON r,
-  --                      blocksJSON = blocksJSON r, highscoreJSON = highscore g })
-                    return g
+                    if ((points) (player g) >= (highscore g) && mod' (roundDecimals (elapsedTime g) 2) 2.5 == 0)
+                     then do r <- readJSON
+                             B.writeFile "./config/world_new.json" (encode GameJSON { carsJSON = carsJSON r, peopleJSON = peopleJSON r, blocksJSON = blocksJSON r, highscoreJSON = highscore g })
+                             return g
+                     else return g
 
 stringToGameState s
   | s == "Running" = Just Running
