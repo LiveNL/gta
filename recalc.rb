@@ -12,6 +12,7 @@ bds = grouped["Building"].first[:children]
 sws = grouped["Sidewalk"].first[:children]
 wls = grouped["Wall"].first[:children]
 trs = grouped["Tree"].first[:children]
+cns = grouped["Coin"].first[:children]
 newJson = {}
 
 rds.map{|x| x[:name] = "Road"}
@@ -19,8 +20,9 @@ bds.map{|x| x[:name] = "Building"}
 sws.map{|x| x[:name] = "Sidewalk"}
 wls.map{|x| x[:name] = "Wall"}
 trs.map{|x| x[:name] = "Tree"}
+cns.map{|x| x[:name] = "Coin"}
 
-blocks = sws + rds + bds + wls + trs
+blocks = sws + rds + bds + wls + trs + cns
 
 blocks_json = blocks.map do |block|
   x = block[:x].to_f + (block[:w].to_f / 2)

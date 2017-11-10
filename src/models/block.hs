@@ -15,7 +15,7 @@ data Block = Block
     blockSprite   :: Sprite }
   deriving (Show, Generic, FromJSON, ToJSON)
 
-data BlockType = Road | Sidewalk | Building | Wall | Tree
+data BlockType = Road | Sidewalk | Building | Wall | Tree | Coin
   deriving (Show, Eq, Generic, FromJSON, ToJSON)
 
 instance Movable Block where
@@ -38,5 +38,6 @@ block images block@(Block (Position x y) w h t s) = case t of
    Building -> draw images block
    Sidewalk -> draw images block
    Tree     -> draw images block
+   Coin     -> draw images block
    _        -> translate x y $ rectangleSolid w h
 
