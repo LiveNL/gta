@@ -13,9 +13,8 @@ import Helpers
 import Models.Block
 import Models.Car
 import Models.Person
+import Models.Position
 
--- TODO: Rename to models:
-import Data.Position
 
 data Player = Player
   { playerPosition  :: Position,

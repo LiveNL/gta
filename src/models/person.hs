@@ -2,9 +2,10 @@
 module Models.Person where
 
 import Data.Aeson
-import Graphics.Gloss
-import Data.Position
 import GHC.Generics
+import Graphics.Gloss
+
+import Models.Position
 
 data Person = Person
   { personPosition  :: Position,
@@ -21,7 +22,7 @@ instance Movable Person where
   getDir Person{personDirection} = personDirection
   setDir x person@Person{personDirection} = person { personDirection = x }
 
-  width _ = 10
+  width  _ = 10
   height _ = 10
 
   getSprite Person{personSprite} = Sprite (spriteType personSprite) (spriteState personSprite)

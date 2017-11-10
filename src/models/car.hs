@@ -5,8 +5,8 @@ import Data.Aeson
 import Graphics.Gloss
 import GHC.Generics
 
-import Data.Position
 import Models.Color
+import Models.Position
 
 data Car = Car
   { carPosition  :: Position,

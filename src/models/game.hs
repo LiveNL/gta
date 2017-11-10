@@ -9,12 +9,11 @@ import System.Directory
 
 import qualified Data.ByteString.Lazy.Char8 as B
 
-import Data.Position
-
 import Models.Block
 import Models.Car
 import Models.Person
 import Models.Player
+import Models.Position
 
 data GTA = Game
   { player :: Player,
@@ -67,7 +66,6 @@ writeJSON game = do g <- game
                         blocksJSON = blocksJSON r, highscoreJSON = highscore g })
                     return g
 
---stringToKeyState :: Text -> Maybe KeyState
 stringToGameState s
   | s == "Running" = Just Running
   | otherwise = Nothing

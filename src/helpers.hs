@@ -1,12 +1,13 @@
 module Helpers (canMove) where
 
-import Data.Position
 import Data.List
+
+import Models.Position
 
 canMove :: (Movable a, Movable b) => Int -> a -> [b] -> Bool
 canMove i a blocks = pointsAmount >= i
   where pointsAmount  = length (elemIndices True pointsInBlock)
-        pointsInBlock = concat (map (canMove' (getDir a) (coordinates a)) blocks)
+        pointsInBlock = concatMap (canMove' (getDir a) (coordinates a)) blocks
 
 canMove' :: (Movable a) => Direction -> [(Float, Float)] -> a -> [Bool]
 canMove' dir crds block = inObject dir crds (coordinates block)

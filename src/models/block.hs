@@ -2,9 +2,10 @@
 module Models.Block where
 
 import Data.Aeson
-import Graphics.Gloss
-import Data.Position
 import GHC.Generics
+import Graphics.Gloss
+
+import Models.Position
 
 data Block = Block
   { blockPosition :: Position,
@@ -18,14 +19,13 @@ data BlockType = Road | Sidewalk | Building | Wall | Tree
   deriving (Show, Eq, Generic, FromJSON, ToJSON)
 
 instance Movable Block where
-  getPos Block{blockPosition} = Position (x blockPosition) (y blockPosition)
+  getPos    Block{blockPosition} = Position (x blockPosition) (y blockPosition)
+  getSprite Block{blockSprite}   = Sprite (spriteType blockSprite) (spriteState blockSprite)
 
-  width = blockWidth
-  height = blockHeight
-
+  width    = blockWidth
+  height   = blockHeight
   getDir _ = North
 
-  getSprite Block{blockSprite} = Sprite (spriteType blockSprite) (spriteState blockSprite)
 
 moveBlocks :: [Block] -> [BlockType] -> [Block]
 moveBlocks xs t = filter f xs
@@ -33,10 +33,10 @@ moveBlocks xs t = filter f xs
 
 block :: [([Char],Picture)] -> Block -> Picture
 block images block@(Block (Position x y) w h t s) = case t of
-   Road -> draw images block
-   Wall -> translate x y $ color (greyN 0.5) $ rectangleSolid 0 0
+   Road     -> draw images block
+   Wall     -> translate x y $ color (greyN 0.5) $ rectangleSolid 0 0
    Building -> draw images block
    Sidewalk -> draw images block
-   Tree -> draw images block
-   _ -> translate x y $ rectangleSolid w h
+   Tree     -> draw images block
+   _        -> translate x y $ rectangleSolid w h
 

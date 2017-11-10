@@ -8,7 +8,6 @@ import Data.List
 import Data.List.Split
 
 import Helpers
-import Data.Position
 import Data.Maybe
 import System.Random
 
@@ -19,6 +18,7 @@ import Models.Car
 import Models.Game
 import Models.Person
 import Models.Player
+import Models.Position
 
 -- GAME settings
 main :: IO ()
