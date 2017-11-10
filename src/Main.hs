@@ -35,7 +35,7 @@ initialState = Game
       playerDirection = North, playerWidth = 10, playerHeight = 10,
       playerSprite    = Sprite { spriteType = "player1", spriteState = 1 }, playerVelocity = 0, playerState = Walking, points = 0
     },
-    cars = [], people = [], blocks = [], gameState = Loading, elapsedTime = 0, highscore = 0
+    cars = [], people = [], blocks = [], gameState = Loading, elapsedTime = 0, highscore = 0, timeLeft = 65
   }
 
 list = "./sprites/car1_1.bmp,./sprites/car2_1.bmp,./sprites/car3_1.bmp,./sprites/car4_1.bmp,./sprites/car5_1.bmp,./sprites/car6_1.bmp,./sprites/car7_1.bmp,./sprites/car8_1.bmp,./sprites/person1_1.bmp,./sprites/person1_2.bmp,./sprites/person1_3.bmp,./sprites/person2_1.bmp,./sprites/person2_2.bmp,./sprites/person2_3.bmp,./sprites/player1_1.bmp,./sprites/player1_2.bmp,./sprites/player1_3.bmp,./sprites/road_1.bmp,./sprites/sidewalk_1.bmp,./sprites/building_1.bmp,./sprites/tree1_1.bmp,./sprites/tree2_1.bmp,./sprites/person2_0.bmp,./sprites/player1_0.bmp"
@@ -65,7 +65,7 @@ render game = do images <- mapM loadBMP names
                  screenSize <- getScreenSize
                  return (scale 5 5 (translate (- x) (- y) (pictures (
                    (map (block images') (blocks game)) ++ (map (draw images') (people game)) ++
-                     (map (draw images') (cars game)) ++ [(draw images' (player game))] ++ [drawPoints game screenSize]))))
+                     (map (draw images') (cars game)) ++ [(draw images' (player game))] ++ [drawTimer game screenSize] ++ [drawPoints game screenSize]))))
  where names = splitOn "," list
        Position x y = getPos (player game)
 
@@ -149,6 +149,25 @@ leaveCar game = game { cars = newCars, player = (carToPlayer (player game)) }
         Position x' y' = getPos (player game)
         s = playerSprite (player game)
         d = getDir (player game)
+
+drawTimer :: GTA -> (Int, Int) -> Picture
+drawTimer game (x, y) = translate (fromIntegral (topLeftX) + x') (fromIntegral topLeftY + y') $ scale 0.05 0.05 $ pictures [rectangle, score]
+  where Position x' y' = getPos (player game)
+        topLeftX = (x `div` 5 `div` 2) - 60
+        topLeftY = (y `div` 5 `div` 2) - 8
+        score = timeLeftText game
+        rectangle = pictures [ translate 550 45 $ color black $ rectangleSolid 1150 180,
+                               translate 550 45 $ color white $ rectangleSolid 1130 160 ]
+
+timeLeftText :: GTA -> Picture
+timeLeftText game = text ("Time left: " ++ min ++ ":" ++ sec)
+  where tl2 = (timeLeft game) - (elapsedTime game)
+        secCalc = round (mod' (tl2) 60)
+        sec | secCalc < 10 = "0" ++ show secCalc
+            | otherwise    = show secCalc
+        minCalc = floor ((tl2) / 60)
+        min | minCalc < 10 = "0" ++ show minCalc
+            | otherwise    = show minCalc
 
 enterCar :: GTA -> GTA
 enterCar game =

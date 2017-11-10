@@ -22,7 +22,8 @@ data GTA = Game
     blocks :: [Block],
     gameState :: GameState,
     elapsedTime :: Float,
-    highscore :: Int }
+    highscore :: Int,
+    timeLeft :: Float }
   deriving (Show, Generic)
 
 data GTAJSON = GameJSON
