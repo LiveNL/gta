@@ -248,6 +248,4 @@ updatePerson game rInt person
           sprite' | mod' (roundDecimals (elapsedTime game) 2) 0.25 == 0 = nextSprite (personSprite person)
                   | otherwise                                          = spriteState (personSprite person)
 
-close :: (Movable a, Movable b) => a -> [b] -> [Bool]
-close p c = map (canMove 1 p ) c'
-  where c' = [[x] | x <- c]
+
