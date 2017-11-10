@@ -36,7 +36,7 @@ initialState = Game
       playerDirection = North, playerWidth = 10, playerHeight = 10,
       playerSprite    = Sprite { spriteType = "player1", spriteState = 1 }, playerVelocity = 0, playerState = Walking, points = 0
     },
-    cars = [], people = [], blocks = [], gameState = Loading, elapsedTime = 0, highscore = 0, timeLeft = 65
+    cars = [], people = [], blocks = [], gameState = Loading, elapsedTime = 0, highscore = 0, timeLeft = 65, coinCount = (0,10)
   }
 
 -- KEY updates
@@ -62,7 +62,7 @@ updateKeyState (left', right', up', down', d') game@Game{player}
 
 -- PICTURES
 render :: GTA -> IO Picture
-render game = do names <- (readFile "./config/sprites.txt")
+render game = do names      <- (readFile "./config/sprites.txt")
                  images     <- mapM loadBMP (lines names)
                  screenSize <- getScreenSize
                  let images' = zip (lines names) images
@@ -81,9 +81,10 @@ drawPoints game (x, y) = translate (fromIntegral (-topLeftX) + x') (fromIntegral
   where Position x' y' = getPos (player game)
         topLeftX       = (x `div` 5 `div` 2) - 2
         topLeftY       = (y `div` 5 `div` 2) - 8
-        score          = text ("Score: " ++ show (points (player game)) ++ " (" ++ show (highscore game) ++ ")")
-        rectangle = pictures [ translate 740 45 $ color black $ rectangleSolid 1500 180,
-                               translate 740 45 $ color white $ rectangleSolid 1480 160 ]
+        score          = text ("Score: " ++ show (points (player game)) ++ " (" ++ show (highscore game) ++ ")" ++ cccnt)
+        cccnt          = " -- Coins: " ++ show (fst (coinCount game)) ++ "/" ++ show (snd (coinCount game))
+        rectangle = pictures [ translate 1000 45 $ color black $ rectangleSolid 2020 180,
+                               translate 1000 45 $ color white $ rectangleSolid 2000 160 ]
 
 -- GAME updates
 update :: Float -> GTA -> IO GTA
@@ -160,7 +161,7 @@ killPerson game = game { people = newPeople }
         close' c         = close c [(player game)]
 
 removeCoin :: GTA -> GTA
-removeCoin game = game { blocks = newBlocks }
+removeCoin game = game { blocks = newBlocks, coinCount = ((fst (coinCount game) + 1), (snd (coinCount game)))}
   where newBlocks  = take coinIndex (coins game) ++ drop (1 + coinIndex) (coins game) ++ blocks'
         coinIndex' = (elemIndex True (concatMap close' (coins game)))
         coinIndex  = fromJust coinIndex'
