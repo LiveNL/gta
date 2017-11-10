@@ -6,7 +6,7 @@ import Graphics.Gloss
 import GHC.Generics
 
 import Data.Position
-import Data.Color
+import Models.Color
 
 data Car = Car
   { carPosition  :: Position,
