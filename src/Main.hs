@@ -131,14 +131,14 @@ updatePlayerPosition :: GTA -> GTA
 updatePlayerPosition game@Game{player}
   | canMove 1 player (cars game)         && ((playerState player) == Driving) = game
   | canMove 1 player (cars game)         && ((playerState player) == Driving) = updatePoints game
+  | any canMove'' (livingPeople game)    && ((playerState player) == Driving) = updatePoints (killPerson game)
   | any canMove'' (coins game)                                                = removeCoin (updatePoints game)
-  | canMove 1 player (livingPeople game) && ((playerState player) == Driving) = updatePoints (killPerson game)
   | canMove 1 player (cars game)                                              = game
   | canMove 1 player (livingPeople game)                                      = game
   | canMove 4 player (blocks' game)                                           = game { player = (updatePlayerPosition' player elapsedTime') }
   | otherwise = game
   where elapsedTime' = elapsedTime game
-        canMove'' coin = canMove 1 coin [player]
+        canMove'' x = canMove 1 x [player]
 
 blocks' :: GTA -> [Block]
 blocks' game = moveBlocks (blocks game) [Sidewalk, Road, Wall, Tree]
@@ -155,9 +155,10 @@ killPerson game = game { people = newPeople }
   where newPeople        = take deadPersonIndex (people game) ++ drop (1 + deadPersonIndex) (people game) ++ [newPerson]
         newPerson        = person { personPosition = (personPosition person), personSprite = sprite, personDirection = North, personVelocity = 0}
         sprite           = Sprite { spriteType = "person2", spriteState =  0 }
-        deadPersonIndex' = (elemIndex True (close (player game) (people game)))
+        deadPersonIndex' = (elemIndex True (concatMap close' (people game)))
         deadPersonIndex  = fromJust deadPersonIndex'
         person           = (people game) !! deadPersonIndex
+        close' c         = close c [(player game)]
 
 removeCoin :: GTA -> GTA
 removeCoin game = game { blocks = newBlocks }
