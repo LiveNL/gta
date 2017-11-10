@@ -57,6 +57,7 @@ end
 newJson[:blocksJSON] = blocks_json
 newJson[:peopleJSON] = people_json
 newJson[:carsJSON] = cars_json
+newJson[:highscoreJSON] = 0
 
 n = MultiJson.dump newJson, pretty: true
 File.open("config/world.json", 'w') { |file| file.write(n) }

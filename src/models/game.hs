@@ -54,16 +54,16 @@ readJSON = do x <- (decode <$> getJSON) :: IO (Maybe GTAJSON)
               return ((fromJust x) :: GTAJSON)
 
 readWorld :: IO GTA
-readWorld = do _ <- updateFile
+readWorld = do -- _ <- updateFile
                x <- readJSON
                return Game { cars = carsJSON x, people = peopleJSON x, blocks = blocksJSON x, highscore = highscoreJSON x }
 
 writeJSON :: IO GTA -> IO GTA
 writeJSON game = do g <- game
                     r <- readJSON
-                    B.writeFile "./config/world_new.json" ( encode
-                      GameJSON { carsJSON = carsJSON r, peopleJSON = peopleJSON r,
-                        blocksJSON = blocksJSON r, highscoreJSON = highscore g })
+--                    B.writeFile "./config/world_new.json" ( encode
+ --                     GameJSON { carsJSON = carsJSON r, peopleJSON = peopleJSON r,
+  --                      blocksJSON = blocksJSON r, highscoreJSON = highscore g })
                     return g
 
 stringToGameState s

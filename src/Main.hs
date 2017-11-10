@@ -164,8 +164,8 @@ enterCar game =
 
 updateCars :: [Car] -> Int -> GTA -> GTA
 updateCars cars rInt game = game { cars = updateCars', gameState = updateGameState }
-  where update = map (updateCar game rInt) cars
-        updateCars' = map snd update
+  where updateCars' = map snd update
+        update      = map (updateCar game rInt) cars
         updateGameState | elem Dead (map fst update) = Dead
                         | otherwise = gameState game
 
@@ -174,11 +174,11 @@ updateCar :: GTA -> Int -> Car -> (GameState, Car)
 updateCar game rInt car@Car{velocity} = case velocity of
   0 -> (Running, car)
   1 | canMove 4 car walls' -> (Running, (changeDirR rInt car))
-    | canMove 1 car cars' -> (Running, changeDir 2 car)
+    | canMove 1 car cars'  -> (Running, changeDir 2 car)
     | canMove 1 (player game) [car] && (playerState (player game) == Walking ) -> (Dead, car)
     | canMove 1 car [(player game)] -> (Running, car)
-    | canMove 4 car blocks' -> (Running, newCarPosition car)
-    | otherwise -> (Running, (changeDir rInt car))
+    | canMove 4 car blocks'         -> (Running, newCarPosition car)
+    | otherwise                     -> (Running, (changeDir rInt car))
          where blocks' = moveBlocks (blocks game) [Road]
                walls' = moveBlocks (blocks game) [Wall]
                carIndex = fromJust (elemIndex car (cars game))
@@ -186,20 +186,20 @@ updateCar game rInt car@Car{velocity} = case velocity of
 
 -- TODO: PERSONstuff
 updatePeople :: [Person] -> Int -> GTA -> GTA
-updatePeople people rInt game = game { people = updatePeople' }
-  where updatePeople' = map (updatePerson game rInt) people
+updatePeople people rInt game = game { people = (map (updatePerson game rInt) people) }
 
 updatePerson :: GTA -> Int -> Person -> Person
 updatePerson game rInt person
-  | personVelocity person == 0 = person
-  | canMove 1 person (cars game) = changeDir rInt person
-  | canMove 1 person people' = changeDirR rInt person
+  | personVelocity person == 0     = person
+  | canMove 1 person (cars game)   = changeDir rInt person
+  | canMove 1 person people'       = changeDirR rInt person
   | canMove 1 person [player game] = changeDirR rInt person
-  | canMove 4 person blocks' = newPersonPosition person { personSprite = Sprite { spriteType = spriteType (personSprite person), spriteState = sprite' }}
-  | otherwise = changeDirR rInt person
-    where blocks' = moveBlocks (blocks game) [Sidewalk]
-          people' = take personIndex (people game) ++ drop (1 + personIndex) (people game)
+  | canMove 4 person blocks'       = newPersonPosition person { personSprite =
+                                       Sprite { spriteType = spriteType (personSprite person), spriteState = sprite' }}
+  | otherwise                      = changeDirR rInt person
+    where blocks'     = moveBlocks (blocks game) [Sidewalk]
+          people'     = take personIndex (people game) ++ drop (1 + personIndex) (people game)
           personIndex = fromJust (elemIndex person (people game))
           sprite' | mod' (roundDecimals (elapsedTime game) 2) 0.5 == 0 = nextSprite (personSprite person)
-                  | otherwise = spriteState (personSprite person)
+                  | otherwise                                          = spriteState (personSprite person)
 
