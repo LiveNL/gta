@@ -1,18 +1,17 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Data.Color where
+module Models.Color where
 
+import Control.Monad
 import Data.Aeson
 import Graphics.Gloss
-import Control.Monad
 
 instance FromJSON Color where
   parseJSON (String s) = maybe mzero return $ stringToColor s
-  parseJSON _ = mzero
+  parseJSON _          = mzero
 
---stringToKeyState :: Text -> Maybe KeyState
 stringToColor s
-  | s == "red" = Just red
-  | s == "blue" = Just blue
+  | s == "blue"   = Just blue
+  | s == "red"    = Just red
+  | s == "white"  = Just white
   | s == "yellow" = Just yellow
-  | s == "white" = Just white
   | otherwise = Nothing

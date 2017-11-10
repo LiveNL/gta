@@ -1,12 +1,12 @@
 {-# LANGUAGE DeriveGeneric, NamedFieldPuns, DeriveAnyClass #-}
-module Data.Car where
+module Models.Car where
 
 import Data.Aeson
 import Graphics.Gloss
 import GHC.Generics
 
-import Data.Position
-import Data.Color
+import Models.Color
+import Models.Position
 
 data Car = Car
   { carPosition  :: Position,
@@ -32,3 +32,10 @@ instance Movable Car where
                else 30
 
   getSprite Car{carSprite} = Sprite (spriteType carSprite) (spriteState carSprite)
+
+newCarPosition :: Car -> Car
+newCarPosition car@(Car (Position _ _) _ d _) = case d of
+  North -> move (Position 0    1)  car
+  West  -> move (Position (-1) 0)  car
+  South -> move (Position 0  (-1)) car
+  _     -> move (Position 1    0)  car

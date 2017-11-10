@@ -63,3 +63,5 @@ cabal.project.local
 # algorithms
 *.alg
 *.loa
+
+config/world.json

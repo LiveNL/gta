@@ -1,11 +1,11 @@
 {-# LANGUAGE DeriveGeneric, NamedFieldPuns, DeriveAnyClass #-}
-module Data.Position where
+module Models.Position where
 
-import Graphics.Gloss
-import GHC.Generics
 import Data.Aeson
 import Data.Maybe
 import Debug.Trace
+import GHC.Generics
+import Graphics.Gloss
 
 data Position = Position
   { x :: Float,
@@ -38,15 +38,15 @@ draw images a = translate x y $ scale w'' h'' $ rotate angle $ image
               else (height a) / fromIntegral w'
 
         image@(Bitmap w' h' _ True) = fromJust (lookup name images)
-        name = "./sprites/" ++ (spriteType s) ++ "_" ++ show (spriteState s) ++ ".bmp"
-        d = getDir a
-        s = getSprite a
+        name         = "./sprites/" ++ (spriteType s) ++ "_" ++ show (spriteState s) ++ ".bmp"
+        d            = getDir a
+        s            = getSprite a
         Position x y = getPos a
 
 
 move :: (Movable a) => Position -> a -> a
 move (Position dx dy) a = setPos (Position (x + dx) (y + dy)) a
-  where (Position x y) = getPos a
+  where Position x y = getPos a
 
 data Direction = North | East | South | West
   deriving (Show, Enum, Eq, Generic, FromJSON, ToJSON)
@@ -59,11 +59,11 @@ coordinates a = [(x'-w',y'-h'),(x'+w',y'-h'),(x'+w',y'+h'),(x'-w',y'+h')]
 
 next :: Direction -> Direction
 next West = North
-next d = succ d
+next d    = succ d
 
 prev :: Direction -> Direction
 prev North = West
-prev d = pred d
+prev d     = pred d
 
 changeDir :: (Movable a) => Int -> a -> a
 changeDir rInt a = case rInt of
