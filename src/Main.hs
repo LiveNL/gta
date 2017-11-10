@@ -39,8 +39,6 @@ initialState = Game
     cars = [], people = [], blocks = [], gameState = Loading, elapsedTime = 0, highscore = 0, timeLeft = 65
   }
 
-list = "./sprites/car1_1.bmp,./sprites/car2_1.bmp,./sprites/car3_1.bmp,./sprites/car4_1.bmp,./sprites/car5_1.bmp,./sprites/car6_1.bmp,./sprites/car7_1.bmp,./sprites/car8_1.bmp,./sprites/person1_1.bmp,./sprites/person1_2.bmp,./sprites/person1_3.bmp,./sprites/person2_1.bmp,./sprites/person2_2.bmp,./sprites/person2_3.bmp,./sprites/player1_1.bmp,./sprites/player1_2.bmp,./sprites/player1_3.bmp,./sprites/road_1.bmp,./sprites/sidewalk_1.bmp,./sprites/building_1.bmp,./sprites/tree1_1.bmp,./sprites/tree2_1.bmp,./sprites/person2_0.bmp,./sprites/player1_0.bmp,./sprites/coin_1.bmp,./sprites/coin_2.bmp,./sprites/coin_3.bmp,./sprites/coin_4.bmp"
-
 -- KEY updates
 handleKeys :: Event -> GTA -> IO GTA
 handleKeys (EventKey (SpecialKey KeyUp)    s _ _) = updateKeyState (Up, Up, s , Up, North)
@@ -64,9 +62,10 @@ updateKeyState (left', right', up', down', d') game@Game{player}
 
 -- PICTURES
 render :: GTA -> IO Picture
-render game = do images     <- mapM loadBMP names
+render game = do names <- (readFile "./config/sprites.txt")
+                 images     <- mapM loadBMP (lines names)
                  screenSize <- getScreenSize
-                 let images' = zip names images
+                 let images' = zip (lines names) images
                  return (scale 5 5 (translate (- x) (- y) (pictures (
                    (map (block images') (blocks game)) ++
                      (map (draw images') (people game)) ++
@@ -74,8 +73,7 @@ render game = do images     <- mapM loadBMP names
                          [(draw images' (player game))] ++
                            [drawTimer game screenSize] ++
                              [drawPoints game screenSize]))))
- where names = splitOn "," list
-       Position x y = getPos (player game)
+ where Position x y = getPos (player game)
 
 drawPoints :: GTA -> (Int, Int) -> Picture
 drawPoints game (x, y) = translate (fromIntegral (-topLeftX) + x') (fromIntegral topLeftY + y') $ scale 0.05 0.05 $ pictures [rectangle, score]
@@ -164,7 +162,7 @@ removeCoin :: GTA -> GTA
 removeCoin game = game { blocks = newBlocks }
   where newBlocks  = take coinIndex (coins game) ++ drop (1 + coinIndex) (coins game) ++ blocks'
         coinIndex' = (elemIndex True (concatMap close' (coins game)))
-        coinIndex  = trace (show coinIndex') $ fromJust coinIndex'
+        coinIndex  = fromJust coinIndex'
         blocks'    = moveBlocks (blocks game) [Sidewalk, Road, Wall, Tree, Building]
         close' c   = close c [(player game)]
 
