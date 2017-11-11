@@ -38,7 +38,7 @@ initialState = Game
     cars = [], people = [], blocks = [], gameState = Loading, elapsedTime = 0, highscore = 0, timeLeft = 65
   }
 
-list = "./sprites/car1_1.bmp,./sprites/car2_1.bmp,./sprites/car3_1.bmp,./sprites/car4_1.bmp,./sprites/car5_1.bmp,./sprites/car6_1.bmp,./sprites/car7_1.bmp,./sprites/car8_1.bmp,./sprites/person1_1.bmp,./sprites/person1_2.bmp,./sprites/person1_3.bmp,./sprites/person2_1.bmp,./sprites/person2_2.bmp,./sprites/person2_3.bmp,./sprites/player1_1.bmp,./sprites/player1_2.bmp,./sprites/player1_3.bmp,./sprites/road_1.bmp,./sprites/sidewalk_1.bmp,./sprites/building_1.bmp,./sprites/tree1_1.bmp,./sprites/tree2_1.bmp,./sprites/person2_0.bmp,./sprites/player1_0.bmp"
+list = "./sprites/car1_1.bmp,./sprites/car2_1.bmp,./sprites/car3_1.bmp,./sprites/car4_1.bmp,./sprites/car5_1.bmp,./sprites/car6_1.bmp,./sprites/car7_1.bmp,./sprites/car8_1.bmp,./sprites/person1_1.bmp,./sprites/person1_2.bmp,./sprites/person1_3.bmp,./sprites/person2_1.bmp,./sprites/person2_2.bmp,./sprites/person2_3.bmp,./sprites/player1_1.bmp,./sprites/player1_2.bmp,./sprites/player1_3.bmp,./sprites/road_1.bmp,./sprites/sidewalk_1.bmp,./sprites/building_1.bmp,./sprites/tree1_1.bmp,./sprites/tree2_1.bmp,./sprites/person2_0.bmp,./sprites/player1_0.bmp,./sprites/coin_1.bmp,./sprites/coin_2.bmp,./sprites/coin_3.bmp,./sprites/coin_4.bmp"
 
 -- KEY updates
 handleKeys :: Event -> GTA -> IO GTA
@@ -108,12 +108,13 @@ update :: Float -> GTA -> IO GTA
 update secs game@Game{player} = do
   rInt <- randomNr
   case gameState game of
-    Loading  -> loading game
-    Dead     -> return game { player = killPlayer player }
+    Loading -> loading game
+    Dead    -> return game { player = killPlayer player }
     GameOver -> return game
-    Paused   -> return game
-    Running  -> writeJSON (return ( timeUp (updateTraffic rInt (updatePlayerPosition game { elapsedTime = (elapsedTime game) + secs }))))
-
+    Paused  -> return game
+    Running -> writeJSON ( return ( timeUp (updateCoins elapsedTime' (updateTraffic rInt (updatePlayerPosition game { elapsedTime = elapsedTime' + secs })))))
+  where elapsedTime' = elapsedTime game
+  
 timeUp :: GTA -> GTA
 timeUp game | (timeLeft game - elapsedTime game) <= 1 = game {gameState = GameOver }
             | otherwise                               = game
@@ -138,10 +139,21 @@ randomNr = getStdRandom (randomR (0,2))
 updateTraffic :: Int -> GTA -> GTA
 updateTraffic rInt game = (updatePeople (people game) rInt ) $ (updateCars (cars game) rInt game)
 
+updateCoins :: Float -> GTA -> GTA
+updateCoins rInt game@Game{blocks} = game { blocks = (blocks'' ++ coins') }
+  where sprite' coin       = Sprite { spriteType = spriteType (blockSprite coin), spriteState = spriteState' coin }
+        coins'             = map updateSprite (coins game)
+        updateSprite coin' = coin' { blockSprite = sprite' coin' }
+        blocks''           = filter (\x -> blockType x /= Coin) blocks
+        spriteState' coin | mod' (roundDecimals (elapsedTime game) 3) 0.125 == 0 = nextSprite (blockSprite coin)
+                          | otherwise                                            = spriteState (blockSprite coin)
+
 -- TODO: PLAYERSTUFF
 updatePlayerPosition :: GTA -> GTA
 updatePlayerPosition game@Game{player}
   | canMove 1 player (cars game)         && ((playerState player) == Driving) = game
+  | canMove 1 player (cars game)         && ((playerState player) == Driving) = updatePoints game
+  | canMove 1 player (coins game)                                             = removeCoin (updatePoints game)
   | canMove 1 player (livingPeople game) && ((playerState player) == Driving) = updatePoints (killPerson game)
   | canMove 1 player (cars game)                                              = game
   | canMove 1 player (livingPeople game)                                      = game
@@ -152,19 +164,33 @@ updatePlayerPosition game@Game{player}
 blocks' :: GTA -> [Block]
 blocks' game = moveBlocks (blocks game) [Sidewalk, Road, Wall, Tree]
 
+coins :: GTA -> [Block]
+coins game = filter (\x -> blockType x == Coin) (blocks game)
+
 livingPeople :: GTA -> [Person]
 livingPeople game = filter (\x -> personVelocity x == 1) people'
   where people' = people game
 
 killPerson :: GTA -> GTA
-killPerson game = updatePeople
-  where updatePeople = game { people = newPeople }
-        newPeople = take deadPersonIndex (people game) ++ drop (1 + deadPersonIndex) (people game) ++ [newPerson]
+killPerson game = game { people = newPeople }
+  where newPeople = take deadPersonIndex (people game) ++ drop (1 + deadPersonIndex) (people game) ++ [newPerson]
         newPerson = person { personPosition = (personPosition person), personSprite = sprite, personDirection = North, personVelocity = 0}
         sprite = Sprite { spriteType = "person2", spriteState =  0 }
         deadPersonIndex' = (elemIndex True (deadPerson game))
         deadPersonIndex = fromJust deadPersonIndex'
         person = (people game) !! deadPersonIndex
+
+removeCoin :: GTA -> GTA
+removeCoin game = game { blocks = newBlocks }
+  where newBlocks = take coinIndex (coins game) ++ drop (1 + coinIndex) (coins game) ++ blocks' game
+        coinIndex' = (elemIndex True (nearestCoin game))
+        coinIndex = fromJust coinIndex'
+
+nearestCoin :: GTA -> [Bool]
+nearestCoin game = map (canMove 1 p ) c'
+  where c' = [[x] | x <- c]
+        c = coins game
+        p = player game
 
 deadPerson :: GTA -> [Bool]
 deadPerson game = map (canMove 1 p ) c'
