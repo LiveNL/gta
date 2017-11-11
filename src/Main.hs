@@ -45,10 +45,10 @@ handleKeys (EventKey (SpecialKey KeyUp)    s _ _) = updateKeyState (Up, Up, s , 
 handleKeys (EventKey (SpecialKey KeyDown)  s _ _) = updateKeyState (Up, Up, Up, s , South)
 handleKeys (EventKey (SpecialKey KeyLeft)  s _ _) = updateKeyState (s , Up, Up, Up, West )
 handleKeys (EventKey (SpecialKey KeyRight) s _ _) = updateKeyState (Up, s , Up, Up, East )
-handleKeys (EventKey (Char 's')            Down  _ _) = changeGameState
-handleKeys (EventKey (Char 'p')            Down  _ _) = changeGameState
+handleKeys (EventKey (Char 's')            Down  _ _) = changeGameState 's'
+handleKeys (EventKey (Char 'p')            Down  _ _) = changeGameState 'p'
 handleKeys (EventKey (Char 'c')            Down  _ _) = enterOrLeaveCar
-handleKeys (EventKey (Char 'r')            Down  _ _) = return . return initialState
+handleKeys (EventKey (Char 'r')            Down  _ _) = changeGameState 'r'
 handleKeys _                                          = return
 
 updateKeyState :: (KeyState, KeyState, KeyState, KeyState, Direction) -> GTA -> IO GTA
@@ -136,13 +136,10 @@ update :: Float -> GTA -> IO GTA
 update secs game@Game{player} = do
   rInt <- randomNr
   case gameState game of
-    Loading   -> loading game
     Dead      -> return game { player = killPlayer player }
-    Completed -> return game
-    GameOver  -> return game
-    Paused    -> return game
-    Init      -> return game
     Running   -> writeJSON ( return ( timeUp (updateCoins elapsedTime' (updateTraffic rInt (updatePlayerPosition game { elapsedTime = elapsedTime' + secs })))))
+    Loading   -> loading game
+    _         -> return game
   where elapsedTime' = elapsedTime game
 
 timeUp :: GTA -> GTA
@@ -154,16 +151,23 @@ enterOrLeaveCar game = if playerState (player game) == Walking
                        then return (enterCar game)
                        else return (leaveCar game)
 
-changeGameState :: GTA -> IO GTA
-changeGameState game = case gameState game of
-  Running -> return game { gameState = Paused }
-  Paused  -> return game { gameState = Running }
-  Init    -> return game { gameState = Loading }
-  _       -> return game
+changeGameState :: Char -> GTA -> IO GTA
+changeGameState c game | c == 's'  = case gameState game of
+                                      Init   -> return game { gameState = Loading }
+                                      Paused -> return game { gameState = Running }
+                                      _      -> return game
+                       | c == 'r'  = case gameState game of
+                                      Running -> return game { gameState = Loading }
+                                      _       -> return game
+                       | otherwise = case gameState game of
+                                      Running -> return game { gameState = Paused }
+                                      Paused  -> return game { gameState = Running }
+                                      Init    -> return game { gameState = Loading }
+                                      _       -> return game
 
 loading :: GTA -> IO GTA
 loading game = do x <- readWorld
-                  return game { cars = cars x, blocks = blocks x, people = people x, highscore = highscore x, gameState = Running }
+                  return initialState { cars = cars x, blocks = blocks x, people = people x, highscore = highscore x, gameState = Running }
 
 randomNr :: IO Int
 randomNr = getStdRandom (randomR (0,2))
