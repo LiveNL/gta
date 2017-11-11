@@ -12,6 +12,16 @@ data Position = Position
     y :: Float }
   deriving (Show, Generic, Eq, FromJSON, ToJSON)
 
+data Sprite = Sprite
+  {
+    spriteType  :: String,
+    spriteState :: Int
+  }
+  deriving (Show, Eq, Generic, FromJSON, ToJSON)
+
+data Direction = North | East | South | West
+  deriving (Show, Enum, Eq, Generic, FromJSON, ToJSON)
+
 class Movable a where
   getPos :: a -> Position
   setPos :: Position -> a -> a
@@ -47,12 +57,9 @@ move :: (Movable a) => Position -> a -> a
 move (Position dx dy) a = setPos (Position (x + dx) (y + dy)) a
   where Position x y = getPos a
 
-data Direction = North | East | South | West
-  deriving (Show, Enum, Eq, Generic, FromJSON, ToJSON)
-
 coordinates :: (Movable a) => a -> [(Float, Float)]
 coordinates a = [(x'-w',y'-h'),(x'+w',y'-h'),(x'+w',y'+h'),(x'-w',y'+h')]
-  where (Position x' y') = getPos a
+  where Position x' y' = getPos a
         w' = (width a) / 2
         h' = (height a) / 2
 
@@ -74,15 +81,9 @@ changeDir rInt a = case rInt of
 roundDecimals :: (Fractional a2, RealFrac a1, Integral b) => a1 -> b -> a2
 roundDecimals f n = (fromInteger $ round $ f * (10^n)) / (10.0^^n)
 
-data Sprite = Sprite
-  {
-    spriteType  :: String,
-    spriteState :: Int
-  }
-  deriving (Show, Eq, Generic, FromJSON, ToJSON)
 
 nextSprite :: Sprite -> Int
-nextSprite (Sprite t s) | s == 3 = 1
+nextSprite (Sprite t s) | s == 3    = 1
                         | otherwise = succ s
 
 changeDirR :: (Movable a) => Int -> a -> a
