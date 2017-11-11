@@ -65,6 +65,7 @@ render :: GTA -> IO Picture
 render game = do names      <- (readFile "./config/sprites.txt")
                  images     <- mapM loadBMP (lines names)
                  screenSize <- getScreenSize
+                 statePicture' <- statePicture (gameState game)
                  let images' = zip (lines names) images
                  return (scale 5 5 (translate (- x) (- y) (pictures (
                    (map (draw images') (blocks' game)) ++
@@ -72,9 +73,15 @@ render game = do names      <- (readFile "./config/sprites.txt")
                        (map (draw images') (cars game)) ++
                          [(draw images' (player game))] ++
                            [drawTimer game screenSize] ++
-                             [drawPoints game screenSize]))))
+                             [drawPoints game screenSize] ++ 
+                               [translate x (y + 50) $ scale (0.5) (0.5) $ statePicture']))))
  where Position x y = getPos (player game)
        blocks' game = moveBlocks (blocks game) [Sidewalk, Road, Tree, Building, Coin]
+
+statePicture :: GameState -> IO Picture
+statePicture GameOver = loadBMP "./sprites/wasted.bmp"
+statePicture Dead = loadBMP "./sprites/wasted.bmp"
+statePicture _        = return Blank
 
 drawPoints :: GTA -> (Int, Int) -> Picture
 drawPoints game (x, y) = translate (fromIntegral (-topLeftX) + x') (fromIntegral topLeftY + y') $ scale 0.05 0.05 $ pictures [rectangle, score]
@@ -86,6 +93,25 @@ drawPoints game (x, y) = translate (fromIntegral (-topLeftX) + x') (fromIntegral
         rectangle = pictures [ translate 1000 45 $ color black $ rectangleSolid 2020 180,
                                translate 1000 45 $ color white $ rectangleSolid 2000 160 ]
 
+drawTimer :: GTA -> (Int, Int) -> Picture
+drawTimer game (x, y) = translate (fromIntegral (topLeftX) + x') (fromIntegral topLeftY + y') $ scale 0.05 0.05 $ pictures [rectangle, score]
+  where Position x' y' = getPos (player game)
+        topLeftX = (x `div` 5 `div` 2) - 60
+        topLeftY = (y `div` 5 `div` 2) - 8
+        score = timeLeftText game
+        rectangle = pictures [ translate 550 45 $ color black $ rectangleSolid 1150 180,
+                               translate 550 45 $ color white $ rectangleSolid 1130 160 ]
+
+timeLeftText :: GTA -> Picture
+timeLeftText game = text ("Time left: " ++ min ++ ":" ++ sec)
+  where count              = timeLeft game - elapsedTime game
+        secCalc            = floor (mod' count 60)
+        sec | secCalc < 10 = "0" ++ show secCalc
+            | otherwise    = show secCalc
+        minCalc            = floor (count / 60)
+        min | minCalc < 10 = "0" ++ show minCalc
+            | otherwise    = show minCalc
+
 -- GAME updates
 update :: Float -> GTA -> IO GTA
 update secs game@Game{player} = do
@@ -93,9 +119,14 @@ update secs game@Game{player} = do
   case gameState game of
     Loading -> loading game
     Dead    -> return game { player = killPlayer player }
+    GameOver -> return game
     Paused  -> return game
-    Running -> writeJSON ( return ( updateCoins elapsedTime' (updateTraffic rInt (updatePlayerPosition game { elapsedTime = elapsedTime' + secs }))))
+    Running -> writeJSON ( return ( timeUp (updateCoins elapsedTime' (updateTraffic rInt (updatePlayerPosition game { elapsedTime = elapsedTime' + secs })))))
   where elapsedTime' = elapsedTime game
+  
+timeUp :: GTA -> GTA
+timeUp game | (timeLeft game - elapsedTime game) <= 1 = game {gameState = GameOver }
+            | otherwise                               = game
 
 enterOrLeaveCar :: GTA -> IO GTA
 enterOrLeaveCar game = if playerState (player game) == Walking
@@ -175,25 +206,6 @@ leaveCar game = game { cars = newCars, player = (carToPlayer (player game)) }
         Position x' y' = getPos (player game)
         s = playerSprite (player game)
         d = getDir (player game)
-
-drawTimer :: GTA -> (Int, Int) -> Picture
-drawTimer game (x, y) = translate (fromIntegral (topLeftX) + x') (fromIntegral topLeftY + y') $ scale 0.05 0.05 $ pictures [rectangle, score]
-  where Position x' y' = getPos (player game)
-        topLeftX = (x `div` 5 `div` 2) - 60
-        topLeftY = (y `div` 5 `div` 2) - 8
-        score = timeLeftText game
-        rectangle = pictures [ translate 550 45 $ color black $ rectangleSolid 1150 180,
-                               translate 550 45 $ color white $ rectangleSolid 1130 160 ]
-
-timeLeftText :: GTA -> Picture
-timeLeftText game = text ("Time left: " ++ min ++ ":" ++ sec)
-  where tl2 = (timeLeft game) - (elapsedTime game)
-        secCalc = round (mod' (tl2) 60)
-        sec | secCalc < 10 = "0" ++ show secCalc
-            | otherwise    = show secCalc
-        minCalc = floor ((tl2) / 60)
-        min | minCalc < 10 = "0" ++ show minCalc
-            | otherwise    = show minCalc
 
 enterCar :: GTA -> GTA
 enterCar game =
