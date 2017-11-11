@@ -64,11 +64,11 @@ updateKeyState (left', right', up', down', d') game@Game{player}
 -- PICTURES
 render :: GTA -> IO Picture
 render game | gameState game == Paused || gameState game == Init = mainScreen
-            | otherwise = do names      <- (readFile "./config/sprites.txt")
-                             images     <- mapM loadBMP (lines names)
-                             screenSize <- getScreenSize
+            | otherwise = do names         <- (readFile "./config/sprites.txt")
+                             images        <- mapM loadBMP (lines names)
+                             screenSize    <- getScreenSize
                              statePicture' <- statePicture (gameState game)
-                             let images' = zip (lines names) images
+                             let images'    = zip (lines names) images
                              return (scale 5 5 (translate (- x) (- y) (pictures (
                                (map (draw images') (blocks' game)) ++
                                  (map (draw images') (people game)) ++
@@ -76,7 +76,7 @@ render game | gameState game == Paused || gameState game == Init = mainScreen
                                      [(draw images' (player game))] ++
                                        [drawTimer game screenSize] ++
                                          [drawPoints game screenSize] ++
-                                           [translate x (y + 50) $ scale (0.5) (0.5) $ statePicture']))))
+                                           [translate x (y + 50) $ scale (0.2) (0.2) $ statePicture']))))
  where Position x y = getPos (player game)
        blocks' game = moveBlocks (blocks game) [Sidewalk, Road, Tree, Building, Coin]
 
@@ -97,9 +97,10 @@ text' :: (Float, Float) -> String -> Picture
 text' (x, y) s = translate x y $ scale 0.25 0.25 $ color yellow $ text s
 
 statePicture :: GameState -> IO Picture
-statePicture GameOver = loadBMP "./sprites/wasted.bmp"
-statePicture Dead = loadBMP "./sprites/wasted.bmp"
-statePicture _        = return Blank
+statePicture GameOver  = loadBMP "./sprites/wasted.bmp"
+statePicture Completed = loadBMP "./sprites/completed.bmp"
+statePicture Dead      = loadBMP "./sprites/wasted.bmp"
+statePicture _         = return Blank
 
 drawPoints :: GTA -> (Int, Int) -> Picture
 drawPoints game (x, y) = translate (fromIntegral (-topLeftX) + x') (fromIntegral topLeftY + y') $ scale 0.05 0.05 $ pictures [rectangle, score]
@@ -135,12 +136,13 @@ update :: Float -> GTA -> IO GTA
 update secs game@Game{player} = do
   rInt <- randomNr
   case gameState game of
-    Loading -> loading game
-    Dead    -> return game { player = killPlayer player }
-    GameOver -> return game
-    Paused  -> return game
-    Init    -> return game
-    Running -> writeJSON ( return ( timeUp (updateCoins elapsedTime' (updateTraffic rInt (updatePlayerPosition game { elapsedTime = elapsedTime' + secs })))))
+    Loading   -> loading game
+    Dead      -> return game { player = killPlayer player }
+    Completed -> return game
+    GameOver  -> return game
+    Paused    -> return game
+    Init      -> return game
+    Running   -> writeJSON ( return ( timeUp (updateCoins elapsedTime' (updateTraffic rInt (updatePlayerPosition game { elapsedTime = elapsedTime' + secs })))))
   where elapsedTime' = elapsedTime game
 
 timeUp :: GTA -> GTA
@@ -213,12 +215,14 @@ killPerson game = game { people = newPeople }
         close' c         = close c [(player game)]
 
 removeCoin :: GTA -> GTA
-removeCoin game = game { blocks = newBlocks, coinCount = ((fst (coinCount game) + 1), (snd (coinCount game)))}
+removeCoin game = game { gameState = gameState', blocks = newBlocks, coinCount = ((fst (coinCount game) + 1), (snd (coinCount game)))}
   where newBlocks  = take coinIndex (coins game) ++ drop (1 + coinIndex) (coins game) ++ blocks'
         coinIndex' = (elemIndex True (concatMap close' (coins game)))
         coinIndex  = fromJust coinIndex'
         blocks'    = moveBlocks (blocks game) [Sidewalk, Road, Wall, Tree, Building]
         close' c   = close c [(player game)]
+        gameState' | (fst (coinCount game) + 1) == snd (coinCount game) = Completed
+                   | otherwise                                    = gameState game
 
 leaveCar :: GTA -> GTA
 leaveCar game = game { cars = newCars, player = (carToPlayer (player game)) }
