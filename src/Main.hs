@@ -1,18 +1,16 @@
 {-# LANGUAGE NamedFieldPuns #-}
 module Main where
 
-import Graphics.Gloss
-import Graphics.Gloss.Interface.IO.Game
 import Data.Fixed (mod')
 import Data.List
 import Data.List.Split
-import Debug.Trace
+import Data.Maybe
+
+import Graphics.Gloss
+import Graphics.Gloss.Interface.Environment
+import Graphics.Gloss.Interface.IO.Game
 
 import Helpers
-import Data.Maybe
-import System.Random
-
-import Graphics.Gloss.Interface.Environment
 
 import Models.Block
 import Models.Car
@@ -21,9 +19,14 @@ import Models.Person
 import Models.Player
 import Models.Position
 
+import System.Random
+
 -- GAME settings
+fps :: Int
+fps = 60
+
 main :: IO ()
-main = playIO window black 60 initialState render handleKeys update
+main = playIO window black fps initialState render handleKeys update
 
 window :: Display
 window = FullScreen
@@ -41,10 +44,10 @@ initialState = Game
 
 -- KEY updates
 handleKeys :: Event -> GTA -> IO GTA
-handleKeys (EventKey (SpecialKey KeyUp)    s _ _) = updateKeyState (Up, Up, s , Up, North)
-handleKeys (EventKey (SpecialKey KeyDown)  s _ _) = updateKeyState (Up, Up, Up, s , South)
-handleKeys (EventKey (SpecialKey KeyLeft)  s _ _) = updateKeyState (s , Up, Up, Up, West )
-handleKeys (EventKey (SpecialKey KeyRight) s _ _) = updateKeyState (Up, s , Up, Up, East )
+handleKeys (EventKey (SpecialKey KeyUp)    s     _ _) = updateKeyState (Up, Up, s , Up, North)
+handleKeys (EventKey (SpecialKey KeyDown)  s     _ _) = updateKeyState (Up, Up, Up, s , South)
+handleKeys (EventKey (SpecialKey KeyLeft)  s     _ _) = updateKeyState (s , Up, Up, Up, West )
+handleKeys (EventKey (SpecialKey KeyRight) s     _ _) = updateKeyState (Up, s , Up, Up, East )
 handleKeys (EventKey (Char 's')            Down  _ _) = changeGameState 's'
 handleKeys (EventKey (Char 'p')            Down  _ _) = changeGameState 'p'
 handleKeys (EventKey (Char 'c')            Down  _ _) = enterOrLeaveCar
@@ -56,10 +59,10 @@ updateKeyState (left', right', up', down', d') game@Game{player}
   | gameState game == Running = return (game { player = (updateKeyState' player) })
   | otherwise                 = return game
   where updateKeyState' player = player { keys = keys', playerDirection = d'}
-        keys'                  = Keys   { left = left',
+        keys'                  = Keys   { left  = left',
                                           right = right',
-                                          up = up',
-                                          down = down' }
+                                          up    = up',
+                                          down  = down' }
 
 -- PICTURES
 render :: GTA -> IO Picture
@@ -109,25 +112,25 @@ drawPoints game (x, y) = translate (fromIntegral (-topLeftX) + x') (fromIntegral
         topLeftY       = (y `div` 5 `div` 2) - 8
         score          = text ("$" ++ show (points (player game)) ++ " (" ++ show (highscore game) ++ ")" ++ cccnt)
         cccnt          = " -- Coins: " ++ show (fst (coinCount game)) ++ "/" ++ show (snd (coinCount game))
-        rectangle = pictures [ translate 1000 45 $ color black $ rectangleSolid 2020 180,
-                               translate 1000 45 $ color white $ rectangleSolid 2000 160 ]
+        rectangle      = pictures [ translate 1000 45 $ color black $ rectangleSolid 2020 180,
+                                    translate 1000 45 $ color white $ rectangleSolid 2000 160 ]
 
 drawTimer :: GTA -> (Int, Int) -> Picture
 drawTimer game (x, y) = translate (fromIntegral (topLeftX) + x') (fromIntegral topLeftY + y') $ scale 0.05 0.05 $ pictures [rectangle, score]
   where Position x' y' = getPos (player game)
-        topLeftX = (x `div` 5 `div` 2) - 60
-        topLeftY = (y `div` 5 `div` 2) - 8
-        score = timeLeftText game
+        topLeftX  = (x `div` 5 `div` 2) - 60
+        topLeftY  = (y `div` 5 `div` 2) - 8
+        score     = timeLeftText game
         rectangle = pictures [ translate 550 45 $ color black $ rectangleSolid 1150 180,
                                translate 550 45 $ color white $ rectangleSolid 1130 160 ]
 
 timeLeftText :: GTA -> Picture
 timeLeftText game = text ("Time left: " ++ min ++ ":" ++ sec)
   where count              = timeLeft game - elapsedTime game
-        secCalc            = floor (mod' count 60)
+        secCalc            = floor (mod' count (fromIntegral fps))
         sec | secCalc < 10 = "0" ++ show secCalc
             | otherwise    = show secCalc
-        minCalc            = floor (count / 60)
+        minCalc            = floor (count / (fromIntegral fps))
         min | minCalc < 10 = "0" ++ show minCalc
             | otherwise    = show minCalc
 
@@ -147,9 +150,8 @@ timeUp game | (timeLeft game - elapsedTime game) <= 1 = game {gameState = GameOv
             | otherwise                               = game
 
 enterOrLeaveCar :: GTA -> IO GTA
-enterOrLeaveCar game = if playerState (player game) == Walking
-                       then return (enterCar game)
-                       else return (leaveCar game)
+enterOrLeaveCar game | playerState (player game) == Walking = return (enterCar game)
+                     | otherwise                                 = return (leaveCar game)
 
 changeGameState :: Char -> GTA -> IO GTA
 changeGameState c game | c == 's'  = case gameState game of
@@ -173,7 +175,7 @@ randomNr :: IO Int
 randomNr = getStdRandom (randomR (0,2))
 
 updateTraffic :: Int -> GTA -> GTA
-updateTraffic rInt game = (updatePeople (people game) rInt ) $ (updateCars (cars game) rInt game)
+updateTraffic rInt game = updatePeople (people game) rInt $ updateCars (cars game) rInt game
 
 updateCoins :: Float -> GTA -> GTA
 updateCoins rInt game@Game{blocks} = game { blocks = (blocks'' ++ coins') }
@@ -181,8 +183,8 @@ updateCoins rInt game@Game{blocks} = game { blocks = (blocks'' ++ coins') }
         coins'             = map updateSprite (coins game)
         updateSprite coin' = coin' { blockSprite = sprite' coin' }
         blocks''           = filter (\x -> blockType x /= Coin) blocks
-        spriteState' coin | mod' (roundDecimals (elapsedTime game) 3) 0.125 == 0 = nextSprite (blockSprite coin)
-                          | otherwise                                            = spriteState (blockSprite coin)
+        spriteState' coin  | mod' (roundDecimals (elapsedTime game) 3) 0.125 == 0 = nextSprite (blockSprite coin)
+                           | otherwise                                            = spriteState (blockSprite coin)
 
 -- TODO: PLAYERSTUFF
 updatePlayerPosition :: GTA -> GTA
@@ -196,7 +198,7 @@ updatePlayerPosition game@Game{player}
   | canMove 4 player (blocks' game)                                           = game { player = (updatePlayerPosition' player elapsedTime') }
   | otherwise = game
   where elapsedTime' = elapsedTime game
-        canMove'' x = canMove 1 x [player]
+        canMove'' x  = canMove 1 x [player]
 
 blocks' :: GTA -> [Block]
 blocks' game = moveBlocks (blocks game) [Sidewalk, Road, Wall, Tree]
@@ -230,28 +232,28 @@ removeCoin game = game { gameState = gameState', blocks = newBlocks, coinCount =
 
 leaveCar :: GTA -> GTA
 leaveCar game = game { cars = newCars, player = (carToPlayer (player game)) }
-  where newCars = car : (cars game)
-        car = Car { carPosition = Position {x = x', y = y'}, carSprite = s, carDirection = d, velocity = 0 }
+  where newCars        = car : (cars game)
+        car            = Car { carPosition = Position { x = x', y = y' }, carSprite = s, carDirection = d, velocity = 0 }
         Position x' y' = getPos (player game)
-        s = playerSprite (player game)
-        d = getDir (player game)
+        s              = playerSprite (player game)
+        d              = getDir (player game)
 
 enterCar :: GTA -> GTA
 enterCar game =
   if isJust carIndex'
   then updateCars (game { player = (playerToCar (player game) car) })
   else game
-    where carIndex' = (elemIndex True (close (player game) carsGame))
-          carIndex = fromJust carIndex'
-          car = carsGame !! carIndex
+    where carIndex'       = (elemIndex True (close (player game) carsGame))
+          carIndex        = fromJust carIndex'
+          car             = carsGame !! carIndex
           updateCars game = game { cars = newCars }
-          newCars = take carIndex carsGame ++ drop (1 + carIndex) carsGame
-          carsGame = cars game
+          newCars         = take carIndex carsGame ++ drop (1 + carIndex) carsGame
+          carsGame        = cars game
 
 updateCars :: [Car] -> Int -> GTA -> GTA
 updateCars cars rInt game = game { cars = updateCars', gameState = updateGameState }
-  where updateCars' = map snd update
-        update      = map (updateCar game rInt) cars
+  where updateCars'     = map snd update
+        update          = map (updateCar game rInt) cars
         updateGameState | elem Dead (map fst update) = Dead
                         | otherwise = gameState game
 
@@ -259,16 +261,16 @@ updateCars cars rInt game = game { cars = updateCars', gameState = updateGameSta
 updateCar :: GTA -> Int -> Car -> (GameState, Car)
 updateCar game rInt car@Car{velocity} = case velocity of
   0 -> (Running, car)
-  1 | canMove 4 car walls' -> (Running, (changeDirR rInt car))
-    | canMove 1 car cars'  -> (Running, changeDir 2 car)
+  1 | canMove 4 car walls'                                                     -> (Running, (changeDirR rInt car))
+    | canMove 1 car cars'                                                      -> (Running, changeDir 2 car)
     | canMove 1 (player game) [car] && (playerState (player game) == Walking ) -> (Dead, car)
-    | canMove 1 car [(player game)] -> (Running, car)
-    | canMove 4 car blocks'         -> (Running, newCarPosition car)
-    | otherwise                     -> (Running, (changeDir rInt car))
-         where blocks' = moveBlocks (blocks game) [Road]
-               walls' = moveBlocks (blocks game) [Wall]
+    | canMove 1 car [(player game)]                                            -> (Running, car)
+    | canMove 4 car blocks'                                                    -> (Running, newCarPosition car)
+    | otherwise                                                                -> (Running, (changeDir rInt car))
+         where blocks'  = moveBlocks (blocks game) [Road]
+               walls'   = moveBlocks (blocks game) [Wall]
                carIndex = fromJust (elemIndex car (cars game))
-               cars' = take carIndex (cars game) ++ drop (1 + carIndex) (cars game)
+               cars'    = take carIndex (cars game) ++ drop (1 + carIndex) (cars game)
 
 -- TODO: PERSONstuff
 updatePeople :: [Person] -> Int -> GTA -> GTA
@@ -286,8 +288,8 @@ updatePerson game rInt person
     where blocks'     = moveBlocks (blocks game) [Sidewalk]
           people'     = take personIndex (people game) ++ drop (1 + personIndex) (people game)
           personIndex = fromJust (elemIndex person (people game))
-          sprite' | mod' (roundDecimals (elapsedTime game) 2) 0.25 == 0 = nextSprite (personSprite person)
-                  | otherwise                                           = spriteState (personSprite person)
+          sprite'     | mod' (roundDecimals (elapsedTime game) 2) 0.25 == 0 = nextSprite (personSprite person)
+                      | otherwise                                           = spriteState (personSprite person)
 
 close :: (Movable a, Movable b) => a -> [b] -> [Bool]
 close p c = map (canMove 1 p ) c'
