@@ -75,7 +75,7 @@ render game | gameState game == Paused || gameState game == Init = mainScreen
                                    (map (draw images') (cars game)) ++
                                      [(draw images' (player game))] ++
                                        [drawTimer game screenSize] ++
-                                         [drawPoints game screenSize] ++ 
+                                         [drawPoints game screenSize] ++
                                            [translate x (y + 50) $ scale (0.5) (0.5) $ statePicture']))))
  where Position x y = getPos (player game)
        blocks' game = moveBlocks (blocks game) [Sidewalk, Road, Tree, Building, Coin]
@@ -142,7 +142,7 @@ update secs game@Game{player} = do
     Init    -> return game
     Running -> writeJSON ( return ( timeUp (updateCoins elapsedTime' (updateTraffic rInt (updatePlayerPosition game { elapsedTime = elapsedTime' + secs })))))
   where elapsedTime' = elapsedTime game
-  
+
 timeUp :: GTA -> GTA
 timeUp game | (timeLeft game - elapsedTime game) <= 1 = game {gameState = GameOver }
             | otherwise                               = game
@@ -227,25 +227,6 @@ leaveCar game = game { cars = newCars, player = (carToPlayer (player game)) }
         Position x' y' = getPos (player game)
         s = playerSprite (player game)
         d = getDir (player game)
-
-drawTimer :: GTA -> (Int, Int) -> Picture
-drawTimer game (x, y) = translate (fromIntegral (topLeftX) + x') (fromIntegral topLeftY + y') $ scale 0.05 0.05 $ pictures [rectangle, score]
-  where Position x' y' = getPos (player game)
-        topLeftX = (x `div` 5 `div` 2) - 60
-        topLeftY = (y `div` 5 `div` 2) - 8
-        score = timeLeftText game
-        rectangle = pictures [ translate 550 45 $ color black $ rectangleSolid 1150 180,
-                               translate 550 45 $ color white $ rectangleSolid 1130 160 ]
-
-timeLeftText :: GTA -> Picture
-timeLeftText game = text ("Time left: " ++ min ++ ":" ++ sec)
-  where tl      = timeLeft game - elapsedTime game
-        secCalc = round (mod' tl 60)
-        sec | secCalc < 10 = "0" ++ show secCalc
-            | otherwise    = show secCalc
-        minCalc = floor (tl / 60)
-        min | minCalc < 10 = "0" ++ show minCalc
-            | otherwise    = show minCalc
 
 enterCar :: GTA -> GTA
 enterCar game =

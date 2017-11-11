@@ -11,8 +11,9 @@
 	\maketitle
 
 	\section{Description}
-	For the course Functional Programming, we want to develop a simplified clone of Grand Theft Auto I (originally released in 1998). In an open world, a player can walk or drive a car freely. However, the player won't be alone. Cars and other people will spawn at random and walk and drive across the sidewalk or road respectively. The drivers of the random cars aren't friendly drivers, they'll drive you over. So be careful!\\
-	A player can also enter other cars and earn points for it. Other ways of earning points is damaging a random person or car. If the player wants, it's possible to use a gun and to damage cars or kill people. This will also earn you some points.
+	Grand Theft Auto I (originally released in 1997).\\
+
+  You'll spawn in a beautifull city where you can walk and drive around. Next to you, other people are doing there daily stuff and will move along you. Drivers are busy people, so watch out, they are able to kill you when they drive over you. It's your mission to find all the coins that are around to earn as much cash as possible. Cash can be earned aswell by killing people by driving over them.
 
 	\section{Minimal requirements}
 	\begin{itemize}
@@ -54,7 +55,7 @@
 	\begin{itemize}
 		\item Use JSON to save information
 			\begin{itemize}
-				\item Same as the \textbf{interaction with the file system}, we'll use the file system to store information in JSON-format 
+				\item Same as the \textbf{interaction with the file system}, we'll use the file system to store information in JSON-format
 			\end{itemize}
 	\end{itemize}
 
@@ -62,14 +63,14 @@
 	In this section are some data types with their needed functions.
 	\begin{itemize}
 		\item World
-			\begin{itemize}				
+			\begin{itemize}
 				\item \textbf{readWorld}:\quad Reading a world from a JSON-file
 				\item \textbf{loadWorld}:\quad Loading a world from the function \textbf{readWorld}
 			\end{itemize}
 		\item State
-			\begin{itemize}				
+			\begin{itemize}
 				\item \textbf{world}:\quad Contains information about the world and its state
-					\begin{itemize}				
+					\begin{itemize}
 						\item \textbf{traffic}:\quad Look up all cars and move them to the next position
 						\item \textbf{people}:\quad Look up all people and move them to the next position, like the \textbf{traffic} function
 						\item \textbf{spawn}:\quad Spawn new car(s) or (a) person(s)
@@ -79,19 +80,19 @@
 				\item \textbf{player}:\quad Contains information about the player and its state
 			\end{itemize}
 		\item Player
-			\begin{itemize}				
+			\begin{itemize}
 				\item \textbf{sprite}:\quad Contains information about the sprite
 				\item \textbf{position}:\quad Contains the X, Y and Z position, where Z is the current direction
 				\item \textbf{move}:\quad Handle key input and update \textbf{position} of the player
 				\item \textbf{shoot}:\quad Based on key input, fire a gun
 			\end{itemize}
 		\item Car
-			\begin{itemize}				
+			\begin{itemize}
 				\item \textbf{sprite}:\quad Since we have different sprites, we want to know which sprite to display/load
 				\item \textbf{position}:\quad Contains the X, Y and Z position, where Z is the current direction
 			\end{itemize}
 		\item Person
-			\begin{itemize}				
+			\begin{itemize}
 				\item \textbf{sprite}:\quad Since we have different sprites, we want to know which sprite to display/load
 				\item \textbf{position}:\quad Contains the X, Y and Z position, where Z is the current direction
 			\end{itemize}
