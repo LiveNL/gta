@@ -63,11 +63,17 @@ render :: GTA -> IO Picture
 render game = do images <- mapM loadBMP names
                  let images' = zip names images
                  screenSize <- getScreenSize
-                 return (scale 5 5 (translate (- x) (- y) (pictures (
+                 statePicture' <- statePicture (gameState game)
+                 return (scale 5 5 (translate (-x) (-y) (pictures (
                    (map (block images') (blocks game)) ++ (map (draw images') (people game)) ++
-                     (map (draw images') (cars game)) ++ [(draw images' (player game))] ++ [drawTimer game screenSize] ++ [drawPoints game screenSize]))))
+                    (map (draw images') (cars game)) ++ [(draw images' (player game))] ++ [drawTimer game screenSize] ++ [drawPoints game screenSize] ++ [translate x (y + 50) $ scale (0.5) (0.5) $ statePicture']))))
  where names = splitOn "," list
        Position x y = getPos (player game)
+
+statePicture :: GameState -> IO Picture
+statePicture GameOver = loadBMP "./sprites/wasted.bmp"
+statePicture Dead = loadBMP "./sprites/wasted.bmp"
+statePicture _        = return Blank
 
 drawPoints :: GTA -> (Int, Int) -> Picture
 drawPoints game (x, y) = translate (fromIntegral (-topLeftX) + x') (fromIntegral topLeftY + y') $ scale 0.05 0.05 $ pictures [rectangle, score]
