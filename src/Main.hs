@@ -36,7 +36,7 @@ initialState = Game
       playerDirection = North, playerWidth = 10, playerHeight = 10,
       playerSprite    = Sprite { spriteType = "player1", spriteState = 1 }, playerVelocity = 0, playerState = Walking, points = 0
     },
-    cars = [], people = [], blocks = [], gameState = Init, elapsedTime = 0, highscore = 0, timeLeft = 65, coinCount = (0,10)
+    cars = [], people = [], blocks = [], gameState = Init, elapsedTime = 0, highscore = 0, timeLeft = 65, coinCount = (0,2)
 }
 
 -- KEY updates
@@ -76,7 +76,7 @@ render game | gameState game == Paused || gameState game == Init = mainScreen
                                      [(draw images' (player game))] ++
                                        [drawTimer game screenSize] ++
                                          [drawPoints game screenSize] ++
-                                           [translate x (y + 50) $ scale (0.5) (0.5) $ statePicture']))))
+                                           [translate x (y + 50) $ scale (0.2) (0.2) $ statePicture']))))
  where Position x y = getPos (player game)
        blocks' game = moveBlocks (blocks game) [Sidewalk, Road, Tree, Building, Coin]
 
@@ -97,9 +97,10 @@ text' :: (Float, Float) -> String -> Picture
 text' (x, y) s = translate x y $ scale 0.25 0.25 $ color yellow $ text s
 
 statePicture :: GameState -> IO Picture
-statePicture GameOver = loadBMP "./sprites/wasted.bmp"
-statePicture Dead = loadBMP "./sprites/wasted.bmp"
-statePicture _        = return Blank
+statePicture GameOver  = loadBMP "./sprites/wasted.bmp"
+statePicture Completed = loadBMP "./sprites/completed.bmp"
+statePicture Dead      = loadBMP "./sprites/wasted.bmp"
+statePicture _         = return Blank
 
 drawPoints :: GTA -> (Int, Int) -> Picture
 drawPoints game (x, y) = translate (fromIntegral (-topLeftX) + x') (fromIntegral topLeftY + y') $ scale 0.05 0.05 $ pictures [rectangle, score]
@@ -137,6 +138,7 @@ update secs game@Game{player} = do
   case gameState game of
     Loading -> loading game
     Dead    -> return game { player = killPlayer player }
+    Completed -> return game
     GameOver -> return game
     Paused  -> return game
     Init    -> return game
@@ -213,12 +215,14 @@ killPerson game = game { people = newPeople }
         close' c         = close c [(player game)]
 
 removeCoin :: GTA -> GTA
-removeCoin game = game { blocks = newBlocks, coinCount = ((fst (coinCount game) + 1), (snd (coinCount game)))}
+removeCoin game = game { gameState = gameState', blocks = newBlocks, coinCount = ((fst (coinCount game) + 1), (snd (coinCount game)))}
   where newBlocks  = take coinIndex (coins game) ++ drop (1 + coinIndex) (coins game) ++ blocks'
         coinIndex' = (elemIndex True (concatMap close' (coins game)))
         coinIndex  = fromJust coinIndex'
         blocks'    = moveBlocks (blocks game) [Sidewalk, Road, Wall, Tree, Building]
         close' c   = close c [(player game)]
+        gameState' | fst (coinCount game) == snd (coinCount game) = Completed
+                   | otherwise                                    = gameState game
 
 leaveCar :: GTA -> GTA
 leaveCar game = game { cars = newCars, player = (carToPlayer (player game)) }

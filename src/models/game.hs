@@ -35,7 +35,7 @@ data GTAJSON = GameJSON
     highscoreJSON :: Int }
   deriving (Show, Generic, FromJSON, ToJSON)
 
-data GameState = Loading | Running | Paused | Init | Dead | GameOver
+data GameState = Loading | Running | Paused | Init | Dead | GameOver | Completed
   deriving (Show, Eq, Generic)
 
 instance FromJSON GameState where
