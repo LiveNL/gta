@@ -43,7 +43,6 @@ draw images a = translate x y $ scale w'' h'' $ rotate angle $ image
         s            = getSprite a
         Position x y = getPos a
 
-
 move :: (Movable a) => Position -> a -> a
 move (Position dx dy) a = setPos (Position (x + dx) (y + dy)) a
   where Position x y = getPos a
