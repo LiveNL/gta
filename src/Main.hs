@@ -159,8 +159,8 @@ changeGameState c game | c == 's'  = case gameState game of
                                       Paused -> return game { gameState = Running }
                                       _      -> return game
                        | c == 'r'  = case gameState game of
-                                      Running -> return game { gameState = Loading }
-                                      _       -> return game
+                                      Init    -> return game { gameState = Init }
+                                      _       -> return game { gameState = Loading }
                        | otherwise = case gameState game of
                                       Running -> return game { gameState = Paused }
                                       Paused  -> return game { gameState = Running }
