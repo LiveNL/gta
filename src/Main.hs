@@ -23,7 +23,7 @@ import Models.Position
 
 -- GAME settings
 main :: IO ()
-main = playIO window (dark $ dark green) 60 initialState render handleKeys update
+main = playIO window black 60 initialState render handleKeys update
 
 window :: Display
 window = FullScreen
@@ -36,8 +36,8 @@ initialState = Game
       playerDirection = North, playerWidth = 10, playerHeight = 10,
       playerSprite    = Sprite { spriteType = "player1", spriteState = 1 }, playerVelocity = 0, playerState = Walking, points = 0
     },
-    cars = [], people = [], blocks = [], gameState = Loading, elapsedTime = 0, highscore = 0, timeLeft = 65, coinCount = (0,10)
-  }
+    cars = [], people = [], blocks = [], gameState = Init, elapsedTime = 0, highscore = 0, timeLeft = 65, coinCount = (0,10)
+}
 
 -- KEY updates
 handleKeys :: Event -> GTA -> IO GTA
@@ -45,6 +45,7 @@ handleKeys (EventKey (SpecialKey KeyUp)    s _ _) = updateKeyState (Up, Up, s , 
 handleKeys (EventKey (SpecialKey KeyDown)  s _ _) = updateKeyState (Up, Up, Up, s , South)
 handleKeys (EventKey (SpecialKey KeyLeft)  s _ _) = updateKeyState (s , Up, Up, Up, West )
 handleKeys (EventKey (SpecialKey KeyRight) s _ _) = updateKeyState (Up, s , Up, Up, East )
+handleKeys (EventKey (Char 's')            Down  _ _) = changeGameState
 handleKeys (EventKey (Char 'p')            Down  _ _) = changeGameState
 handleKeys (EventKey (Char 'c')            Down  _ _) = enterOrLeaveCar
 handleKeys (EventKey (Char 'r')            Down  _ _) = return . return initialState
@@ -62,21 +63,38 @@ updateKeyState (left', right', up', down', d') game@Game{player}
 
 -- PICTURES
 render :: GTA -> IO Picture
-render game = do names      <- (readFile "./config/sprites.txt")
-                 images     <- mapM loadBMP (lines names)
-                 screenSize <- getScreenSize
-                 statePicture' <- statePicture (gameState game)
-                 let images' = zip (lines names) images
-                 return (scale 5 5 (translate (- x) (- y) (pictures (
-                   (map (draw images') (blocks' game)) ++
-                     (map (draw images') (people game)) ++
-                       (map (draw images') (cars game)) ++
-                         [(draw images' (player game))] ++
-                           [drawTimer game screenSize] ++
-                             [drawPoints game screenSize] ++ 
-                               [translate x (y + 50) $ scale (0.5) (0.5) $ statePicture']))))
+render game | gameState game == Paused || gameState game == Init = mainScreen
+            | otherwise = do names      <- (readFile "./config/sprites.txt")
+                             images     <- mapM loadBMP (lines names)
+                             screenSize <- getScreenSize
+                             statePicture' <- statePicture (gameState game)
+                             let images' = zip (lines names) images
+                             return (scale 5 5 (translate (- x) (- y) (pictures (
+                               (map (draw images') (blocks' game)) ++
+                                 (map (draw images') (people game)) ++
+                                   (map (draw images') (cars game)) ++
+                                     [(draw images' (player game))] ++
+                                       [drawTimer game screenSize] ++
+                                         [drawPoints game screenSize] ++ 
+                                           [translate x (y + 50) $ scale (0.5) (0.5) $ statePicture']))))
  where Position x y = getPos (player game)
        blocks' game = moveBlocks (blocks game) [Sidewalk, Road, Tree, Building, Coin]
+
+mainScreen :: IO Picture
+mainScreen = do image <- loadBMP "./sprites/logo.bmp"
+                (x, y) <- getScreenSize
+                let i = translate 0 (fromIntegral y / 4) $ image
+                let keyInfo = [text' (0, 120 ) "S: Start game",
+                               text' (0, 80  ) "P: Pause game",
+                               text' (0, 40  ) "R: Restart level",
+                               text' (0, 0   ) "C: Enter/exit nearby car",
+                               text' (0, -40 ) "Arrow keys: movement",
+                               text' (0, -100) "Collect all coins before the timer runs out,",
+                               text' (0, -140) "but watch out, hostile cars will drive you over!"]
+                return (pictures ([i] ++ [(translate (-385) 0 (pictures keyInfo))]))
+
+text' :: (Float, Float) -> String -> Picture
+text' (x, y) s = translate x y $ scale 0.25 0.25 $ color yellow $ text s
 
 statePicture :: GameState -> IO Picture
 statePicture GameOver = loadBMP "./sprites/wasted.bmp"
@@ -121,6 +139,7 @@ update secs game@Game{player} = do
     Dead    -> return game { player = killPlayer player }
     GameOver -> return game
     Paused  -> return game
+    Init    -> return game
     Running -> writeJSON ( return ( timeUp (updateCoins elapsedTime' (updateTraffic rInt (updatePlayerPosition game { elapsedTime = elapsedTime' + secs })))))
   where elapsedTime' = elapsedTime game
   
@@ -136,7 +155,9 @@ enterOrLeaveCar game = if playerState (player game) == Walking
 changeGameState :: GTA -> IO GTA
 changeGameState game = case gameState game of
   Running -> return game { gameState = Paused }
-  _       -> return game { gameState = Running }
+  Paused  -> return game { gameState = Running }
+  Init    -> return game { gameState = Loading }
+  _       -> return game
 
 loading :: GTA -> IO GTA
 loading game = do x <- readWorld
@@ -206,6 +227,25 @@ leaveCar game = game { cars = newCars, player = (carToPlayer (player game)) }
         Position x' y' = getPos (player game)
         s = playerSprite (player game)
         d = getDir (player game)
+
+drawTimer :: GTA -> (Int, Int) -> Picture
+drawTimer game (x, y) = translate (fromIntegral (topLeftX) + x') (fromIntegral topLeftY + y') $ scale 0.05 0.05 $ pictures [rectangle, score]
+  where Position x' y' = getPos (player game)
+        topLeftX = (x `div` 5 `div` 2) - 60
+        topLeftY = (y `div` 5 `div` 2) - 8
+        score = timeLeftText game
+        rectangle = pictures [ translate 550 45 $ color black $ rectangleSolid 1150 180,
+                               translate 550 45 $ color white $ rectangleSolid 1130 160 ]
+
+timeLeftText :: GTA -> Picture
+timeLeftText game = text ("Time left: " ++ min ++ ":" ++ sec)
+  where tl      = timeLeft game - elapsedTime game
+        secCalc = round (mod' tl 60)
+        sec | secCalc < 10 = "0" ++ show secCalc
+            | otherwise    = show secCalc
+        minCalc = floor (tl / 60)
+        min | minCalc < 10 = "0" ++ show minCalc
+            | otherwise    = show minCalc
 
 enterCar :: GTA -> GTA
 enterCar game =
