@@ -39,7 +39,7 @@ initialState = Game
       playerDirection = North, playerWidth = 10, playerHeight = 10,
       playerSprite    = Sprite { spriteType = "player1", spriteState = 1 }, playerVelocity = 0, playerState = Walking, points = 0
     },
-    cars = [], people = [], blocks = [], gameState = Init, elapsedTime = 0, highscore = 0, timeLeft = 65, coinCount = (0,10)
+    cars = [], people = [], blocks = [], gameState = Init, elapsedTime = 0, highscore = 0, timeLeft = 120, coinCount = (0,10)
 }
 
 -- KEY updates
