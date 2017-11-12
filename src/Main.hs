@@ -140,7 +140,7 @@ update secs game@Game{player} = do
   rInt <- randomNr
   case gameState game of
     Dead      -> return game { player = killPlayer player }
-    Running   -> writeJSON ( return ( timeUp (updateCoins elapsedTime' (updateTraffic rInt (updatePlayerPosition game { elapsedTime = elapsedTime' + secs })))))
+    Running   -> writeHighscore (return (timeUp (updateCoins elapsedTime' (updateTraffic rInt (updatePlayerPosition game { elapsedTime = elapsedTime' + secs })))))
     Loading   -> loading game
     _         -> return game
   where elapsedTime' = elapsedTime game

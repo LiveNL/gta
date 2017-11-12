@@ -6,6 +6,7 @@ import Data.Maybe
 import Control.Monad
 import GHC.Generics
 import System.Directory
+import System.IO
 import Data.Fixed (mod')
 
 import qualified Data.ByteString.Lazy.Char8 as B
@@ -45,10 +46,6 @@ instance FromJSON GameState where
 jsonFile :: FilePath
 jsonFile = "./config/world.json"
 
-updateFile :: IO ()
-updateFile = do exists <- doesFileExist "./config/world_new.json"
-                when exists (renameFile "./config/world_new.json" jsonFile)
-
 getJSON :: IO B.ByteString
 getJSON = B.readFile jsonFile
 
@@ -57,9 +54,22 @@ readJSON = do x <- (decode <$> getJSON) :: IO (Maybe GTAJSON)
               return ((fromJust x) :: GTAJSON)
 
 readWorld :: IO GTA
-readWorld = do _ <- updateFile
-               x <- readJSON
+readWorld = do x <- readJSON
                return Game { cars = carsJSON x, people = peopleJSON x, blocks = blocksJSON x, highscore = highscoreJSON x }
+
+readHighscore :: Handle -> IO Int
+readHighscore x = do ineof <- hIsEOF x
+                     if ineof then return 0
+                              else do r <- hGetLine x
+                                      return (read r :: Int)
+
+writeHighscore :: IO GTA -> IO GTA
+writeHighscore game = do inh <- openFile "./config/highscore.txt" ReadWriteMode
+                         t <- readHighscore inh
+                         _ <- hSeek inh AbsoluteSeek 0 
+                         hPutStr inh (show (t+1))
+                         hClose inh
+                         game
 
 writeJSON :: IO GTA -> IO GTA
 writeJSON game = do g <- game
