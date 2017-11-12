@@ -32,8 +32,7 @@ data GTA = Game
 data GTAJSON = GameJSON
   { blocksJSON    :: [Block],
     peopleJSON    :: [Person],
-    carsJSON      :: [Car],
-    highscoreJSON :: Int }
+    carsJSON      :: [Car] }
   deriving (Show, Generic, FromJSON, ToJSON)
 
 data GameState = Loading | Running | Paused | Init | Dead | GameOver | Completed
@@ -55,7 +54,10 @@ readJSON = do x <- (decode <$> getJSON) :: IO (Maybe GTAJSON)
 
 readWorld :: IO GTA
 readWorld = do x <- readJSON
-               return Game { cars = carsJSON x, people = peopleJSON x, blocks = blocksJSON x, highscore = highscoreJSON x }
+               inh <- openFile "./config/highscore.txt" ReadMode 
+               score <- readHighscore inh
+               hClose inh
+               return Game { cars = carsJSON x, people = peopleJSON x, blocks = blocksJSON x, highscore = score }
 
 readHighscore :: Handle -> IO Int
 readHighscore x = do ineof <- hIsEOF x
@@ -64,20 +66,19 @@ readHighscore x = do ineof <- hIsEOF x
                                       return (read r :: Int)
 
 writeHighscore :: IO GTA -> IO GTA
-writeHighscore game = do inh <- openFile "./config/highscore.txt" ReadWriteMode
+writeHighscore game = do g <- game
+                         inh <- openFile "./config/highscore.txt" ReadWriteMode
                          t <- readHighscore inh
-                         _ <- hSeek inh AbsoluteSeek 0 
-                         hPutStr inh (show (t+1))
-                         hClose inh
-                         game
 
-writeJSON :: IO GTA -> IO GTA
-writeJSON game = do g <- game
-                    if ((points) (player g) >= (highscore g) && mod' (roundDecimals (elapsedTime g) 2) 2.5 == 0)
-                     then do r <- readJSON
-                             B.writeFile "./config/world_new.json" (encode GameJSON { carsJSON = carsJSON r, peopleJSON = peopleJSON r, blocksJSON = blocksJSON r, highscoreJSON = highscore g })
-                             return g
-                     else return g
+                         if ((points) (player g) >= (highscore g) && mod' (roundDecimals (elapsedTime g) 2) 2.5 == 0)
+                          then do _ <- hSeek inh AbsoluteSeek 0 
+                                  hPutStr inh (show (highscore g))
+                                  hClose inh
+                                  return g
+                          else do _ <- hSeek inh AbsoluteSeek 0 
+                                  hPutStr inh (show t)
+                                  hClose inh
+                                  return g
 
 stringToGameState s
   | s == "Running" = Just Running
