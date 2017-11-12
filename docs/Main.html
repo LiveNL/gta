@@ -133,33 +133,43 @@
             <div class="top">
                 <p class="src"><a id="v:blocks-39-" class="def">blocks'</a> :: <a href="Models-Game.html#t:GTA">GTA</a> -&gt; [<a href="Models-Block.html#t:Block">Block</a>] <a href="#v:blocks-39-" class="selflink">#</a></p>
             </div>
+            Gives the coins' subset of blocks.
             <div class="top">
                 <p class="src"><a id="v:coins" class="def">coins</a> :: <a href="Models-Game.html#t:GTA">GTA</a> -&gt; [<a href="Models-Block.html#t:Block">Block</a>] <a href="#v:coins" class="selflink">#</a></p>
             </div>
+            Gives the subset of people, which are alive.
             <div class="top">
                 <p class="src"><a id="v:livingPeople" class="def">livingPeople</a> :: <a href="Models-Game.html#t:GTA">GTA</a> -&gt; [<a href="Models-Person.html#t:Person">Person</a>] <a href="#v:livingPeople" class="selflink">#</a></p>
             </div>
+            If a person is driven over, it should be killed; changes the state to a dead person.
             <div class="top">
                 <p class="src"><a id="v:killPerson" class="def">killPerson</a> :: <a href="Models-Game.html#t:GTA">GTA</a> -&gt; <a href="Models-Game.html#t:GTA">GTA</a> <a href="#v:killPerson" class="selflink">#</a></p>
             </div>
+            If a coin is found, it should be removed from the coins list.
             <div class="top">
                 <p class="src"><a id="v:removeCoin" class="def">removeCoin</a> :: <a href="Models-Game.html#t:GTA">GTA</a> -&gt; <a href="Models-Game.html#t:GTA">GTA</a> <a href="#v:removeCoin" class="selflink">#</a></p>
             </div>
+            Makes it possible to leave a car, and change back to a player.
             <div class="top">
                 <p class="src"><a id="v:leaveCar" class="def">leaveCar</a> :: <a href="Models-Game.html#t:GTA">GTA</a> -&gt; <a href="Models-Game.html#t:GTA">GTA</a> <a href="#v:leaveCar" class="selflink">#</a></p>
             </div>
+            Enter a car.
             <div class="top">
                 <p class="src"><a id="v:enterCar" class="def">enterCar</a> :: <a href="Models-Game.html#t:GTA">GTA</a> -&gt; <a href="Models-Game.html#t:GTA">GTA</a> <a href="#v:enterCar" class="selflink">#</a></p>
             </div>
+            Update all the cars (movements).
             <div class="top">
                 <p class="src"><a id="v:updateCars" class="def">updateCars</a> :: [<a href="Models-Car.html#t:Car">Car</a>] -&gt; <a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/Data-Int.html#t:Int">Int</a> -&gt; <a href="Models-Game.html#t:GTA">GTA</a> -&gt; <a href="Models-Game.html#t:GTA">GTA</a> <a href="#v:updateCars" class="selflink">#</a></p>
             </div>
+            Update single car (movement, with checks for driving over player).
             <div class="top">
                 <p class="src"><a id="v:updateCar" class="def">updateCar</a> :: <a href="Models-Game.html#t:GTA">GTA</a> -&gt; <a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/Data-Int.html#t:Int">Int</a> -&gt; <a href="Models-Car.html#t:Car">Car</a> -&gt; (<a href="Models-Game.html#t:GameState">GameState</a>, <a href="Models-Car.html#t:Car">Car</a>) <a href="#v:updateCar" class="selflink">#</a></p>
             </div>
+            Update all the people.
             <div class="top">
                 <p class="src"><a id="v:updatePeople" class="def">updatePeople</a> :: [<a href="Models-Person.html#t:Person">Person</a>] -&gt; <a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/Data-Int.html#t:Int">Int</a> -&gt; <a href="Models-Game.html#t:GTA">GTA</a> -&gt; <a href="Models-Game.html#t:GTA">GTA</a> <a href="#v:updatePeople" class="selflink">#</a></p>
             </div>
+            Update single person (and checks for player/cars in their way)
             <div class="top">
                 <p class="src"><a id="v:updatePerson" class="def">updatePerson</a> :: <a href="Models-Game.html#t:GTA">GTA</a> -&gt; <a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/Data-Int.html#t:Int">Int</a> -&gt; <a href="Models-Person.html#t:Person">Person</a> -&gt; <a href="Models-Person.html#t:Person">Person</a> <a href="#v:updatePerson" class="selflink">#</a></p>
             </div>
