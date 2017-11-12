@@ -6,6 +6,7 @@ import Data.Maybe
 import Control.Monad
 import GHC.Generics
 import System.Directory
+import System.IO
 import Data.Fixed (mod')
 
 import qualified Data.ByteString.Lazy.Char8 as B
@@ -31,11 +32,10 @@ data GTA = Game
 data GTAJSON = GameJSON
   { blocksJSON    :: [Block],
     peopleJSON    :: [Person],
-    carsJSON      :: [Car],
-    highscoreJSON :: Int }
+    carsJSON      :: [Car] }
   deriving (Show, Generic, FromJSON, ToJSON)
 
-data GameState = Loading | Running | Paused | Init | Dead | GameOver
+data GameState = Loading | Running | Paused | Init | Dead | GameOver | Completed
   deriving (Show, Eq, Generic)
 
 instance FromJSON GameState where
@@ -45,10 +45,6 @@ instance FromJSON GameState where
 jsonFile :: FilePath
 jsonFile = "./config/world.json"
 
-updateFile :: IO ()
-updateFile = do exists <- doesFileExist "./config/world_new.json"
-                when exists (renameFile "./config/world_new.json" jsonFile)
-
 getJSON :: IO B.ByteString
 getJSON = B.readFile jsonFile
 
@@ -57,17 +53,31 @@ readJSON = do x <- (decode <$> getJSON) :: IO (Maybe GTAJSON)
               return ((fromJust x) :: GTAJSON)
 
 readWorld :: IO GTA
-readWorld = do _ <- updateFile
-               x <- readJSON
-               return Game { cars = carsJSON x, people = peopleJSON x, blocks = blocksJSON x, highscore = highscoreJSON x }
+readWorld = do x <- readJSON
+               inh <- openFile "./config/highscore.txt" ReadMode 
+               score <- readHighscore inh
+               hClose inh
+               return Game { cars = carsJSON x, people = peopleJSON x, blocks = blocksJSON x, highscore = score }
 
-writeJSON :: IO GTA -> IO GTA
-writeJSON game = do g <- game
-                    if ((points) (player g) >= (highscore g) && mod' (roundDecimals (elapsedTime g) 2) 2.5 == 0)
-                     then do r <- readJSON
-                             B.writeFile "./config/world_new.json" (encode GameJSON { carsJSON = carsJSON r, peopleJSON = peopleJSON r, blocksJSON = blocksJSON r, highscoreJSON = highscore g })
-                             return g
-                     else return g
+readHighscore :: Handle -> IO Int
+readHighscore x = do ineof <- hIsEOF x
+                     if ineof then return 0
+                              else do r <- hGetLine x
+                                      return (read r :: Int)
+
+writeHighscore :: IO GTA -> IO GTA
+writeHighscore game = do g     <- game
+                         if (mod' (roundDecimals (elapsedTime g) 2) 2.5 == 0)
+                          then do f     <- openFile "./config/highscore.txt" ReadWriteMode
+                                  score <- readHighscore f
+                                  if (points (player g) > score)
+                                  then do _ <- hSeek f AbsoluteSeek 0 
+                                          hPutStr f (show (highscore g))
+                                          hClose f
+                                          return g
+                                  else do hClose f
+                                          return g
+                          else return g
 
 stringToGameState s
   | s == "Running" = Just Running
