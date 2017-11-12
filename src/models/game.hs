@@ -75,9 +75,7 @@ writeHighscore game = do g <- game
                                   hPutStr inh (show (highscore g))
                                   hClose inh
                                   return g
-                          else do _ <- hSeek inh AbsoluteSeek 0 
-                                  hPutStr inh (show t)
-                                  hClose inh
+                          else do hClose inh
                                   return g
 
 stringToGameState s
