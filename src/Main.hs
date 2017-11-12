@@ -213,8 +213,8 @@ livingPeople game = filter (\x -> personVelocity x == 1) people'
 killPerson :: GTA -> GTA
 killPerson game = game { people = newPeople }
   where newPeople        = take deadPersonIndex (people game) ++ drop (1 + deadPersonIndex) (people game) ++ [newPerson]
-        newPerson        = person { personPosition = (personPosition person), personSprite = sprite, personDirection = North, personVelocity = 0}
-        sprite           = Sprite { spriteType = "person2", spriteState =  0 }
+        newPerson        = person { personPosition = (personPosition person), personSprite = sprite', personDirection = North, personVelocity = 0}
+        sprite'          = Sprite { spriteType = (spriteType (personSprite person)), spriteState =  0 }
         deadPersonIndex' = (elemIndex True (concatMap close' (people game)))
         deadPersonIndex  = fromJust deadPersonIndex'
         person           = (people game) !! deadPersonIndex
