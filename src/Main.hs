@@ -87,13 +87,13 @@ mainScreen :: IO Picture
 mainScreen = do image <- loadBMP "./sprites/logo.bmp"
                 (x, y) <- getScreenSize
                 let i = translate 0 (fromIntegral y / 4) $ image
-                let keyInfo = [text' (0, 120 ) "S: Start game",
-                               text' (0, 80  ) "P: Pause game",
-                               text' (0, 40  ) "R: Restart level",
-                               text' (0, 0   ) "C: Enter/exit nearby car",
-                               text' (0, -40 ) "Arrow keys: movement",
-                               text' (0, -100) "Collect all coins before the timer runs out,",
-                               text' (0, -140) "but watch out, hostile cars will drive you over!"]
+                let keyInfo = [text' (0, 80 ) "S: Start game",
+                               text' (0, 40  ) "P: Pause game",
+                               text' (0, 0  ) "R: Restart level",
+                               text' (0, -40   ) "C: Enter/exit nearby car",
+                               text' (0, -80 ) "Arrow keys: movement",
+                               text' (0, -140) "Collect all coins before the timer runs out,",
+                               text' (0, -180) "but watch out, hostile cars will drive you over!"]
                 return (pictures ([i] ++ [(translate (-385) 0 (pictures keyInfo))]))
 
 text' :: (Float, Float) -> String -> Picture
