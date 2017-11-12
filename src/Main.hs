@@ -151,7 +151,7 @@ timeUp game | (timeLeft game - elapsedTime game) <= 1 = game {gameState = GameOv
 
 enterOrLeaveCar :: GTA -> IO GTA
 enterOrLeaveCar game | playerState (player game) == Walking = return (enterCar game)
-                     | otherwise                                 = return (leaveCar game)
+                     | otherwise                            = return (leaveCar game)
 
 changeGameState :: Char -> GTA -> IO GTA
 changeGameState c game | c == 's'  = case gameState game of

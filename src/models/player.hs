@@ -15,7 +15,6 @@ import Models.Car
 import Models.Person
 import Models.Position
 
-
 data Player = Player
   { playerPosition  :: Position,
     keys            :: Keys,
@@ -103,8 +102,10 @@ playerToCar :: Player -> Car -> Player
 playerToCar player car =
   player {playerWidth = w', playerHeight = h', playerSprite = s', playerState = Driving, playerDirection = d', playerPosition = p'}
     where
-      w' = width car
-      h' = height car
+      w' | d' == North || d' == South = width car
+         | otherwise                  = height car
+      h' | d' == North || d' == South = height car
+         | otherwise                  = width car
       s' = carSprite car
       d' = getDir car
       p' = getPos car
