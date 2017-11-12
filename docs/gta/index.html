@@ -30,17 +30,25 @@ window.onload = function () {pageLoad();};
         <h1>gta</h1>
         <div class="doc">
           <p>GTA implemented in Haskell</p>
-	        <p>Grand Theft Auto I (originally released in 1997).</p>
+	        <p>Grand Theft Auto I (originally released in 1997, for MS-DOS/Windows).</p>
 
           <p>You'll spawn in a beautifull city where you can walk and drive around. Next to you, other people are doing theire daily stuff and will move along you. Drivers are busy people, so watch out, they are able to kill you when they drive over you. It's your mission to find all the coins that are around to earn as much cash as possible. Cash can be earned as well by killing people by driving over them.</p>
+
+          <p>When you start the game, a begin-screen will pop up. This should explain the game once again. Everything is controlled by keys;
+
+          S: Start game
+          P: Pause game (brings you to the start-screen again)
+          R: Restart level (resets player state, scores and location)
+          C: Enter/exit nearby car (you need to be next to a car to enter it)
+          Arrow keys: movement (controls your player in 4 directions)
 
           <p>Find all the coins before you're out of time, otherwise you're wasted as well. Indicators of the amount of cash you already earned, coins found, and time that's left can be found in the top of your screen while playing.</p>
 
         </div>
+
+				<p>Our documentation should explain itself and our code. The documentation is devided in a few parts, as is our code. Each of them has a little description in it with additional information.</b>
       </div>
-      <div id="module-list">
-        <p class="caption">Signatures</p>
-      </div>
+
       <div id="module-list">
         <p class="caption">Modules</p>
         <ul>
@@ -96,6 +104,44 @@ window.onload = function () {pageLoad();};
           </li>
         </ul>
       </div>
+
+      <div id="module-list">
+        <p class="caption">Minimal requirements</p>
+        <div class="doc">
+          <h4><b>Player</b></h4>
+          <p>The player can move using the arrow keys (left, right, up, down) and enter/leave cars. While being in a car you're able to kill people by driving over them and earn cash with it.</p>
+
+          <h4><b>Enemies</b></h4>
+          The cars are your enemies, they'll drive over you when they can while you're looking for all the coins. Another enemy of yours; time. You should find all the coins before you ran out of time.</p>
+
+          <h4><b>Randomness</b></h4>
+          <p>People and cars walk and drive around randomly; when a person/car needs to choose if it should go left, right or continue in its direction this is being done randomly.</p>
+
+          <h4><b>Animation</b></h4>
+          <p>Player, people, cars and coins all show their movements and states. The player and people walk, turn, and are able to die. Cars turn as well.</p>
+
+          <h4><b>Pause</b></h4>
+          <p>The player can pause the game using the P-key, which will bring you back to the startscreen.</p>
+
+          <h4><b>Interaction with the file system</b></h4>
+          <p>The world/city is loaded from a json file (configs/world.json). All the sprites are listed in a config file as well (config/sprites.txt), and the highscore is saved in another config file.</p>
+        </div>
+      </div>
+
+     <div id="module-list">
+        <p class="caption">Optional requirements</p>
+        <div class="doc">
+          <h4><b>Custom levels</b></h4>
+          <p>Custom levels can be made by replacing the 'config/world.json' file with another JSON. These JSON's exist out of a few lists of objects e.g. cars, people and blocks. Each of these should furfill the required attributes as they are defined in the data-types. Good to know is that we've made our version of the in Adobe Illustrator and exported to JSON (https://github.com/bronzehedwick/Adobe-Export-Scripts). This one is converted to the exact JSON we want by a little script (ruby, recalc.rb). The AI-file of our world can be found in the config-files as well.</p>
+
+					<h4><b>Complex graphics.</b></h4>
+					<p>Graphics are loaded with the file-system from a list of sprites (configurable).</p>
+
+					<h4>Use JSON to save information.</h4>
+					<p>JSON is used for the format of our world as described above. It's implemented with the Aeson library.</p>
+        </div>
+      </div>
+
     </div>
     <div id="footer">
       <p>Produced by
