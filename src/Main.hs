@@ -79,7 +79,7 @@ render game | gameState game == Paused || gameState game == Init = mainScreen
                                      [(draw images' (player game))] ++
                                        [drawTimer game screenSize] ++
                                          [drawPoints game screenSize] ++
-                                           [translate x (y + 50) $ scale (0.2) (0.2) $ statePicture']))))
+                                           [translate x (y + 50) $ scale 0.2 0.2 $ statePicture']))))
  where Position x y = getPos (player game)
        blocks' game = moveBlocks (blocks game) [Sidewalk, Road, Tree, Building, Coin]
 
@@ -116,7 +116,7 @@ drawPoints game (x, y) = translate (fromIntegral (-topLeftX) + x') (fromIntegral
                                     translate 1000 45 $ color white $ rectangleSolid 2000 160 ]
 
 drawTimer :: GTA -> (Int, Int) -> Picture
-drawTimer game (x, y) = translate (fromIntegral (topLeftX) + x') (fromIntegral topLeftY + y') $ scale 0.05 0.05 $ pictures [rectangle, score]
+drawTimer game (x, y) = translate (fromIntegral topLeftX + x') (fromIntegral topLeftY + y') $ scale 0.05 0.05 $ pictures [rectangle, score]
   where Position x' y' = getPos (player game)
         topLeftX  = (x `div` 5 `div` 2) - 60
         topLeftY  = (y `div` 5 `div` 2) - 8
@@ -139,10 +139,12 @@ update :: Float -> GTA -> IO GTA
 update secs game@Game{player} = do
   rInt <- randomNr
   case gameState game of
-    Dead      -> return game { player = killPlayer player }
-    Running   -> writeHighscore (return (timeUp (updateCoins elapsedTime' (updateTraffic rInt (updatePlayerPosition game { elapsedTime = elapsedTime' + secs })))))
-    Loading   -> loading game
-    _         -> return game
+    Loading  -> loading game
+    Dead     -> return game { player = killPlayer player }
+    GameOver -> return game
+    Paused   -> return game
+    Init     -> return game
+    Running  -> writeHighscore (return (timeUp (updateCoins elapsedTime' (updateTraffic rInt (updatePlayerPosition game { elapsedTime = elapsedTime' + secs })))))
   where elapsedTime' = elapsedTime game
 
 timeUp :: GTA -> GTA
@@ -177,8 +179,8 @@ randomNr = getStdRandom (randomR (0,2))
 updateTraffic :: Int -> GTA -> GTA
 updateTraffic rInt game = updatePeople (people game) rInt $ updateCars (cars game) rInt game
 
-updateCoins :: Float -> GTA -> GTA
-updateCoins rInt game@Game{blocks} = game { blocks = (blocks'' ++ coins') }
+updateCoins :: GTA -> GTA
+updateCoins game@Game{blocks} = game { blocks = (blocks'' ++ coins') }
   where sprite' coin       = Sprite { spriteType = spriteType (blockSprite coin), spriteState = spriteState' coin }
         coins'             = map updateSprite (coins game)
         updateSprite coin' = coin' { blockSprite = sprite' coin' }
@@ -186,7 +188,7 @@ updateCoins rInt game@Game{blocks} = game { blocks = (blocks'' ++ coins') }
         spriteState' coin  | mod' (roundDecimals (elapsedTime game) 3) 0.125 == 0 = nextSprite (blockSprite coin)
                            | otherwise                                            = spriteState (blockSprite coin)
 
--- TODO: PLAYERSTUFF
+-- PLAYER, CAR AND PEOPLE, game(state) related updates
 updatePlayerPosition :: GTA -> GTA
 updatePlayerPosition game@Game{player}
   | canMove 1 player (cars game)         && ((playerState player) == Driving) = game
@@ -257,7 +259,6 @@ updateCars cars rInt game = game { cars = updateCars', gameState = updateGameSta
         updateGameState | elem Dead (map fst update) = Dead
                         | otherwise = gameState game
 
--- TODO: CARSTUFF
 updateCar :: GTA -> Int -> Car -> (GameState, Car)
 updateCar game rInt car@Car{velocity} = case velocity of
   0 -> (Running, car)
@@ -272,7 +273,6 @@ updateCar game rInt car@Car{velocity} = case velocity of
                carIndex = fromJust (elemIndex car (cars game))
                cars'    = take carIndex (cars game) ++ drop (1 + carIndex) (cars game)
 
--- TODO: PERSONstuff
 updatePeople :: [Person] -> Int -> GTA -> GTA
 updatePeople people rInt game = game { people = (map (updatePerson game rInt) people) }
 

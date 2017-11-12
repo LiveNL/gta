@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Main</title>
+    <link href="ocean.css" rel="stylesheet" type="text/css" title="Ocean" />
+    <script src="haddock-util.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+    <script type="text/javascript">
+    //<![CDATA[
+    window.onload = function() { pageLoad(); };
+    //]]>
+    </script>
+</head>
+
+<body>
+    <div id="package-header">
+        <ul class="links" id="page-menu">
+            <li><a href="index.html">Contents</a></li>
+            <li><a href="doc-index.html">Index</a></li>
+        </ul>
+        <p class="caption">gta</p>
+    </div>
+    <div id="content">
+        <div id="module-header">
+            <table class="info">
+                <tr>
+                    <th>Safe Haskell</th>
+                    <td>None</td>
+                </tr>
+                <tr>
+                    <th>Language</th>
+                    <td>Haskell2010</td>
+                </tr>
+            </table>
+            <p class="caption">Main</p>
+        </div>
+        <div id="interface">
+            <h1>Documentation</h1>
+
+            Main' includes all functions to draw and build the game.
+
+            <div class="top">
+                The most important function, main, has a PlayIO function running which triggers everything.
+                <p class="src"><a id="v:main" class="def">main</a> :: <a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/System-IO.html#t:IO">IO</a> () <a href="#v:main" class="selflink">#</a></p>
+            </div>
+            <div class="top">
+                Display mode for the game; fullscreen
+                <p class="src"><a id="v:window" class="def">window</a> :: Display <a href="#v:window" class="selflink">#</a></p>
+            </div>
+            <div class="top">
+                Has initial values for player, time and some scores in it. The rest of the initial game state is loaded from JSON.
+                <p class="src"><a id="v:initialState" class="def">initialState</a> :: <a href="Models-Game.html#t:GTA">GTA</a> <a href="#v:initialState" class="selflink">#</a></p>
+            </div>
+            Key updates:
+            <div class="top">
+                Notices all the key changes and triggers actions.
+                <p class="src"><a id="v:handleKeys" class="def">handleKeys</a> :: Event -&gt; <a href="Models-Game.html#t:GTA">GTA</a> -&gt; <a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/System-IO.html#t:IO">IO</a> <a href="Models-Game.html#t:GTA">GTA</a> <a href="#v:handleKeys" class="selflink">#</a></p>
+            </div>
+            <div class="top">
+                Sets keystates to state, in order to know if a key is being pressed (holded).
+                <p class="src"><a id="v:updateKeyState" class="def">updateKeyState</a> :: (KeyState, KeyState, KeyState, KeyState, <a href="Models-Position.html#t:Direction">Direction</a>) -&gt; <a href="Models-Game.html#t:GTA">GTA</a> -&gt; <a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/System-IO.html#t:IO">IO</a> <a href="Models-Game.html#t:GTA">GTA</a> <a href="#v:updateKeyState" class="selflink">#</a></p>
+            </div>
+            Pictures, rendering etc:
+            <div class="top">
+                Base function from playIO to render the game (picture). Is mostly a list of other pictures, and defines the scal of the game + the focus around the player in the middle of the screen.
+                <p class="src"><a id="v:render" class="def">render</a> :: <a href="Models-Game.html#t:GTA">GTA</a> -&gt; <a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/System-IO.html#t:IO">IO</a> Picture <a href="#v:render" class="selflink">#</a></p>
+            </div>
+            <div class="top">
+                Shows the main (start) screen with information about the game.
+                <p class="src"><a id="v:mainScreen" class="def">mainScreen</a> :: <a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/System-IO.html#t:IO">IO</a> Picture <a href="#v:mainScreen" class="selflink">#</a></p>
+            </div>
+            <div class="top">
+                Function to show texts in the right scale and color.
+                <p class="src"><a id="v:text-39-" class="def">text'</a> :: (<a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/Prelude.html#t:Float">Float</a>, <a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/Prelude.html#t:Float">Float</a>) -&gt; <a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/Data-String.html#t:String">String</a> -&gt; Picture <a href="#v:text-39-" class="selflink">#</a></p>
+            </div>
+            <div class="top">
+                Draws pictures that hold game state information.
+                <p class="src"><a id="v:statePicture" class="def">statePicture</a> :: <a href="Models-Game.html#t:GameState">GameState</a> -&gt; <a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/System-IO.html#t:IO">IO</a> Picture <a href="#v:statePicture" class="selflink">#</a></p>
+            </div>
+            <div class="top">
+                Holds the Picture with points (cash) and objectives in the top of the screen.
+                <p class="src"><a id="v:drawPoints" class="def">drawPoints</a> :: <a href="Models-Game.html#t:GTA">GTA</a> -&gt; (<a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/Data-Int.html#t:Int">Int</a>, <a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/Data-Int.html#t:Int">Int</a>) -&gt; Picture <a href="#v:drawPoints" class="selflink">#</a></p>
+            </div>
+            <div class="top">
+                Creates the timer in the top of the screen.
+                <p class="src"><a id="v:drawTimer" class="def">drawTimer</a> :: <a href="Models-Game.html#t:GTA">GTA</a> -&gt; (<a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/Data-Int.html#t:Int">Int</a>, <a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/Data-Int.html#t:Int">Int</a>) -&gt; Picture <a href="#v:drawTimer" class="selflink">#</a></p>
+            </div>
+            <div class="top">
+                Creates the text next to the timer.
+                <p class="src"><a id="v:timeLeftText" class="def">timeLeftText</a> :: <a href="Models-Game.html#t:GTA">GTA</a> -&gt; Picture <a href="#v:timeLeftText" class="selflink">#</a></p>
+            </div>
+            Game updates:
+            <div class="top">
+                Base update function for game changes. The Running state triggers a few other update functions.
+                <p class="src"><a id="v:update" class="def">update</a> :: <a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/Prelude.html#t:Float">Float</a> -&gt; <a href="Models-Game.html#t:GTA">GTA</a> -&gt; <a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/System-IO.html#t:IO">IO</a> <a href="Models-Game.html#t:GTA">GTA</a> <a href="#v:update" class="selflink">#</a></p>
+            </div>
+            <div class="top">
+                Checks if there's time left.
+                <p class="src"><a id="v:timeUp" class="def">timeUp</a> :: <a href="Models-Game.html#t:GTA">GTA</a> -&gt; <a href="Models-Game.html#t:GTA">GTA</a> <a href="#v:timeUp" class="selflink">#</a></p>
+            </div>
+            <div class="top">
+                Decides if a car can be entered or should be left.
+                <p class="src"><a id="v:enterOrLeaveCar" class="def">enterOrLeaveCar</a> :: <a href="Models-Game.html#t:GTA">GTA</a> -&gt; <a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/System-IO.html#t:IO">IO</a> <a href="Models-Game.html#t:GTA">GTA</a> <a href="#v:enterOrLeaveCar" class="selflink">#</a></p>
+            </div>
+            <div class="top">
+                Varies gamestates, based on current gamestates.
+                <p class="src"><a id="v:changeGameState" class="def">changeGameState</a> :: <a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/Data-Char.html#t:Char">Char</a> -&gt; <a href="Models-Game.html#t:GTA">GTA</a> -&gt; <a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/System-IO.html#t:IO">IO</a> <a href="Models-Game.html#t:GTA">GTA</a> <a href="#v:changeGameState" class="selflink">#</a></p>
+            </div>
+            <div class="top">
+                State that's being used on startup to set everything in place.
+                <p class="src"><a id="v:loading" class="def">loading</a> :: <a href="Models-Game.html#t:GTA">GTA</a> -&gt; <a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/System-IO.html#t:IO">IO</a> <a href="Models-Game.html#t:GTA">GTA</a> <a href="#v:loading" class="selflink">#</a></p>
+            </div>
+            <div class="top">
+                Generates a random int value, used in several decisions.
+                <p class="src"><a id="v:randomNr" class="def">randomNr</a> :: <a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/System-IO.html#t:IO">IO</a> <a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/Data-Int.html#t:Int">Int</a> <a href="#v:randomNr" class="selflink">#</a></p>
+            </div>
+            <div class="top">
+                Triggers all people and car updates (movements).
+                <p class="src"><a id="v:updateTraffic" class="def">updateTraffic</a> :: <a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/Data-Int.html#t:Int">Int</a> -&gt; <a href="Models-Game.html#t:GTA">GTA</a> -&gt; <a href="Models-Game.html#t:GTA">GTA</a> <a href="#v:updateTraffic" class="selflink">#</a></p>
+            </div>
+            <div class="top">
+                Updates coins if a coin is reached.
+                <p class="src"><a id="v:updateCoins" class="def">updateCoins</a> :: <a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/Prelude.html#t:Float">Float</a> -&gt; <a href="Models-Game.html#t:GTA">GTA</a> -&gt; <a href="Models-Game.html#t:GTA">GTA</a> <a href="#v:updateCoins" class="selflink">#</a></p>
+            </div>
+            Player, car and people, game(state) related updates
+            <div class="top">
+              Triggers
+                <p class="src"><a id="v:updatePlayerPosition" class="def">updatePlayerPosition</a> :: <a href="Models-Game.html#t:GTA">GTA</a> -&gt; <a href="Models-Game.html#t:GTA">GTA</a> <a href="#v:updatePlayerPosition" class="selflink">#</a></p>
+            </div>
+            Gives a subset of all blocks; all walkable/drivable for the player.
+            <div class="top">
+                <p class="src"><a id="v:blocks-39-" class="def">blocks'</a> :: <a href="Models-Game.html#t:GTA">GTA</a> -&gt; [<a href="Models-Block.html#t:Block">Block</a>] <a href="#v:blocks-39-" class="selflink">#</a></p>
+            </div>
+            <div class="top">
+                <p class="src"><a id="v:coins" class="def">coins</a> :: <a href="Models-Game.html#t:GTA">GTA</a> -&gt; [<a href="Models-Block.html#t:Block">Block</a>] <a href="#v:coins" class="selflink">#</a></p>
+            </div>
+            <div class="top">
+                <p class="src"><a id="v:livingPeople" class="def">livingPeople</a> :: <a href="Models-Game.html#t:GTA">GTA</a> -&gt; [<a href="Models-Person.html#t:Person">Person</a>] <a href="#v:livingPeople" class="selflink">#</a></p>
+            </div>
+            <div class="top">
+                <p class="src"><a id="v:killPerson" class="def">killPerson</a> :: <a href="Models-Game.html#t:GTA">GTA</a> -&gt; <a href="Models-Game.html#t:GTA">GTA</a> <a href="#v:killPerson" class="selflink">#</a></p>
+            </div>
+            <div class="top">
+                <p class="src"><a id="v:removeCoin" class="def">removeCoin</a> :: <a href="Models-Game.html#t:GTA">GTA</a> -&gt; <a href="Models-Game.html#t:GTA">GTA</a> <a href="#v:removeCoin" class="selflink">#</a></p>
+            </div>
+            <div class="top">
+                <p class="src"><a id="v:leaveCar" class="def">leaveCar</a> :: <a href="Models-Game.html#t:GTA">GTA</a> -&gt; <a href="Models-Game.html#t:GTA">GTA</a> <a href="#v:leaveCar" class="selflink">#</a></p>
+            </div>
+            <div class="top">
+                <p class="src"><a id="v:enterCar" class="def">enterCar</a> :: <a href="Models-Game.html#t:GTA">GTA</a> -&gt; <a href="Models-Game.html#t:GTA">GTA</a> <a href="#v:enterCar" class="selflink">#</a></p>
+            </div>
+            <div class="top">
+                <p class="src"><a id="v:updateCars" class="def">updateCars</a> :: [<a href="Models-Car.html#t:Car">Car</a>] -&gt; <a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/Data-Int.html#t:Int">Int</a> -&gt; <a href="Models-Game.html#t:GTA">GTA</a> -&gt; <a href="Models-Game.html#t:GTA">GTA</a> <a href="#v:updateCars" class="selflink">#</a></p>
+            </div>
+            <div class="top">
+                <p class="src"><a id="v:updateCar" class="def">updateCar</a> :: <a href="Models-Game.html#t:GTA">GTA</a> -&gt; <a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/Data-Int.html#t:Int">Int</a> -&gt; <a href="Models-Car.html#t:Car">Car</a> -&gt; (<a href="Models-Game.html#t:GameState">GameState</a>, <a href="Models-Car.html#t:Car">Car</a>) <a href="#v:updateCar" class="selflink">#</a></p>
+            </div>
+            <div class="top">
+                <p class="src"><a id="v:updatePeople" class="def">updatePeople</a> :: [<a href="Models-Person.html#t:Person">Person</a>] -&gt; <a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/Data-Int.html#t:Int">Int</a> -&gt; <a href="Models-Game.html#t:GTA">GTA</a> -&gt; <a href="Models-Game.html#t:GTA">GTA</a> <a href="#v:updatePeople" class="selflink">#</a></p>
+            </div>
+            <div class="top">
+                <p class="src"><a id="v:updatePerson" class="def">updatePerson</a> :: <a href="Models-Game.html#t:GTA">GTA</a> -&gt; <a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/Data-Int.html#t:Int">Int</a> -&gt; <a href="Models-Person.html#t:Person">Person</a> -&gt; <a href="Models-Person.html#t:Person">Person</a> <a href="#v:updatePerson" class="selflink">#</a></p>
+            </div>
+            <div class="top">
+                <p class="src"><a id="v:close" class="def">close</a> :: (<a href="Models-Position.html#t:Movable">Movable</a> a, <a href="Models-Position.html#t:Movable">Movable</a> b) =&gt; a -&gt; [b] -&gt; [<a href="file:///usr/local/Cellar/ghc/8.2.1/share/doc/ghc-8.2.1/html/libraries/base-4.10.0.0/Data-Bool.html#t:Bool">Bool</a>] <a href="#v:close" class="selflink">#</a></p>
+            </div>
+        </div>
+    </div>
+    <div id="footer">
+        <p>Produced by <a href="http://www.haskell.org/haddock/">Haddock</a> version 2.18.1</p>
+    </div>
+</body>
+
+</html>
