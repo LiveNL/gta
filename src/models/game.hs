@@ -66,17 +66,18 @@ readHighscore x = do ineof <- hIsEOF x
                                       return (read r :: Int)
 
 writeHighscore :: IO GTA -> IO GTA
-writeHighscore game = do g <- game
-                         inh <- openFile "./config/highscore.txt" ReadWriteMode
-                         t <- readHighscore inh
-
-                         if ((points) (player g) > t && mod' (roundDecimals (elapsedTime g) 2) 2.5 == 0)
-                          then do _ <- hSeek inh AbsoluteSeek 0 
-                                  hPutStr inh (show (highscore g))
-                                  hClose inh
-                                  return g
-                          else do hClose inh
-                                  return g
+writeHighscore game = do g     <- game
+                         if (mod' (roundDecimals (elapsedTime g) 2) 2.5 == 0)
+                          then do f     <- openFile "./config/highscore.txt" ReadWriteMode
+                                  score <- readHighscore f
+                                  if (points (player g) > score)
+                                  then do _ <- hSeek f AbsoluteSeek 0 
+                                          hPutStr f (show (highscore g))
+                                          hClose f
+                                          return g
+                                  else do hClose f
+                                          return g
+                          else return g
 
 stringToGameState s
   | s == "Running" = Just Running
