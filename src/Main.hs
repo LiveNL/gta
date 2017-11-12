@@ -144,7 +144,7 @@ update secs game@Game{player} = do
     GameOver -> return game
     Paused   -> return game
     Init     -> return game
-    Running  -> writeJSON ( return ( timeUp (updateCoins elapsedTime' (updateTraffic rInt (updatePlayerPosition game { elapsedTime = elapsedTime' + secs })))))
+    Running  -> writeHighscore ( return ( timeUp (updateCoins (updateTraffic rInt (updatePlayerPosition game { elapsedTime = elapsedTime' + secs })))))
   where elapsedTime' = elapsedTime game
 
 timeUp :: GTA -> GTA
