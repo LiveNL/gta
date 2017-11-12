@@ -1,7 +1,7 @@
 require 'multi_json'
 
 #file = File.open('config/realworld.json')
-file = File.open('images/world.ai.txt')
+file = File.open('world.ai.txt')
 json = MultiJson.load file, symbolize_keys: true
 
 all = json[:children]
@@ -62,4 +62,4 @@ newJson[:carsJSON] = cars_json
 newJson[:highscoreJSON] = 0
 
 n = MultiJson.dump newJson, pretty: true
-File.open("config/world.json", 'w') { |file| file.write(n) }
+File.open("world.json", 'w') { |file| file.write(n) }
