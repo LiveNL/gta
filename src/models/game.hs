@@ -70,7 +70,7 @@ writeHighscore game = do g <- game
                          inh <- openFile "./config/highscore.txt" ReadWriteMode
                          t <- readHighscore inh
 
-                         if ((points) (player g) >= (highscore g) && mod' (roundDecimals (elapsedTime g) 2) 2.5 == 0)
+                         if ((points) (player g) > t && mod' (roundDecimals (elapsedTime g) 2) 2.5 == 0)
                           then do _ <- hSeek inh AbsoluteSeek 0 
                                   hPutStr inh (show (highscore g))
                                   hClose inh
